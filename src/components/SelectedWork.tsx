@@ -3,40 +3,61 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { SectionHeadline } from "./SectionHeadline";
-import { selectedWork, type WorkLayout } from "@/lib/content";
+import { selectedWork } from "@/lib/content";
 
-const layoutStyles: Record<
-  WorkLayout,
-  { wrapper: string; aspect: string; container?: string }
-> = {
-  full: {
-    wrapper: "w-full",
-    aspect: "aspect-[16/9] md:aspect-[21/9]",
-  },
-  "offset-right": {
-    wrapper: "ml-auto w-full md:w-[78%]",
-    aspect: "aspect-[4/3]",
-  },
-  "offset-left": {
-    wrapper: "mr-auto w-full md:w-[65%]",
-    aspect: "aspect-[3/4] md:aspect-[4/5]",
-  },
-  wide: {
-    wrapper: "w-full -mx-6 md:-mx-10 md:w-[calc(100%+5rem)]",
-    aspect: "aspect-[2/1]",
-  },
-  tall: {
-    wrapper: "ml-auto w-full md:w-[45%]",
-    aspect: "aspect-[3/5]",
-  },
-  inset: {
-    wrapper: "mx-auto w-full md:w-[55%]",
-    aspect: "aspect-square",
-    container: "md:-mt-24",
-  },
-};
+function WorkCopy({
+  project,
+  reversed,
+}: {
+  project: (typeof selectedWork)[0];
+  reversed: boolean;
+}) {
+  return (
+    <div
+      className={`work-copy flex flex-col justify-center ${
+        reversed ? "md:items-end md:text-right" : ""
+      }`}
+    >
+      <span className="font-sans text-[10px] tracking-wider text-snow/35">
+        {project.id} / {String(selectedWork.length).padStart(2, "0")}
+      </span>
+      <span className="mt-4 font-sans text-[10px] uppercase tracking-[0.2em] text-burgundy">
+        [{project.code}] {project.category}
+      </span>
+      <h3 className="display-heading mt-3 text-[clamp(1.75rem,3.5vw,3rem)] leading-[0.95] text-snow">
+        {project.title}
+      </h3>
+      <p className="mt-5 max-w-md font-sans text-sm leading-relaxed tracking-wide text-snow/55 md:text-base">
+        {project.description}
+      </p>
+      <span
+        className={`mt-8 font-sans text-[11px] tracking-wider text-snow/30 ${
+          reversed ? "md:self-end" : ""
+        }`}
+      >
+        {project.year}
+      </span>
+    </div>
+  );
+}
 
-function WorkPiece({
+function WorkImage({ project }: { project: (typeof selectedWork)[0] }) {
+  return (
+    <div className="work-image relative aspect-[4/3] overflow-hidden bg-ink/40">
+      <Image
+        src={project.image}
+        alt={project.imageAlt}
+        fill
+        className="object-cover transition-transform duration-[1.8s] ease-luxury group-hover:scale-[1.03]"
+        sizes="(max-width: 768px) 100vw, 50vw"
+      />
+      <div className="work-light-leak pointer-events-none absolute inset-0" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent" />
+    </div>
+  );
+}
+
+function ArchiveRow({
   project,
   index,
 }: {
@@ -44,16 +65,13 @@ function WorkPiece({
   index: number;
 }) {
   const ref = useRef<HTMLElement>(null);
-  const imageInnerRef = useRef<HTMLDivElement>(null);
-  const styles = layoutStyles[project.layout];
-  const parallaxY = index % 2 === 0 ? -48 : 48;
+  const reversed = index % 2 === 1;
 
   useEffect(() => {
     const el = ref.current;
-    const imageInner = imageInnerRef.current;
     if (!el) return;
 
-    const cleanups: Array<() => void> = [];
+    let enterTrigger: { kill: () => void } | null = null;
     let cancelled = false;
 
     async function animate() {
@@ -62,96 +80,60 @@ function WorkPiece({
       gsap.registerPlugin(ScrollTrigger);
       if (cancelled || !el) return;
 
-      const imgWrap = el.querySelector(".work-image");
-      const meta = el.querySelector(".work-meta");
+      const image = el.querySelector(".work-image");
+      const copy = el.querySelector(".work-copy");
 
-      const enterTl = gsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: el,
-          start: "top 90%",
+          start: "top 82%",
           toggleActions: "play none none none",
         },
       });
 
-      if (imgWrap) {
-        enterTl.fromTo(
-          imgWrap,
-          { clipPath: "inset(100% 0 0 0)", scale: 1.12 },
+      if (image) {
+        tl.fromTo(
+          image,
+          { clipPath: "inset(100% 0 0 0)", scale: 1.06 },
           {
             clipPath: "inset(0% 0 0 0)",
             scale: 1,
-            duration: 1.4,
+            duration: 1.2,
             ease: "power3.inOut",
           }
         );
       }
-      if (meta) {
-        enterTl.fromTo(
-          meta,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
-          "-=0.6"
+      if (copy) {
+        tl.fromTo(
+          copy,
+          { y: 36, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.9, ease: "power2.out" },
+          "-=0.65"
         );
       }
 
-      cleanups.push(() => enterTl.scrollTrigger?.kill());
-
-      if (imageInner) {
-        const parallax = ScrollTrigger.create({
-          trigger: el,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1.8,
-          animation: gsap.fromTo(
-            imageInner,
-            { y: -parallaxY * 0.4 },
-            { y: parallaxY * 0.4, ease: "none" }
-          ),
-        });
-        cleanups.push(() => parallax.kill());
-      }
+      enterTrigger = tl.scrollTrigger ?? null;
     }
 
     animate();
     return () => {
       cancelled = true;
-      cleanups.forEach((fn) => fn());
+      enterTrigger?.kill();
     };
-  }, [parallaxY]);
+  }, []);
 
   return (
     <article
       ref={ref}
-      className={`group cursor-hover cursor-pointer ${styles.container ?? ""} ${index % 2 === 1 ? "md:pl-8" : "md:pr-8"}`}
+      data-work-index={index}
+      className="work-row group cursor-hover flex min-h-[88svh] items-center py-16 md:min-h-[92svh] md:py-24"
     >
-      <div className={styles.wrapper}>
-        <div
-          className={`work-image relative overflow-hidden bg-ink/10 ${styles.aspect}`}
-        >
-          <div ref={imageInnerRef} className="absolute inset-0 scale-110">
-            <Image
-              src={project.image}
-              alt={project.imageAlt}
-              fill
-              className="object-cover transition-transform duration-[1.8s] ease-luxury group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 70vw"
-            />
-          </div>
-          <div className="absolute inset-0 z-10 bg-burgundy/0 transition-colors duration-700 group-hover:bg-burgundy/10" />
+      <div className="mx-auto grid w-full max-w-[1400px] grid-cols-1 items-center gap-10 px-6 md:grid-cols-2 md:gap-16 md:px-10 lg:gap-24">
+        <div className={reversed ? "md:order-2" : "md:order-1"}>
+          <WorkImage project={project} />
         </div>
-
-        <div className="work-meta mt-5 flex items-start justify-between gap-4">
-          <div>
-            <span className="work-code inline-block origin-left font-sans text-[10px] tracking-wider text-ink/30 transition-all duration-500 ease-luxury group-hover:scale-105 group-hover:text-burgundy group-hover:tracking-widest">
-              [{project.code}] {project.category}
-            </span>
-            <h3 className="display-heading mt-1 text-2xl text-ink transition-colors duration-500 group-hover:text-burgundy md:text-3xl">
-              {project.title}
-            </h3>
-          </div>
-          <span className="font-sans text-[11px] tracking-wider text-ink/30 transition-colors duration-500 group-hover:text-burgundy">
-            {project.year}
-          </span>
+        <div className={reversed ? "md:order-1" : "md:order-2"}>
+          <WorkCopy project={project} reversed={reversed} />
         </div>
       </div>
     </article>
@@ -159,95 +141,149 @@ function WorkPiece({
 }
 
 export function SelectedWork() {
-  const stripRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const atmosphereRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = stripRef.current;
-    if (!el) return;
+    const section = sectionRef.current;
+    const atmosphere = atmosphereRef.current;
+    if (!section || !atmosphere) return;
 
-    let trigger: { kill: () => void } | null = null;
+    const cleanups: Array<() => void> = [];
     let cancelled = false;
+    let activeBg = 0;
 
     async function animate() {
       const { default: gsap } = await import("gsap");
       const { ScrollTrigger } = await import("gsap/ScrollTrigger");
       gsap.registerPlugin(ScrollTrigger);
-      if (cancelled || !el) return;
+      if (cancelled || !section || !atmosphere) return;
 
-      const track = el.querySelector(".horizontal-track");
-      if (!track) return;
+      const bgLayers = gsap.utils.toArray<HTMLElement>(
+        atmosphere.querySelectorAll(".work-bg")
+      );
+      const rows = gsap.utils.toArray<HTMLElement>(
+        section.querySelectorAll(".work-row")
+      );
 
-      trigger = ScrollTrigger.create({
-        trigger: el,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1.2,
-        animation: gsap.to(track, {
-          x: "-30%",
-          ease: "none",
-        }),
+      gsap.set(bgLayers, { opacity: 0, scale: 1.08 });
+      if (bgLayers[0]) gsap.set(bgLayers[0], { opacity: 1, scale: 1 });
+
+      const fadeTo = (index: number) => {
+        if (index === activeBg || !bgLayers[index]) return;
+        const prev = activeBg;
+        activeBg = index;
+        gsap.to(bgLayers[prev], {
+          opacity: 0,
+          scale: 1.06,
+          duration: 0.9,
+          ease: "power2.inOut",
+        });
+        gsap.to(bgLayers[index], {
+          opacity: 1,
+          scale: 1,
+          duration: 0.9,
+          ease: "power2.inOut",
+        });
+      };
+
+      rows.forEach((row, index) => {
+        const trigger = ScrollTrigger.create({
+          trigger: row,
+          start: "top 55%",
+          end: "bottom 45%",
+          onEnter: () => fadeTo(index),
+          onEnterBack: () => fadeTo(index),
+        });
+        cleanups.push(() => trigger.kill());
+      });
+
+      const intro = ScrollTrigger.create({
+        trigger: section,
+        start: "top 85%",
+        toggleActions: "play none none none",
+        onEnter: () => {
+          gsap.fromTo(
+            atmosphere,
+            { opacity: 0 },
+            { opacity: 1, duration: 1.1, ease: "power2.out" }
+          );
+        },
+      });
+      cleanups.push(() => intro.kill());
+
+      bgLayers.forEach((layer, index) => {
+        const drift = ScrollTrigger.create({
+          trigger: section,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 2,
+          animation: gsap.fromTo(
+            layer.querySelector(".work-bg-inner"),
+            { y: -20 - index * 4 },
+            { y: 20 + index * 4, ease: "none" }
+          ),
+        });
+        cleanups.push(() => drift.kill());
       });
     }
 
     animate();
     return () => {
       cancelled = true;
-      trigger?.kill();
+      cleanups.forEach((fn) => fn());
     };
   }, []);
 
   return (
-    <section id="work" className="relative symphony-snow py-32 md:py-48">
-      <div className="mx-auto mb-20 max-w-[1400px] px-6 md:px-10">
-        <p className="section-label-light">Selected Work</p>
-        <SectionHeadline className="display-heading mt-4 text-[clamp(2rem,5vw,4rem)] text-burgundy">
-          Stories in motion
-        </SectionHeadline>
-      </div>
-
-      <div className="mx-auto max-w-[1400px] space-y-16 px-6 md:space-y-24 md:px-10">
-        {selectedWork.slice(0, 4).map((project, index) => (
-          <WorkPiece key={project.id} project={project} index={index} />
-        ))}
-      </div>
-
-      <div ref={stripRef} className="relative mt-32 overflow-hidden py-8">
-        <div className="horizontal-track flex gap-6 px-6 md:gap-10 md:px-10">
-          {selectedWork.slice(4).map((project) => (
+    <section
+      id="work"
+      ref={sectionRef}
+      className="relative scroll-mt-[var(--nav-height)] overflow-hidden symphony-void"
+    >
+      {/* Layer 2 — sticky symphony atmosphere */}
+      <div
+        ref={atmosphereRef}
+        className="pointer-events-none absolute inset-0 opacity-0"
+        aria-hidden="true"
+      >
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          {selectedWork.map((project) => (
             <div
-              key={project.id}
-              className="cursor-hover relative h-[280px] w-[220px] shrink-0 overflow-hidden md:h-[360px] md:w-[280px]"
+              key={`bg-${project.id}`}
+              className="work-bg absolute inset-0 will-change-transform"
             >
-              <Image
-                src={project.image}
-                alt={project.imageAlt}
-                fill
-                className="object-cover"
-                sizes="280px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-burgundy/20 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <span className="font-sans text-[9px] uppercase tracking-wider text-snow/50">
-                  [{project.code}]
-                </span>
-                <p className="display-heading text-lg text-snow">{project.title}</p>
+              <div className="work-bg-inner absolute inset-0 scale-110">
+                <Image
+                  src={project.image}
+                  alt=""
+                  fill
+                  className="object-cover blur-[72px] saturate-[1.15]"
+                  sizes="100vw"
+                />
               </div>
+              <div className="work-symphony-wash absolute inset-0" />
             </div>
           ))}
-          {selectedWork.slice(4).map((project) => (
-            <div
-              key={`dup-${project.id}`}
-              className="relative h-[280px] w-[220px] shrink-0 overflow-hidden md:h-[360px] md:w-[280px]"
-              aria-hidden="true"
-            >
-              <Image
-                src={project.image}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="280px"
-              />
-            </div>
+        </div>
+      </div>
+
+      {/* Layer 1 — archive content */}
+      <div className="relative z-10 pt-[var(--nav-height)]">
+        <div className="mx-auto max-w-[1400px] px-6 pb-8 pt-16 md:px-10 md:pt-24 md:pb-12">
+          <p className="section-label">Selected Work</p>
+          <SectionHeadline className="display-heading mt-4 max-w-3xl text-[clamp(2rem,5vw,4rem)] text-snow">
+            Stories in motion
+          </SectionHeadline>
+          <p className="mt-6 max-w-lg font-sans text-sm tracking-wide text-snow/45 md:text-base">
+            A curated archive — six narratives told through film, brand, and
+            digital craft.
+          </p>
+        </div>
+
+        <div className="border-t border-symphony">
+          {selectedWork.map((project, index) => (
+            <ArchiveRow key={project.id} project={project} index={index} />
           ))}
         </div>
       </div>

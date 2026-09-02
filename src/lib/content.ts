@@ -147,14 +147,6 @@ export const approach = [
   },
 ];
 
-export type WorkLayout =
-  | "full"
-  | "offset-right"
-  | "offset-left"
-  | "wide"
-  | "tall"
-  | "inset";
-
 export type WorkItem = {
   id: string;
   title: string;
@@ -163,7 +155,7 @@ export type WorkItem = {
   code: string;
   image: string;
   imageAlt: string;
-  layout: WorkLayout;
+  description: string;
   mediaBrief: string;
 };
 
@@ -174,10 +166,11 @@ export const selectedWork: WorkItem[] = [
     category: "Brand Film · Identity",
     year: "2025",
     code: "FP",
-    layout: "full",
     image:
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600&q=80",
     imageAlt: "Luxury interior with warm ambient lighting",
+    description:
+      "Heritage reimagined as cinema — identity and atmosphere before message.",
     mediaBrief: "Dark luxury interior — marble, warm gold light",
   },
   {
@@ -186,10 +179,11 @@ export const selectedWork: WorkItem[] = [
     category: "Employer Branding · Film",
     year: "2024",
     code: "HA",
-    layout: "offset-right",
     image:
       "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
     imageAlt: "Modern corporate tower at dusk",
+    description:
+      "Employer brand as architecture — scale without coldness, ambition with soul.",
     mediaBrief: "Corporate architecture at golden hour",
   },
   {
@@ -198,10 +192,11 @@ export const selectedWork: WorkItem[] = [
     category: "Marketing · Campaign",
     year: "2024",
     code: "LG",
-    layout: "inset",
     image:
       "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80",
     imageAlt: "Product detail with dramatic lighting",
+    description:
+      "Product as narrative — light, shadow, and restraint in every frame.",
     mediaBrief: "Premium product photography, moody lighting",
   },
   {
@@ -210,10 +205,11 @@ export const selectedWork: WorkItem[] = [
     category: "Documentary · Film",
     year: "2023",
     code: "PA",
-    layout: "offset-left",
     image:
       "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&q=80",
     imageAlt: "City skyline at night",
+    description:
+      "Institutional storytelling with cinematic weight — truth before rhetoric.",
     mediaBrief: "Institutional cityscape, cinematic wide shot",
   },
   {
@@ -222,10 +218,11 @@ export const selectedWork: WorkItem[] = [
     category: "Creative Ad · Digital",
     year: "2024",
     code: "KO",
-    layout: "wide",
     image:
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&q=80",
     imageAlt: "Abstract fluid gradient",
+    description:
+      "Digital craft with editorial edge — motion that feels authored, not automated.",
     mediaBrief: "Abstract dark luxury gradient",
   },
   {
@@ -234,10 +231,11 @@ export const selectedWork: WorkItem[] = [
     category: "Film · 3D Visualization",
     year: "2025",
     code: "RE",
-    layout: "tall",
     image:
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
     imageAlt: "Luxury residence at twilight",
+    description:
+      "Space sold through story — twilight, texture, and the life imagined within.",
     mediaBrief: "Luxury villa twilight cinematic",
   },
 ];
