@@ -113,8 +113,8 @@ export function Capabilities() {
         ref={pinRef}
         className="relative h-screen w-full overflow-hidden bg-ink"
       >
-        {/* Full-bleed backgrounds — extend behind header */}
-        <div className="absolute inset-0" aria-hidden="true">
+        {/* Layer 2 — full-bleed image behind header (edge to edge) */}
+        <div className="absolute inset-0 z-0" aria-hidden="true">
           {capabilities.map((item, index) => (
             <div
               key={item.index}
@@ -131,83 +131,85 @@ export function Capabilities() {
               <div className="capabilities-overlay absolute inset-0" />
             </div>
           ))}
-          <div className="capabilities-nav-fade absolute inset-x-0 top-0 h-[var(--nav-height)]" />
+          <div className="capabilities-nav-fade absolute inset-x-0 top-0 h-[calc(var(--nav-height)+2rem)]" />
         </div>
 
-        {/* Safe zone — readable content sits below header */}
-        <div className="absolute inset-0 z-10 flex flex-col pb-[4.5rem] pt-[var(--nav-height)] md:pb-[5rem]">
-          <div className="shrink-0 px-6 md:px-10">
-            <p className="section-label">Capabilities</p>
-            <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.3em] text-snow/35">
-              What we do
-            </p>
-          </div>
-
-          <div className="relative min-h-0 flex-1">
-            {/* Ghost titles — centered in safe area only */}
-            <div
-              className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden px-6"
-              aria-hidden="true"
-            >
-              {capabilities.map((item) => (
-                <p
-                  key={`ghost-${item.index}`}
-                  className="cap-ghost display-heading absolute max-w-[95vw] text-center text-[clamp(2.5rem,12vw,10rem)] leading-[0.85] text-snow/[0.07]"
-                >
-                  {item.title}
-                </p>
-              ))}
+        {/* Layer 1 — safe zone: all readable content below header height */}
+        <div className="cap-safe-zone absolute inset-0 z-10 overflow-hidden pb-[4.5rem] pt-[calc(var(--nav-height)+1rem)] md:pb-[5rem] md:pt-[calc(var(--nav-height)+1.25rem)]">
+          <div className="flex h-full flex-col">
+            <div className="shrink-0 px-6 md:px-10">
+              <p className="section-label">Capabilities</p>
+              <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.3em] text-snow/35">
+                What we do
+              </p>
             </div>
 
-            {/* Progress rail */}
-            <div
-              className="absolute right-6 top-1/2 hidden -translate-y-1/2 md:right-10 md:block"
-              aria-hidden="true"
-            >
-              <div className="relative h-40 w-px bg-snow/15">
-                <div
-                  className="cap-progress-fill absolute left-0 top-0 w-full origin-top bg-burgundy"
-                  style={{ height: "100%", transform: "scaleY(0)" }}
-                />
-              </div>
-              <div className="mt-4 space-y-3 text-right">
+            <div className="relative mt-6 min-h-0 flex-1 overflow-hidden md:mt-8">
+              {/* Ghost titles — live only in the band below labels */}
+              <div
+                className="pointer-events-none absolute inset-0 overflow-hidden px-6 md:px-10"
+                aria-hidden="true"
+              >
                 {capabilities.map((item) => (
-                  <span
-                    key={`rail-${item.index}`}
-                    className="block font-sans text-[10px] tracking-wider text-snow/25"
+                  <p
+                    key={`ghost-${item.index}`}
+                    className="cap-ghost display-heading absolute inset-x-6 top-1/2 max-w-[88vw] -translate-y-1/2 text-center text-[clamp(2rem,8.5vw,7.5rem)] leading-[0.92] text-snow/[0.07] md:inset-x-10"
                   >
-                    {item.index}
-                  </span>
+                    {item.title}
+                  </p>
                 ))}
               </div>
-            </div>
 
-            {/* Foreground panels */}
-            <div className="absolute inset-x-0 bottom-0 px-6 md:inset-0 md:flex md:items-center md:px-10">
-              <div className="relative w-full min-h-[180px] md:min-h-[240px]">
-                {capabilities.map((item) => (
+              {/* Progress rail */}
+              <div
+                className="absolute right-6 top-1/2 hidden -translate-y-1/2 md:right-10 md:block"
+                aria-hidden="true"
+              >
+                <div className="relative h-40 w-px bg-snow/15">
                   <div
-                    key={item.index}
-                    className="cap-panel absolute inset-0 flex items-end md:items-center"
-                  >
-                    <div className="max-w-2xl pb-2 md:pb-0">
-                      <span className="font-display text-[clamp(3.5rem,11vw,9rem)] leading-none text-snow/15">
-                        {item.index}
-                      </span>
-                      <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-2 md:-mt-6">
-                        <h3 className="display-heading text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.95] text-snow">
-                          {item.title}
-                        </h3>
-                        <span className="font-sans text-[10px] tracking-wider text-burgundy">
-                          [{item.code}]
+                    className="cap-progress-fill absolute left-0 top-0 w-full origin-top bg-burgundy"
+                    style={{ height: "100%", transform: "scaleY(0)" }}
+                  />
+                </div>
+                <div className="mt-4 space-y-3 text-right">
+                  {capabilities.map((item) => (
+                    <span
+                      key={`rail-${item.index}`}
+                      className="block font-sans text-[10px] tracking-wider text-snow/25"
+                    >
+                      {item.index}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Foreground panels */}
+              <div className="absolute inset-x-0 bottom-0 px-6 md:inset-0 md:flex md:items-center md:px-10">
+                <div className="relative w-full min-h-[180px] md:min-h-[240px]">
+                  {capabilities.map((item) => (
+                    <div
+                      key={item.index}
+                      className="cap-panel absolute inset-0 flex items-end md:items-center"
+                    >
+                      <div className="max-w-2xl pb-2 md:pb-0">
+                        <span className="font-display text-[clamp(3.5rem,11vw,9rem)] leading-none text-snow/15">
+                          {item.index}
                         </span>
+                        <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-2 md:-mt-6">
+                          <h3 className="display-heading text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.95] text-snow">
+                            {item.title}
+                          </h3>
+                          <span className="font-sans text-[10px] tracking-wider text-burgundy">
+                            [{item.code}]
+                          </span>
+                        </div>
+                        <p className="mt-5 max-w-lg font-sans text-sm leading-relaxed tracking-wide text-snow/60 md:mt-6 md:text-base">
+                          {item.description}
+                        </p>
                       </div>
-                      <p className="mt-5 max-w-lg font-sans text-sm leading-relaxed tracking-wide text-snow/60 md:mt-6 md:text-base">
-                        {item.description}
-                      </p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -222,7 +224,6 @@ export function Capabilities() {
           />
         </div>
 
-        {/* Screen-reader image descriptions */}
         <div className="sr-only">
           {capabilities.map((item) => (
             <p key={`sr-${item.index}`}>{item.imageAlt}</p>
