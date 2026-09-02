@@ -1,0 +1,233 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --ink: #0c0a0c;
+    --burgundy: #3c050f;
+    --snow: #fbfbfb;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  body {
+    background-color: var(--ink);
+    background-image:
+      radial-gradient(ellipse 100% 80% at 0% 0%, rgba(60, 5, 15, 0.38) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 60% at 100% 100%, rgba(60, 5, 15, 0.22) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(251, 251, 251, 0.025) 0%, transparent 70%);
+    @apply text-snow antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--burgundy);
+    color: var(--snow);
+  }
+}
+
+@layer components {
+  .symphony-void {
+    background-color: var(--ink);
+    background-image:
+      radial-gradient(ellipse 100% 80% at 0% 0%, rgba(60, 5, 15, 0.38) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 60% at 100% 100%, rgba(60, 5, 15, 0.22) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(251, 251, 251, 0.025) 0%, transparent 70%);
+  }
+
+  .symphony-snow {
+    background-color: var(--snow);
+    background-image:
+      radial-gradient(ellipse 90% 70% at 100% 0%, rgba(60, 5, 15, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 70% 50% at 0% 100%, rgba(12, 10, 12, 0.06) 0%, transparent 50%),
+      linear-gradient(180deg, transparent 0%, rgba(60, 5, 15, 0.04) 100%);
+  }
+
+  .symphony-crescendo {
+    background-color: var(--ink);
+    background-image: linear-gradient(
+      120deg,
+      #0c0a0c 0%,
+      #3c050f 28%,
+      #0c0a0c 52%,
+      #3c050f 72%,
+      #fbfbfb 100%
+    );
+  }
+
+  .symphony-bridge {
+    background-image: linear-gradient(
+      180deg,
+      #fbfbfb 0%,
+      rgba(251, 251, 251, 0.85) 15%,
+      rgba(60, 5, 15, 0.35) 45%,
+      #3c050f 55%,
+      #0c0a0c 100%
+    );
+  }
+
+  .symphony-glow {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .symphony-glow::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(
+      ellipse 60% 50% at 50% 50%,
+      rgba(60, 5, 15, 0.15) 0%,
+      transparent 70%
+    );
+    animation: symphonyPulse 8s ease-in-out infinite;
+  }
+
+  .symphony-glow > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-label {
+    @apply font-sans text-[10px] uppercase tracking-wider text-snow/40;
+  }
+
+  .section-label-light {
+    @apply font-sans text-[10px] uppercase tracking-wider text-ink/40;
+  }
+
+  .display-heading {
+    @apply font-display font-normal leading-[0.95] tracking-editorial;
+  }
+
+  .editorial-body {
+    @apply font-sans text-sm leading-relaxed tracking-wide text-snow/65 md:text-base;
+  }
+
+  .editorial-body-light {
+    @apply font-sans text-sm leading-relaxed tracking-wide text-ink/60 md:text-base;
+  }
+
+  .link-underline {
+    @apply relative inline-block after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-luxury hover:after:scale-x-100;
+  }
+
+  .grain-overlay {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  .capabilities-overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(12, 10, 12, 0.5) 0%,
+        rgba(12, 10, 12, 0.28) 45%,
+        rgba(12, 10, 12, 0.72) 100%
+      ),
+      radial-gradient(
+        ellipse 80% 60% at 0% 100%,
+        rgba(60, 5, 15, 0.42) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 55% 45% at 100% 0%,
+        rgba(60, 5, 15, 0.22) 0%,
+        transparent 50%
+      );
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .border-symphony {
+    border-color: rgba(60, 5, 15, 0.2);
+  }
+
+  .border-symphony-light {
+    border-color: rgba(12, 10, 12, 0.1);
+  }
+}
+
+@keyframes symphonyPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+
+@media (pointer: fine) {
+  body {
+    cursor: none;
+  }
+
+  a,
+  button,
+  .cursor-hover {
+    cursor: none;
+  }
+
+  .cursor-dot {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99999;
+    height: 5px;
+    width: 5px;
+    border-radius: 50%;
+    background-color: var(--snow);
+    mix-blend-mode: difference;
+  }
+
+  .cursor-ring {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99998;
+    height: 36px;
+    width: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(251, 251, 251, 0.25);
+    transition: transform 0.35s ease-luxury, border-color 0.35s ease, width 0.35s ease, height 0.35s ease;
+  }
+
+  .cursor-ring--active {
+    height: 52px;
+    width: 52px;
+    border-color: rgba(60, 5, 15, 0.7);
+  }
+}
