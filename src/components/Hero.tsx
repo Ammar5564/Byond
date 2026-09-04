@@ -80,6 +80,7 @@ export function Hero() {
 
   return (
     <section
+      id="hero"
       ref={heroRef}
       className="relative flex h-screen flex-col justify-center overflow-hidden symphony-void symphony-glow"
     >
