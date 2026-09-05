@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MarqueeBand } from "./MarqueeBand";
-import { ScrollScrubText } from "./SmoothScroll";
+import Image from "next/image";
 import { SectionHeadline } from "./SectionHeadline";
-import { editorialQuotes, heroStatements, siteConfig } from "@/lib/content";
+import { editorialQuotes, siteConfig } from "@/lib/content";
 
 const heroLines = [
   { text: "We are all", accent: false },
@@ -14,14 +13,18 @@ const heroLines = [
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
+  const atmosphereRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const marqueeRef = useRef<HTMLDivElement>(null);
+  const secondaryRef = useRef<HTMLDivElement>(null);
+  const cueRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const section = heroRef.current;
+    const atmosphere = atmosphereRef.current;
     const content = contentRef.current;
-    const marquee = marqueeRef.current;
-    if (!section || !content || !marquee) return;
+    const secondary = secondaryRef.current;
+    const cue = cueRef.current;
+    if (!section || !atmosphere || !content || !secondary) return;
 
     let pinTrigger: { kill: () => void } | null = null;
     let cancelled = false;
@@ -32,43 +35,55 @@ export function Hero() {
       gsap.registerPlugin(ScrollTrigger);
       if (cancelled) return;
 
-      gsap.set(marquee, { y: 72, opacity: 0 });
+      const lines = content.querySelectorAll(".hero-line-mask");
+      const intro = content.querySelectorAll(".hero-intro");
 
-      gsap.from(".hero-word-inner", {
-        y: "110%",
-        opacity: 0,
-        duration: 1.1,
-        stagger: 0.055,
-        ease: "power3.out",
-        delay: 0.25,
-      });
+      gsap.set(atmosphere, { opacity: 0, scale: 1.12 });
+      gsap.set(lines, { yPercent: 110 });
+      gsap.set(intro, { opacity: 0, y: 18 });
+      gsap.set(secondary, { opacity: 0, y: 28 });
+      if (cue) gsap.set(cue, { opacity: 0 });
 
-      gsap.from(".hero-tagline", {
-        opacity: 0,
-        y: 20,
-        duration: 0.9,
-        ease: "power3.out",
-        delay: 0.9,
-      });
+      const introTl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      const tl = gsap.timeline({
+      introTl
+        .to(atmosphere, { opacity: 1, scale: 1, duration: 1.6, ease: "power2.out" }, 0)
+        .to(
+          lines,
+          { yPercent: 0, duration: 1.15, stagger: 0.18, ease: "power3.out" },
+          0.35
+        )
+        .to(intro, { opacity: 1, y: 0, duration: 0.85, stagger: 0.12 }, 1.05);
+
+      if (cue) {
+        introTl.to(cue, { opacity: 1, duration: 0.7 }, 1.5);
+      }
+
+      const scrubTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: "top top",
-          end: "+=90%",
+          end: "+=110%",
           pin: true,
-          scrub: 1.4,
+          scrub: 1.25,
           anticipatePin: 1,
         },
       });
 
-      tl.to(
-        content,
-        { y: -80, opacity: 0.12, ease: "none" },
-        0
-      ).to(marquee, { y: 0, opacity: 1, ease: "none" }, 0);
+      scrubTl
+        .to(atmosphere, { scale: 1.08, ease: "none" }, 0)
+        .to(
+          content,
+          { y: -36, opacity: 0.35, ease: "none" },
+          0
+        )
+        .to(secondary, { opacity: 1, y: 0, ease: "none" }, 0.15);
 
-      pinTrigger = tl.scrollTrigger ?? null;
+      if (cue) {
+        scrubTl.to(cue, { opacity: 0, ease: "none" }, 0);
+      }
+
+      pinTrigger = scrubTl.scrollTrigger ?? null;
     }
 
     animate();
@@ -82,60 +97,79 @@ export function Hero() {
     <section
       id="hero"
       ref={heroRef}
-      className="relative flex h-screen flex-col justify-center overflow-hidden symphony-void symphony-glow"
+      className="relative flex h-screen flex-col justify-center overflow-hidden bg-ink"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-burgundy/10 via-transparent to-ink" />
+      {/* Light B — atmospheric still behind type */}
+      <div
+        ref={atmosphereRef}
+        className="pointer-events-none absolute inset-0 will-change-transform"
+        aria-hidden="true"
+      >
+        <div className="absolute inset-0 scale-110">
+          <Image
+            src="/services/video-production.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center opacity-55 blur-[2px] saturate-[0.85]"
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/55 to-ink" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/50 via-transparent to-burgundy/25" />
+        <div className="absolute inset-0 symphony-glow opacity-40" />
+      </div>
 
       <div
         ref={contentRef}
-        className="relative mx-auto w-full max-w-[1400px] px-6 pt-24 md:px-10 md:pt-32"
+        className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pt-[calc(var(--nav-height)+1.5rem)] md:px-10 md:pt-[calc(var(--nav-height)+2.5rem)]"
       >
-        <span className="hero-tagline section-label mb-8 block">
+        <span className="hero-intro section-label mb-8 block">
           {siteConfig.tagline}
         </span>
 
-        <h1 className="display-heading text-[clamp(3rem,11vw,9rem)] leading-[0.88] text-snow">
+        <h1 className="display-heading text-[clamp(2.75rem,10vw,8.5rem)] leading-[0.9] text-snow">
           {heroLines.map((line) => (
-            <span
-              key={line.text}
-              className={`hero-line block ${line.accent ? "italic text-burgundy" : ""}`}
-            >
-              {line.text.split(" ").map((word, i) => (
-                <span key={`${line.text}-${word}-${i}`} className="hero-word inline-block overflow-hidden">
-                  <span className="hero-word-inner inline-block">{word}&nbsp;</span>
-                </span>
-              ))}
+            <span key={line.text} className="block overflow-hidden pb-[0.06em]">
+              <span
+                className={`hero-line-mask inline-block ${
+                  line.accent ? "italic text-burgundy" : ""
+                }`}
+              >
+                {line.text}
+              </span>
             </span>
           ))}
         </h1>
 
-        <ScrollScrubText className="hero-tagline mt-12 max-w-lg">
-          <p className="font-sans text-sm leading-relaxed tracking-wide text-snow/50 md:text-base">
-            A Cairo-born studio building narratives from strategy, cinema, and
-            digital craft — for brands that refuse to be ordinary.
-          </p>
-        </ScrollScrubText>
+        <p className="hero-intro mt-10 max-w-md font-sans text-sm tracking-wide text-snow/55 md:mt-12 md:text-base">
+          Cairo-born. Strategy, cinema, and digital craft.
+        </p>
       </div>
 
+      {/* Scroll-earned second meaning */}
       <div
-        ref={marqueeRef}
-        className="absolute bottom-0 left-0 right-0 border-t border-symphony py-6"
+        ref={secondaryRef}
+        className="pointer-events-none absolute inset-x-0 bottom-[18%] z-10 px-6 text-center md:bottom-[20%] md:px-10"
+        aria-hidden="true"
       >
-        <MarqueeBand
-          items={heroStatements}
-          speed="slow"
-          textClassName="font-display text-2xl italic text-snow/80 md:text-4xl"
-        />
+        <p className="display-heading text-[clamp(1.5rem,4vw,3.25rem)] italic leading-none text-snow/70">
+          Strategy · Cinema · Digital
+        </p>
+        <p className="mt-4 font-sans text-[10px] uppercase tracking-[0.35em] text-snow/30">
+          Narratives that outlive the moment
+        </p>
       </div>
 
       <a
+        ref={cueRef}
         href="#philosophy"
-        className="cursor-hover absolute bottom-28 right-6 z-10 flex flex-col items-end gap-2 md:right-10"
+        className="cursor-hover absolute bottom-10 right-6 z-10 flex flex-col items-end gap-2 md:bottom-12 md:right-10"
       >
-        <span className="font-sans text-[10px] uppercase tracking-wider text-snow/30">
+        <span className="font-sans text-[10px] uppercase tracking-wider text-snow/35">
           Scroll
         </span>
-        <span className="block h-12 w-px bg-snow/30" />
+        <span className="block h-10 w-px bg-snow/30" />
       </a>
     </section>
   );
