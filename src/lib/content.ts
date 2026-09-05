@@ -55,6 +55,29 @@ export const editorialQuotes = [
   },
 ];
 
+export const principles = [
+  {
+    index: "01",
+    title: "Narrative",
+    text: "Brands are stories people believe — we build the ones that stay.",
+  },
+  {
+    index: "02",
+    title: "Strategy",
+    text: "Context first. Then craft that lands — not noise dressed as creativity.",
+  },
+  {
+    index: "03",
+    title: "Craft",
+    text: "Cinema and digital held to the same standard — spirit, not spectacle.",
+  },
+  {
+    index: "04",
+    title: "Partnership",
+    text: "Built to endure locally and thrive globally — not one-time assignments.",
+  },
+];
+
 export type Capability = {
   index: string;
   title: string;

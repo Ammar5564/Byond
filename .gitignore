@@ -1,1 +1,18 @@
+# dependencies
 node_modules/
+
+# next.js build output — never commit this
+.next/
+out/
+
+# env files
+.env
+.env*.local
+
+# local source assets (copies live in public/)
+assets/
+
+# debug / OS
+npm-debug.log*
+.DS_Store
+Thumbs.db

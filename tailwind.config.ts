@@ -9,12 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#0C0A0C",
+        ink: "#0A0A0A",
         burgundy: "#3C050F",
+        crimson: "#8B0000",
         snow: "#FBFBFB",
       },
       fontFamily: {
         display: ["var(--font-playfair)", "Georgia", "serif"],
+        accent: ["var(--font-accent)", "Georgia", "cursive"],
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       letterSpacing: {
@@ -27,11 +29,11 @@ const config: Config = {
       },
       backgroundImage: {
         "symphony-crescendo":
-          "linear-gradient(120deg, #0C0A0C 0%, #3C050F 28%, #0C0A0C 52%, #3C050F 72%, #FBFBFB 100%)",
+          "linear-gradient(120deg, #0A0A0A 0%, #3C050F 28%, #0A0A0A 52%, #3C050F 72%, #FBFBFB 100%)",
         "symphony-bridge":
-          "linear-gradient(180deg, #FBFBFB 0%, rgba(60,5,15,0.15) 35%, #3C050F 55%, #0C0A0C 100%)",
+          "linear-gradient(180deg, #FBFBFB 0%, rgba(60,5,15,0.15) 35%, #3C050F 55%, #0A0A0A 100%)",
         "symphony-fade":
-          "linear-gradient(180deg, #0C0A0C 0%, #3C050F 50%, #0C0A0C 100%)",
+          "linear-gradient(180deg, #0A0A0A 0%, #3C050F 50%, #0A0A0A 100%)",
       },
       animation: {
         marquee: "marquee 40s linear infinite",

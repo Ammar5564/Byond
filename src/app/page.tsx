@@ -1,29 +1,29 @@
-import { Hero, Philosophy, EditorialQuotes } from "@/components/Hero";
-import { StatementBreak } from "@/components/MarqueeBand";
+import { BackgroundCanvasClient } from "@/components/BackgroundCanvasClient";
+import { Navigation } from "@/components/Navigation";
+import { Hero } from "@/components/Hero";
+import { Principles } from "@/components/Principles";
 import { Capabilities } from "@/components/Capabilities";
 import { SelectedWork } from "@/components/SelectedWork";
-import { Approach } from "@/components/Approach";
-import { Testimonials } from "@/components/Testimonials";
-import { Partners } from "@/components/Partners";
+import { Trust } from "@/components/Trust";
 import { Contact, Footer } from "@/components/Contact";
-import { movingStatements } from "@/lib/content";
 
 export default function Home() {
   return (
-    <main>
-      <Hero />
-      <StatementBreak lines={movingStatements.afterHero} variant="crescendo" />
-      <Philosophy />
-      <EditorialQuotes />
-      <Capabilities />
-      <SelectedWork />
-      <StatementBreak lines={movingStatements.afterWork} variant="bridge" />
-      <Approach />
-      <Testimonials />
-      <Partners />
-      <StatementBreak lines={movingStatements.beforeContact} variant="dark" />
-      <Contact />
-      <Footer />
+    <main className="relative min-h-screen bg-transparent">
+      {/* WebGL layer — fixed, behind everything */}
+      <BackgroundCanvasClient />
+
+      {/* Editorial UI above the shader */}
+      <div className="relative z-10 bg-transparent">
+        <Navigation />
+        <Hero />
+        <Principles />
+        <Capabilities />
+        <SelectedWork />
+        <Trust />
+        <Contact />
+        <Footer />
+      </div>
     </main>
   );
 }
