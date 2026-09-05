@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { HeroFloatingCards } from "./HeroFloatingCards";
 
 const heroLines = [
   { text: "We are all", accent: false },
@@ -75,9 +76,11 @@ export function Hero() {
       ref={heroRef}
       className="relative z-10 flex min-h-screen flex-col justify-center overflow-hidden bg-transparent"
     >
+      <HeroFloatingCards />
+
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto w-full max-w-[1400px] bg-transparent px-6 pt-[calc(var(--nav-height)+2rem)] pb-28 md:px-10 md:pt-[calc(var(--nav-height)+3rem)] md:pb-32"
+        className="pointer-events-none relative z-10 mx-auto w-full max-w-[1400px] bg-transparent px-6 pt-[calc(var(--nav-height)+2rem)] pb-28 md:px-10 md:pt-[calc(var(--nav-height)+3rem)] md:pb-32"
       >
         <span className="hero-badge mb-8 inline-block rounded-full border border-snow/15 bg-black/0 px-4 py-2 font-sans text-[10px] uppercase tracking-[0.28em] text-snow/60 backdrop-blur-[2px] md:mb-10">
           Born in Cairo. Built for the world.
