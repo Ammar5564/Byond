@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { siteConfig } from "@/lib/content";
 
 const navLinks = [
   { href: "#hero", label: "Intro", id: "hero" },
-  { href: "#how-we-think", label: "01 How We Think", id: "how-we-think" },
-  { href: "#capabilities", label: "02 Capabilities", id: "capabilities" },
-  { href: "#work", label: "03 Selected Work", id: "work" },
+  { href: "#how-we-think", label: "Approach", id: "how-we-think" },
+  { href: "#work", label: "Works", id: "work" },
+  { href: "#trust", label: "About", id: "trust" },
 ];
 
-const spySections = ["hero", "how-we-think", "capabilities", "work", "contact"];
+const spySections = ["hero", "how-we-think", "work", "trust", "contact"];
 const lightSections = new Set(["how-we-think"]);
 
 type NavTheme = "light" | "dark";
@@ -96,43 +98,40 @@ export function Navigation() {
   }, []);
 
   const isLight = navTheme === "light";
-  const brandColor = isLight
-    ? "text-ink hover:text-crimson"
-    : "text-snow hover:text-crimson";
-  const pillSurface = isLight
-    ? "border-ink/10 bg-snow/70 shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
-    : "border-snow/10 bg-ink/55 shadow-[0_8px_32px_rgba(0,0,0,0.35)]";
-  const linkIdle = isLight
-    ? "text-ink/45 hover:text-ink"
-    : "text-snow/45 hover:text-snow";
-  const linkActive = isLight
-    ? "bg-ink/[0.06] text-ink"
-    : "bg-snow/[0.08] text-snow";
-  const ctaIdle = isLight
-    ? "border-ink/20 text-ink/80 hover:border-crimson hover:bg-crimson hover:text-snow"
-    : "border-snow/20 text-snow/80 hover:border-crimson hover:bg-crimson hover:text-snow";
 
   return (
     <header
       ref={headerRef}
-      className={`fixed left-0 right-0 top-0 z-10 transition-all duration-700 ease-luxury ${
+      className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
         scrolled ? "py-3" : "py-5"
       }`}
     >
       <div className="mx-auto grid max-w-[1400px] grid-cols-[1fr_auto] items-center gap-x-4 px-6 md:grid-cols-[1fr_auto_1fr] md:px-10">
-        <Link
-          href="#hero"
-          className={`cursor-hover justify-self-start font-sans text-[11px] font-medium uppercase tracking-[0.32em] transition-colors duration-500 md:text-xs ${brandColor}`}
-        >
-          Byond Media
+        {/* Logo — unchanged asset */}
+        <Link href="#hero" className="cursor-hover block w-28 shrink-0 justify-self-start md:w-32">
+          <Image
+            src="/logo-full-lockup.png"
+            alt="Byond"
+            width={160}
+            height={40}
+            className={`h-auto w-full transition-all duration-500 ${
+              isLight ? "brightness-0" : "brightness-0 invert"
+            }`}
+            priority
+          />
         </Link>
 
+        {/* Center glass pill */}
         <nav
           className="col-span-2 hidden justify-self-center md:col-span-1 md:block"
           aria-label="Primary"
         >
           <ul
-            className={`flex items-center gap-1 rounded-full border px-2 py-1.5 backdrop-blur-xl transition-colors duration-500 ${pillSurface}`}
+            className={`flex items-center gap-0.5 rounded-full border px-1.5 py-1.5 backdrop-blur-xl transition-colors duration-500 ${
+              isLight
+                ? "border-ink/10 bg-snow/75"
+                : "border-white/10 bg-black/50"
+            }`}
           >
             {navLinks.map((link) => {
               const isActive = activeSection === link.id;
@@ -140,8 +139,14 @@ export function Navigation() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`cursor-hover block whitespace-nowrap rounded-full px-3.5 py-2 font-sans text-[10px] uppercase tracking-[0.18em] transition-colors duration-500 ${
-                      isActive ? linkActive : linkIdle
+                    className={`cursor-hover block whitespace-nowrap rounded-full px-4 py-2 font-sans text-[13px] tracking-[-0.01em] transition-colors duration-300 ${
+                      isActive
+                        ? isLight
+                          ? "bg-ink text-snow"
+                          : "bg-white text-black"
+                        : isLight
+                          ? "text-ink/50 hover:text-ink"
+                          : "text-white/55 hover:text-white"
                     }`}
                   >
                     {link.label}
@@ -152,32 +157,28 @@ export function Navigation() {
           </ul>
         </nav>
 
-        <div className="justify-self-end">
-          <Link
-            href="#contact"
-            className={`cursor-hover group relative inline-flex items-center gap-2 overflow-hidden rounded-full border px-5 py-2.5 font-sans text-[10px] uppercase tracking-[0.28em] transition-all duration-500 md:text-[11px] ${
-              activeSection === "contact"
-                ? "border-crimson bg-crimson text-snow"
-                : ctaIdle
-            }`}
-          >
-            <span className="relative z-10">Begin</span>
-            <span
-              aria-hidden="true"
-              className="relative z-10 transition-transform duration-500 group-hover:translate-x-0.5"
-            >
-              →
-            </span>
-          </Link>
-        </div>
+        {/* Email */}
+        <a
+          href={`mailto:${siteConfig.email}`}
+          className={`cursor-hover justify-self-end font-sans text-[13px] tracking-[-0.01em] transition-colors duration-500 ${
+            isLight
+              ? "text-ink/70 hover:text-ink"
+              : "text-white/80 hover:text-white"
+          }`}
+        >
+          {siteConfig.email}
+        </a>
       </div>
 
+      {/* Mobile pill */}
       <nav
         className="mt-3 overflow-x-auto px-6 md:hidden"
         aria-label="Primary mobile"
       >
         <ul
-          className={`flex w-max items-center gap-1 rounded-full border px-1.5 py-1 backdrop-blur-xl transition-colors duration-500 ${pillSurface}`}
+          className={`flex w-max items-center gap-0.5 rounded-full border px-1 py-1 backdrop-blur-xl ${
+            isLight ? "border-ink/10 bg-snow/75" : "border-white/10 bg-black/50"
+          }`}
         >
           {navLinks.map((link) => {
             const isActive = activeSection === link.id;
@@ -185,8 +186,14 @@ export function Navigation() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`cursor-hover block whitespace-nowrap rounded-full px-3 py-1.5 font-sans text-[9px] uppercase tracking-[0.16em] transition-colors duration-500 ${
-                    isActive ? linkActive : linkIdle
+                  className={`cursor-hover block whitespace-nowrap rounded-full px-3 py-1.5 font-sans text-[12px] transition-colors duration-300 ${
+                    isActive
+                      ? isLight
+                        ? "bg-ink text-snow"
+                        : "bg-white text-black"
+                      : isLight
+                        ? "text-ink/50"
+                        : "text-white/55"
                   }`}
                 >
                   {link.label}
