@@ -33,7 +33,7 @@ export function Hero() {
       const { default: gsap } = await import("gsap");
       const { ScrollTrigger } = await import("gsap/ScrollTrigger");
       gsap.registerPlugin(ScrollTrigger);
-      if (cancelled) return;
+      if (cancelled || !content || !atmosphere || !secondary || !section) return;
 
       const lines = content.querySelectorAll(".hero-line-mask");
       const intro = content.querySelectorAll(".hero-intro");
