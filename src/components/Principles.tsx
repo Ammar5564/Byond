@@ -1,93 +1,56 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { SectionHeadline } from "./SectionHeadline";
+import { useRef } from "react";
 import { principles } from "@/lib/content";
+import { ConstellationCanvasClient } from "./ConstellationCanvasClient";
+
+const displayTitles: Record<string, string> = {
+  Narrative: "FOCUS",
+  Strategy: "LISTENING",
+  Craft: "CRAFT",
+  Partnership: "PARTNERSHIP",
+};
 
 export function Principles() {
+  const sectionRef = useRef<HTMLElement>(null);
+
   return (
     <section
       id="how-we-think"
-      className="relative symphony-snow px-6 py-32 text-ink md:px-10 md:py-48"
+      ref={sectionRef}
+      className="relative bg-transparent text-white"
     >
-      <div className="mx-auto max-w-[1400px]">
-        <p className="section-label-light mb-6">How we think</p>
-        <SectionHeadline className="display-heading max-w-4xl text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] text-burgundy">
-          Building brands that endure isn&apos;t magic — it requires:
-        </SectionHeadline>
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <ConstellationCanvasClient sectionRef={sectionRef} />
+      </div>
 
-        <div className="mt-20 space-y-0 md:mt-28">
-          {principles.map((item, index) => (
-            <PrincipleRow key={item.index} item={item} index={index} />
-          ))}
-        </div>
+      <div className="relative z-10 bg-transparent text-white">
+        <header className="mx-auto flex min-h-[40vh] max-w-[1400px] flex-col items-center justify-end px-6 pb-16 pt-[calc(var(--nav-height)+3rem)] text-center md:px-10">
+          <p className="mb-4 font-sans text-[10px] uppercase tracking-[0.35em] text-white/45">
+            How we think
+          </p>
+          <h2 className="display-heading max-w-3xl text-[clamp(1.75rem,4vw,3.25rem)] leading-[1.05] text-white/90">
+            Building brands that endure isn&apos;t magic — it requires:
+          </h2>
+        </header>
+
+        {principles.map((item) => (
+          <div
+            key={item.index}
+            className="relative z-10 flex min-h-screen flex-col items-center justify-center bg-transparent px-6 text-center md:px-10"
+          >
+            <span className="mb-6 font-sans text-[10px] tracking-[0.35em] text-[#FF1E27]/80">
+              {item.index}
+            </span>
+            <h3 className="font-condensed text-[clamp(3.5rem,12vw,9rem)] font-black uppercase leading-none tracking-tight text-white">
+              {displayTitles[item.title] ?? item.title}
+            </h3>
+            <p className="mt-8 max-w-md font-sans text-sm leading-relaxed tracking-wide text-white/55 md:text-base">
+              {item.text}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
-  );
-}
-
-function PrincipleRow({
-  item,
-  index,
-}: {
-  item: (typeof principles)[0];
-  index: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    let tween: { scrollTrigger?: { kill: () => void }; kill: () => void } | null =
-      null;
-    let cancelled = false;
-
-    async function animate() {
-      const { default: gsap } = await import("gsap");
-      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
-      gsap.registerPlugin(ScrollTrigger);
-      if (cancelled || !el) return;
-
-      tween = gsap.fromTo(
-        el,
-        { y: 48, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 88%",
-            toggleActions: "play none none none",
-          },
-        }
-      );
-    }
-
-    animate();
-    return () => {
-      cancelled = true;
-      tween?.scrollTrigger?.kill();
-      tween?.kill();
-    };
-  }, [index]);
-
-  return (
-    <div
-      ref={ref}
-      className="group grid grid-cols-12 items-baseline gap-4 border-t border-symphony-light py-10 md:gap-8 md:py-14"
-    >
-      <span className="col-span-2 font-sans text-[10px] tracking-wider text-ink/30 md:col-span-1">
-        {item.index}
-      </span>
-      <h3 className="col-span-10 display-heading text-[clamp(2.25rem,6vw,5rem)] leading-[0.92] text-ink transition-colors duration-500 group-hover:text-burgundy md:col-span-5">
-        {item.title}
-      </h3>
-      <p className="col-span-12 max-w-md font-sans text-sm leading-relaxed tracking-wide text-ink/55 md:col-span-6 md:col-start-7 md:text-base">
-        {item.text}
-      </p>
-    </div>
   );
 }
