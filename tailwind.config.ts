@@ -13,6 +13,7 @@ const config: Config = {
         burgundy: "#3C050F",
         crimson: "#8B0000",
         snow: "#FBFBFB",
+        champagne: "#E5DDCB",
       },
       fontFamily: {
         display: ["var(--font-playfair)", "Georgia", "serif"],
