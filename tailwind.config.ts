@@ -14,6 +14,8 @@ const config: Config = {
         crimson: "#8B0000",
         snow: "#FBFBFB",
         champagne: "#E5DDCB",
+        stone: "#9CA3AF",
+        fog: "#F3F4F6",
       },
       fontFamily: {
         display: ["var(--font-playfair)", "Georgia", "serif"],
