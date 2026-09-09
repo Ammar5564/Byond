@@ -14,7 +14,6 @@ const displayTitles: Record<string, string> = {
 const SCROLL_VH = 3;
 const STEP_COUNT = principles.length;
 
-/** Fill reaches active step mark (01→0, 02→1/3, 03→2/3, 04→1). */
 function railScaleForStep(index: number) {
   if (STEP_COUNT <= 1) return 1;
   return index / (STEP_COUNT - 1);
@@ -27,9 +26,12 @@ export function Principles() {
   const railFillRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
   const stepRef = useRef(0);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const swapLockRef = useRef(false);
 
-  // Pin + scrub — index drives exclusive panel + rail target
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [renderedIndex, setRenderedIndex] = useState(0);
+
+  // Pin 300vh — scrub drives step index
   useEffect(() => {
     const section = sectionRef.current;
     const pin = pinRef.current;
@@ -84,11 +86,10 @@ export function Principles() {
     };
   }, []);
 
-  // Animate rail fill to the active step mark
+  // Rail fill → active step mark
   useEffect(() => {
     const fill = railFillRef.current;
     if (!fill) return;
-
     let tween: { kill: () => void } | null = null;
     let cancelled = false;
 
@@ -111,7 +112,48 @@ export function Principles() {
     };
   }, [activeIndex]);
 
-  // Exclusive panel enter — previous unmounts via key, so no stack collision
+  // Exit old panel fully before mounting the next (no stacking)
+  useEffect(() => {
+    if (activeIndex === renderedIndex) return;
+    if (swapLockRef.current) return;
+
+    let cancelled = false;
+    swapLockRef.current = true;
+
+    async function swap() {
+      const { default: gsap } = await import("gsap");
+      const panel = panelRef.current;
+      if (cancelled) {
+        swapLockRef.current = false;
+        return;
+      }
+
+      if (panel) {
+        panel.style.pointerEvents = "none";
+        await gsap.to(panel, {
+          autoAlpha: 0,
+          duration: 0.22,
+          ease: "power1.in",
+          overwrite: true,
+        });
+      }
+
+      if (cancelled) {
+        swapLockRef.current = false;
+        return;
+      }
+
+      setRenderedIndex(activeIndex);
+      swapLockRef.current = false;
+    }
+
+    swap();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeIndex, renderedIndex]);
+
+  // Enter animation for the exclusive rendered panel
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
@@ -142,6 +184,7 @@ export function Principles() {
         });
       });
 
+      panel.style.pointerEvents = "auto";
       gsap.set(panel, { autoAlpha: 1 });
       gsap.set(allWords, { y: 20, opacity: 0 });
 
@@ -160,9 +203,9 @@ export function Principles() {
       tween?.kill();
       splits.forEach((s) => s.revert());
     };
-  }, [activeIndex]);
+  }, [renderedIndex]);
 
-  const active = principles[activeIndex] ?? principles[0];
+  const active = principles[renderedIndex] ?? principles[0];
   const mobileRail = railScaleForStep(activeIndex);
 
   return (
@@ -183,8 +226,8 @@ export function Principles() {
         </div>
 
         <div className="relative z-10 mx-auto flex h-full w-full max-w-[1400px] px-6 pt-[calc(var(--nav-height)+2rem)] pb-10 md:px-10 md:pb-12">
-          <div className="grid h-full w-full grid-cols-1 gap-10 md:grid-cols-[35%_65%] md:gap-0">
-            {/* Left — step index + connecting rail */}
+          {/* Strict 35% / 65% split */}
+          <div className="grid h-full w-full grid-cols-1 gap-10 md:grid-cols-[minmax(0,35%)_minmax(0,65%)] md:gap-0">
             <aside
               className="relative hidden md:flex md:items-center"
               aria-label="Manifesto steps"
@@ -213,7 +256,7 @@ export function Principles() {
                           style={{
                             opacity: isActive ? 1 : 0.25,
                             textShadow: isActive
-                              ? "0 0 20px rgba(229, 221, 203, 0.4)"
+                              ? "0 0 20px rgba(229, 221, 203, 0.45)"
                               : "none",
                           }}
                           aria-current={isActive ? "step" : undefined}
@@ -227,7 +270,6 @@ export function Principles() {
               </div>
             </aside>
 
-            {/* Right — manifesto viewport */}
             <div className="relative flex flex-col justify-center md:pl-8 lg:pl-12">
               <p className="font-sans text-[10px] uppercase tracking-[0.32em] text-stone">
                 How we think
@@ -237,11 +279,12 @@ export function Principles() {
                 Building brands that endure isn&apos;t magic — it requires:
               </h2>
 
+              {/* Gap ≤ 32px (2rem) between header and pillar title */}
               <div className="relative mt-8 min-h-[200px] overflow-hidden md:min-h-[220px]">
                 <article
                   key={active.index}
                   ref={panelRef}
-                  className="manifesto-panel pointer-events-auto w-full"
+                  className="manifesto-panel w-full"
                   aria-live="polite"
                 >
                   <span className="mb-3 block font-sans text-[10px] tracking-[0.28em] text-stone md:hidden">
@@ -267,7 +310,8 @@ export function Principles() {
                   />
                 </div>
                 <span className="font-sans text-[10px] tracking-[0.2em] text-stone tabular-nums">
-                  {active.index} / {String(STEP_COUNT).padStart(2, "0")}
+                  {principles[activeIndex]?.index} /{" "}
+                  {String(STEP_COUNT).padStart(2, "0")}
                 </span>
               </div>
             </div>

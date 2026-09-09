@@ -12,9 +12,11 @@ export function Hero() {
       ref={heroRef}
       className="relative h-screen w-full overflow-hidden bg-[#0A0A0A]"
     >
+      {/* z-10 — interactive WebGL / floating mockups */}
       <HeroFloatingCards heroRef={heroRef} />
 
-      <div className="pointer-events-none relative z-10 mx-auto flex h-full max-w-4xl items-center justify-center px-4 text-center">
+      {/* z-20 — hero headline above mockups */}
+      <div className="pointer-events-none relative z-20 mx-auto flex h-full max-w-4xl items-center justify-center px-4 text-center">
         <div>
           <p className="mb-3 font-mono text-xs tracking-widest text-gray-400 md:text-sm">
             Strategy, cinema, and digital craft.
@@ -24,7 +26,7 @@ export function Hero() {
             Byond Media
           </h1>
 
-          <p className="z-20 -mt-6 font-accent text-4xl italic text-gray-300 md:-mt-10 md:text-6xl">
+          <p className="-mt-6 font-accent text-4xl italic text-gray-300 md:-mt-10 md:text-6xl">
             Born in Cairo
           </p>
         </div>

@@ -2,10 +2,17 @@
 
 import { useEffect, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
+import {
+  createFpsGate,
+  getFpsLimit,
+  getPixelRatioCap,
+  isMobileViewport,
+} from "@/lib/webglPerf";
 
 /**
  * Low-priority volumetric ambient for the manifesto pin.
  * Charcoal → deep red/amber (#2A080C) as steps advance.
+ * Mobile uses a lighter single-pass (fewer fbm octaves, no grain).
  */
 const ambientVertex = /* glsl */ `
   varying vec2 vUv;
@@ -21,10 +28,10 @@ const ambientFragment = /* glsl */ `
   uniform float uTime;
   uniform float uProgress;
   uniform float uStep;
+  uniform float uLite;
   uniform vec2 uResolution;
   varying vec2 vUv;
 
-  // #0A0A0A → #2A080C
   const vec3 INK = vec3(0.039216);
   const vec3 AMBER_BLOOD = vec3(0.1647, 0.0314, 0.0471);
 
@@ -43,10 +50,13 @@ const ambientFragment = /* glsl */ `
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
   }
 
-  float fbm(vec2 p) {
+  float fbm(vec2 p, float lite) {
     float v = 0.0;
     float a = 0.5;
+    // 2 octaves on mobile, 4 on desktop
+    int maxIter = lite > 0.5 ? 2 : 4;
     for (int i = 0; i < 4; i++) {
+      if (i >= maxIter) break;
       v += a * noise(p);
       p *= 2.05;
       a *= 0.5;
@@ -63,14 +73,14 @@ const ambientFragment = /* glsl */ `
     float stepNorm = uStep / 3.0;
     float blend = clamp(mix(uProgress, stepNorm, 0.55), 0.0, 1.0);
 
-    // Morphing fluid field
     vec2 q = p + vec2(
       sin(t * 0.6 + blend) * 0.08,
       cos(t * 0.45) * 0.06 - blend * 0.04
     );
-    float n1 = fbm(q * 1.4 + vec2(t * 0.35, -t * 0.25));
-    float n2 = fbm(q * 2.2 + n1 * 1.8 + vec2(-t * 0.2, t * 0.3));
-    float fluid = fbm(q * 1.1 + n2 * 2.0);
+    float n1 = fbm(q * 1.4 + vec2(t * 0.35, -t * 0.25), uLite);
+    float fluid = uLite > 0.5
+      ? n1
+      : fbm(q * 1.1 + fbm(q * 2.2 + n1 * 1.8 + vec2(-t * 0.2, t * 0.3), uLite) * 2.0, uLite);
 
     vec2 orb = vec2(
       -0.12 + sin(t * 0.5 + blend * 1.2) * 0.18,
@@ -87,9 +97,13 @@ const ambientFragment = /* glsl */ `
     col += ember * well * (0.35 + blend * 0.25);
     col += vec3(0.12, 0.03, 0.04) * fluid * well * 0.2;
 
-    float grain = (noise(uv * uResolution * 0.28 + t * 1.5) - 0.5) * 0.02;
+    // Skip film grain on mobile
+    if (uLite < 0.5) {
+      float grain = (noise(uv * uResolution * 0.28 + t * 1.5) - 0.5) * 0.02;
+      col += grain;
+    }
+
     float vignette = smoothstep(1.2, 0.3, length(p * vec2(0.85, 1.0)));
-    col += grain;
     col *= mix(0.5, 1.0, vignette);
 
     gl_FragColor = vec4(col, 1.0);
@@ -113,15 +127,16 @@ export function ManifestoAmbientCanvas({
 
     let disposed = false;
     let raf = 0;
+    let mobile = isMobileViewport();
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: false,
       alpha: false,
-      powerPreference: "low-power",
+      powerPreference: mobile ? "low-power" : "high-performance",
     });
     renderer.setClearColor(0x0a0a0a, 1);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(getPixelRatioCap());
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -133,6 +148,7 @@ export function ManifestoAmbientCanvas({
         uTime: { value: 0 },
         uProgress: { value: 0 },
         uStep: { value: 0 },
+        uLite: { value: mobile ? 1 : 0 },
         uResolution: { value: new THREE.Vector2(1, 1) },
       },
       depthTest: false,
@@ -145,6 +161,9 @@ export function ManifestoAmbientCanvas({
       const w = wrap.clientWidth;
       const h = wrap.clientHeight;
       if (w === 0 || h === 0) return;
+      mobile = isMobileViewport();
+      renderer.setPixelRatio(getPixelRatioCap());
+      material.uniforms.uLite.value = mobile ? 1 : 0;
       renderer.setSize(w, h, false);
       material.uniforms.uResolution.value.set(w, h);
     };
@@ -155,8 +174,8 @@ export function ManifestoAmbientCanvas({
     const clock = new THREE.Clock();
     let smoothProgress = 0;
     let smoothStep = 0;
+    const shouldRender = createFpsGate(() => getFpsLimit());
 
-    // Pause when offscreen / tab hidden for 60fps guardrail
     let visible = true;
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -167,14 +186,16 @@ export function ManifestoAmbientCanvas({
     io.observe(wrap);
 
     const onVisibility = () => {
-      if (document.hidden) visible = false;
+      /* keep rAF alive; gate skips when hidden */
     };
     document.addEventListener("visibilitychange", onVisibility);
 
-    const tick = () => {
+    const tick = (time: number) => {
       if (disposed) return;
       raf = requestAnimationFrame(tick);
+
       if (!visible || document.hidden) return;
+      if (!shouldRender(time)) return;
 
       const t = clock.getElapsedTime();
       smoothProgress += (progressRef.current - smoothProgress) * 0.07;
@@ -184,9 +205,9 @@ export function ManifestoAmbientCanvas({
       material.uniforms.uProgress.value = smoothProgress;
       material.uniforms.uStep.value = smoothStep;
 
-      if (visible) renderer.render(scene, camera);
+      renderer.render(scene, camera);
     };
-    tick();
+    raf = requestAnimationFrame(tick);
 
     return () => {
       disposed = true;

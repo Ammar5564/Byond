@@ -3,6 +3,13 @@
 import { useEffect, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
 import type { WorkItem } from "@/lib/content";
+import {
+  clampTextureForMobile,
+  createFpsGate,
+  getFpsLimit,
+  getPixelRatioCap,
+  isMobileViewport,
+} from "@/lib/webglPerf";
 
 export type TunnelApi = {
   setProgress: (t: number) => void;
@@ -194,16 +201,17 @@ export function WorksTunnelCanvas({
     let hoverEnabled = true;
     let flyOverride: number | null = null;
 
+    const mobile = isMobileViewport();
     const n = projects.length;
     const tunnelLength = (n - 1) * SPACING + 10;
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: true,
+      antialias: !mobile,
       alpha: true,
-      powerPreference: "high-performance",
+      powerPreference: mobile ? "low-power" : "high-performance",
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(getPixelRatioCap());
     renderer.setClearColor(0x0a0a0a, 1);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -222,9 +230,11 @@ export function WorksTunnelCanvas({
     rim.position.set(0, -2, -8);
     scene.add(rim);
 
-    // Lattice walls
-    const lattice = createTunnelLattice(RADIUS + 0.15, tunnelLength);
-    scene.add(lattice);
+    // Lattice walls — skip on mobile for lighter draw calls
+    const lattice = mobile
+      ? null
+      : createTunnelLattice(RADIUS + 0.15, tunnelLength);
+    if (lattice) scene.add(lattice);
 
     // Soft radial vignette plane at far end
     const farMat = new THREE.MeshBasicMaterial({
@@ -254,7 +264,12 @@ export function WorksTunnelCanvas({
     const placeholderTex = new THREE.CanvasTexture(placeholderCanvas);
 
     const cards: CardMesh[] = [];
-    const sharedGeo = createCurvedCardGeometry(CARD_W, CARD_H, RADIUS * 1.1);
+    const sharedGeo = createCurvedCardGeometry(
+      CARD_W,
+      CARD_H,
+      RADIUS * 1.1,
+      mobile ? 16 : 36
+    );
 
     const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
     const raycaster = new THREE.Raycaster();
@@ -306,6 +321,7 @@ export function WorksTunnelCanvas({
             tex.dispose();
             return;
           }
+          clampTextureForMobile(tex, mobile);
           tex.colorSpace = THREE.SRGBColorSpace;
           tex.minFilter = THREE.LinearFilter;
           tex.generateMipmaps = false;
@@ -333,6 +349,7 @@ export function WorksTunnelCanvas({
       const w = wrap.clientWidth;
       const h = wrap.clientHeight;
       if (w === 0 || h === 0) return;
+      renderer.setPixelRatio(getPixelRatioCap());
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -366,7 +383,7 @@ export function WorksTunnelCanvas({
       }
     };
 
-    wrap.addEventListener("pointermove", onPointerMove);
+    wrap.addEventListener("pointermove", onPointerMove, { passive: true });
     wrap.addEventListener("pointerleave", onPointerLeave);
     wrap.addEventListener("click", onClick);
 
@@ -418,9 +435,14 @@ export function WorksTunnelCanvas({
       },
     };
 
-    const tick = () => {
+    const shouldRender = createFpsGate(() => getFpsLimit());
+
+    const tick = (time: number) => {
       if (disposed) return;
       raf = requestAnimationFrame(tick);
+      if (document.hidden) return;
+      if (!shouldRender(time)) return;
+
       const t = clock.getElapsedTime();
 
       // Damped pointer
@@ -441,8 +463,8 @@ export function WorksTunnelCanvas({
       key.position.z = camZ - 1.5;
       rim.position.z = camZ - 10;
 
-      // Hover raycast (throttled visually via lerp on uniforms)
-      if (hoverEnabled) {
+      // Hover raycast — skip on mobile for cheaper frames
+      if (hoverEnabled && !mobile) {
         raycaster.setFromCamera(pointerNDC, camera);
         const hits = raycaster.intersectObjects(cards, false);
         hoveredIndex =
@@ -489,11 +511,11 @@ export function WorksTunnelCanvas({
       }
 
       // Lattice pulse with camera
-      lattice.rotation.z = t * 0.015 + pointer.x * 0.02;
+      if (lattice) lattice.rotation.z = t * 0.015 + pointer.x * 0.02;
 
       renderer.render(scene, camera);
     };
-    tick();
+    raf = requestAnimationFrame(tick);
 
     return () => {
       disposed = true;
@@ -510,7 +532,7 @@ export function WorksTunnelCanvas({
         card.material.dispose();
       });
       sharedGeo.dispose();
-      lattice.traverse((obj) => {
+      lattice?.traverse((obj) => {
         if (obj instanceof THREE.Line) {
           obj.geometry.dispose();
           (obj.material as THREE.Material).dispose();

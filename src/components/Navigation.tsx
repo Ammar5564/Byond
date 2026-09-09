@@ -13,7 +13,7 @@ const navLinks = [
 ];
 
 const spySections = ["hero", "how-we-think", "work", "trust", "contact"];
-const lightSections = new Set(["how-we-think"]);
+const lightSections = new Set<string>([]);
 
 type NavTheme = "light" | "dark";
 
@@ -70,7 +70,7 @@ export function Navigation() {
     };
 
     syncNavHeight();
-    window.addEventListener("resize", syncNavHeight);
+    window.addEventListener("resize", syncNavHeight, { passive: true });
     const observer = new ResizeObserver(syncNavHeight);
     observer.observe(header);
 
@@ -90,9 +90,11 @@ export function Navigation() {
 
     update();
     window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    window.addEventListener("touchmove", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
     return () => {
       window.removeEventListener("scroll", update);
+      window.removeEventListener("touchmove", update);
       window.removeEventListener("resize", update);
     };
   }, []);

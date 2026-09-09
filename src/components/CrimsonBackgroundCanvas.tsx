@@ -2,6 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import {
+  createFpsGate,
+  getFpsLimit,
+  getPixelRatioCap,
+  isMobileViewport,
+} from "@/lib/webglPerf";
 
 const vertexShader = /* glsl */ `
   varying vec2 vUv;
@@ -16,6 +22,7 @@ const fragmentShader = /* glsl */ `
 
   uniform float uTime;
   uniform float uScroll;
+  uniform float uLite;
   uniform vec2 uResolution;
   varying vec2 vUv;
 
@@ -102,25 +109,24 @@ const fragmentShader = /* glsl */ `
     float presence = mix(1.0, 0.5, smoothstep(0.0, 0.65, scroll));
     col = mix(INK, col, presence);
 
-    // --- CRT scanlines ---
-    float scanY = uv.y * uResolution.y;
-    float scan = sin(scanY * 3.14159) * 0.5 + 0.5;
-    col *= 1.0 - scan * 0.085;
+    // Heavy CRT / grain / phosphor — desktop only
+    if (uLite < 0.5) {
+      float scanY = uv.y * uResolution.y;
+      float scan = sin(scanY * 3.14159) * 0.5 + 0.5;
+      col *= 1.0 - scan * 0.085;
 
-    // Rolling CRT refresh band
-    float roll = fract(uv.y * 0.35 - uTime * 0.08);
-    col *= 1.0 - smoothstep(0.0, 0.04, roll) * smoothstep(0.08, 0.04, roll) * 0.12;
+      float roll = fract(uv.y * 0.35 - uTime * 0.08);
+      col *= 1.0 - smoothstep(0.0, 0.04, roll) * smoothstep(0.08, 0.04, roll) * 0.12;
 
-    // --- Phosphor grid ---
-    vec2 gridUv = uv * uResolution / 3.0;
-    float phosphor =
-      (0.66 + 0.34 * sin(gridUv.x * 6.28318)) *
-      (0.66 + 0.34 * sin(gridUv.y * 6.28318));
-    col *= mix(0.92, 1.0, phosphor);
+      vec2 gridUv = uv * uResolution / 3.0;
+      float phosphor =
+        (0.66 + 0.34 * sin(gridUv.x * 6.28318)) *
+        (0.66 + 0.34 * sin(gridUv.y * 6.28318));
+      col *= mix(0.92, 1.0, phosphor);
 
-    // --- Film grain ---
-    float grain = hash(uv * uResolution + fract(uTime * 23.17)) * 2.0 - 1.0;
-    col += grain * 0.045;
+      float grain = hash(uv * uResolution + fract(uTime * 23.17)) * 2.0 - 1.0;
+      col += grain * 0.045;
+    }
 
     // Slight crimson lift in midtones so the aura reads on screenshots
     col = mix(col, col * vec3(1.08, 0.95, 0.95), 0.15);
@@ -138,12 +144,13 @@ export function CrimsonBackgroundCanvas() {
 
     let disposed = false;
     let raf = 0;
+    let mobile = isMobileViewport();
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: false,
       alpha: false,
-      powerPreference: "high-performance",
+      powerPreference: mobile ? "low-power" : "high-performance",
     });
     renderer.setClearColor(new THREE.Color("#0A0A0A"), 1);
 
@@ -153,6 +160,7 @@ export function CrimsonBackgroundCanvas() {
     const uniforms = {
       uTime: { value: 0 },
       uScroll: { value: 0 },
+      uLite: { value: mobile ? 1 : 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
     };
 
@@ -181,9 +189,11 @@ export function CrimsonBackgroundCanvas() {
       if (disposed) return;
       const w = window.innerWidth;
       const h = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      mobile = isMobileViewport(w);
+      const dpr = getPixelRatioCap(w);
       renderer.setPixelRatio(dpr);
       renderer.setSize(w, h, false);
+      uniforms.uLite.value = mobile ? 1 : 0;
       uniforms.uResolution.value.set(w * dpr, h * dpr);
     };
 
@@ -191,16 +201,21 @@ export function CrimsonBackgroundCanvas() {
     syncSize();
 
     window.addEventListener("scroll", syncScroll, { passive: true });
-    window.addEventListener("resize", syncSize);
+    window.addEventListener("touchmove", syncScroll, { passive: true });
+    window.addEventListener("resize", syncSize, { passive: true });
 
     const clock = new THREE.Clock();
+    const shouldRender = createFpsGate(() => getFpsLimit());
 
-    const tick = () => {
+    const tick = (time: number) => {
       if (disposed) return;
+      raf = window.requestAnimationFrame(tick);
+      if (document.hidden) return;
+      if (!shouldRender(time)) return;
+
       uniforms.uTime.value = clock.getElapsedTime();
       uniforms.uScroll.value += (scrollTarget - uniforms.uScroll.value) * 0.07;
       renderer.render(scene, camera);
-      raf = window.requestAnimationFrame(tick);
     };
 
     raf = window.requestAnimationFrame(tick);
@@ -209,6 +224,7 @@ export function CrimsonBackgroundCanvas() {
       disposed = true;
       window.cancelAnimationFrame(raf);
       window.removeEventListener("scroll", syncScroll);
+      window.removeEventListener("touchmove", syncScroll);
       window.removeEventListener("resize", syncSize);
       material.dispose();
       mesh.geometry.dispose();
