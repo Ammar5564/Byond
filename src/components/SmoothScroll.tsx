@@ -26,12 +26,16 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       gsapRef.current = gsap;
 
       const narrow = window.innerWidth < 768;
+      const coarse =
+        window.matchMedia("(pointer: coarse)").matches ||
+        navigator.maxTouchPoints > 0;
+
       const lenis = new Lenis({
         duration: narrow ? 1.0 : 1.2,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
+        smoothWheel: !coarse,
         syncTouch: false,
-        touchMultiplier: 1.2,
+        touchMultiplier: coarse ? 1.5 : 1.2,
         wheelMultiplier: 0.9,
       });
 

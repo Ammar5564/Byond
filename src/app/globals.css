@@ -65,6 +65,13 @@
   }
 }
 
+/* Works pin: prefer vertical touch pans; don't let canvas steal swipe */
+#work,
+#work .gpu-accelerate {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
 @layer components {
   .page-shell {
     @apply mx-auto w-full max-w-[1400px] px-4 sm:px-6 md:px-10;

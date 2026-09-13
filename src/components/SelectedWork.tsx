@@ -186,11 +186,13 @@ export function SelectedWork() {
     <section
       id="work"
       ref={sectionRef}
-      className="relative scroll-mt-[var(--nav-height)] symphony-void"
+      className="relative scroll-mt-[var(--nav-height)] touch-pan-y symphony-void"
+      style={{ WebkitOverflowScrolling: "touch" }}
     >
       <div
         ref={pinRef}
-        className="relative h-screen w-full overflow-hidden bg-ink gpu-accelerate"
+        className="relative h-screen w-full touch-pan-y overflow-hidden bg-ink gpu-accelerate"
+        style={{ WebkitOverflowScrolling: "touch" }}
       >
         <WorksTunnelCanvasClient
           projects={selectedWork}
