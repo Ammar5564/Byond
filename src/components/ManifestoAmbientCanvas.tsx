@@ -6,7 +6,7 @@ import {
   createFpsGate,
   getFpsLimit,
   getPixelRatioCap,
-  isMobileViewport,
+  shouldUseLiteShaders,
 } from "@/lib/webglPerf";
 
 /**
@@ -127,13 +127,13 @@ export function ManifestoAmbientCanvas({
 
     let disposed = false;
     let raf = 0;
-    let mobile = isMobileViewport();
+    let lite = shouldUseLiteShaders();
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: false,
       alpha: false,
-      powerPreference: mobile ? "low-power" : "high-performance",
+      powerPreference: lite ? "low-power" : "high-performance",
     });
     renderer.setClearColor(0x0a0a0a, 1);
     renderer.setPixelRatio(getPixelRatioCap());
@@ -148,7 +148,7 @@ export function ManifestoAmbientCanvas({
         uTime: { value: 0 },
         uProgress: { value: 0 },
         uStep: { value: 0 },
-        uLite: { value: mobile ? 1 : 0 },
+        uLite: { value: lite ? 1 : 0 },
         uResolution: { value: new THREE.Vector2(1, 1) },
       },
       depthTest: false,
@@ -161,9 +161,9 @@ export function ManifestoAmbientCanvas({
       const w = wrap.clientWidth;
       const h = wrap.clientHeight;
       if (w === 0 || h === 0) return;
-      mobile = isMobileViewport();
+      lite = shouldUseLiteShaders();
       renderer.setPixelRatio(getPixelRatioCap());
-      material.uniforms.uLite.value = mobile ? 1 : 0;
+      material.uniforms.uLite.value = lite ? 1 : 0;
       renderer.setSize(w, h, false);
       material.uniforms.uResolution.value.set(w, h);
     };

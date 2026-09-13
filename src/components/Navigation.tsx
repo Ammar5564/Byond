@@ -105,12 +105,15 @@ export function Navigation() {
     <header
       ref={headerRef}
       className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
-        scrolled ? "py-3" : "py-5"
+        scrolled ? "py-3" : "py-4"
       }`}
     >
-      <div className="mx-auto grid max-w-[1400px] grid-cols-[1fr_auto] items-center gap-x-4 px-6 md:grid-cols-[1fr_auto_1fr] md:px-10">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-[1fr_auto] items-center gap-x-6 px-6 md:grid-cols-[1fr_auto_1fr] md:gap-x-8 md:px-10">
         {/* Logo — unchanged asset */}
-        <Link href="#hero" className="cursor-hover block w-28 shrink-0 justify-self-start md:w-32">
+        <Link
+          href="#hero"
+          className="cursor-hover block w-28 shrink-0 justify-self-start md:w-32"
+        >
           <Image
             src="/logo-full-lockup.png"
             alt="Byond"
@@ -129,7 +132,7 @@ export function Navigation() {
           aria-label="Primary"
         >
           <ul
-            className={`flex items-center gap-0.5 rounded-full border px-1.5 py-1.5 backdrop-blur-xl transition-colors duration-500 ${
+            className={`flex items-center gap-1 rounded-full border px-2 py-1.5 backdrop-blur-xl transition-colors duration-500 ${
               isLight
                 ? "border-ink/10 bg-snow/75"
                 : "border-white/10 bg-black/50"
@@ -141,14 +144,15 @@ export function Navigation() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`cursor-hover block whitespace-nowrap rounded-full px-4 py-2 font-sans text-[13px] tracking-[-0.01em] transition-colors duration-300 ${
+                    aria-current={isActive ? "page" : undefined}
+                    className={`cursor-hover block whitespace-nowrap rounded-full px-4 py-2 font-sans text-[13px] tracking-[-0.01em] transition-all duration-300 ease-luxury ${
                       isActive
                         ? isLight
-                          ? "bg-ink text-snow"
-                          : "bg-white text-black"
+                          ? "bg-ink text-snow shadow-[0_0_0_1px_rgba(10,10,10,0.08)]"
+                          : "bg-champagne text-ink shadow-[0_0_20px_rgba(229,221,203,0.18)]"
                         : isLight
-                          ? "text-ink/50 hover:text-ink"
-                          : "text-white/55 hover:text-white"
+                          ? "text-ink/45 hover:bg-ink/5 hover:text-ink"
+                          : "text-white/50 hover:bg-white/10 hover:text-champagne"
                     }`}
                   >
                     {link.label}
@@ -160,12 +164,13 @@ export function Navigation() {
         </nav>
 
         {/* Email */}
+        {/* Email — hide on narrow phones to prevent header overflow */}
         <a
           href={`mailto:${siteConfig.email}`}
-          className={`cursor-hover justify-self-end font-sans text-[13px] tracking-[-0.01em] transition-colors duration-500 ${
+          className={`cursor-hover hidden justify-self-end truncate rounded-full px-3 py-2 font-sans text-[12px] tracking-[-0.01em] transition-colors duration-300 sm:inline-flex md:text-[13px] ${
             isLight
-              ? "text-ink/70 hover:text-ink"
-              : "text-white/80 hover:text-white"
+              ? "text-ink/65 hover:text-ink"
+              : "text-champagne/70 hover:text-champagne"
           }`}
         >
           {siteConfig.email}
@@ -174,11 +179,11 @@ export function Navigation() {
 
       {/* Mobile pill */}
       <nav
-        className="mt-3 overflow-x-auto px-6 md:hidden"
+        className="mt-2.5 overflow-x-auto px-6 pb-0.5 md:hidden"
         aria-label="Primary mobile"
       >
         <ul
-          className={`flex w-max items-center gap-0.5 rounded-full border px-1 py-1 backdrop-blur-xl ${
+          className={`flex w-max items-center gap-1 rounded-full border px-1.5 py-1 backdrop-blur-xl ${
             isLight ? "border-ink/10 bg-snow/75" : "border-white/10 bg-black/50"
           }`}
         >
@@ -188,14 +193,15 @@ export function Navigation() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`cursor-hover block whitespace-nowrap rounded-full px-3 py-1.5 font-sans text-[12px] transition-colors duration-300 ${
+                  aria-current={isActive ? "page" : undefined}
+                  className={`cursor-hover block whitespace-nowrap rounded-full px-3.5 py-1.5 font-sans text-[12px] transition-all duration-300 ease-luxury ${
                     isActive
                       ? isLight
                         ? "bg-ink text-snow"
-                        : "bg-white text-black"
+                        : "bg-champagne text-ink"
                       : isLight
-                        ? "text-ink/50"
-                        : "text-white/55"
+                        ? "text-ink/45 hover:text-ink"
+                        : "text-white/50 hover:text-champagne"
                   }`}
                 >
                   {link.label}

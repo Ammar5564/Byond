@@ -47,7 +47,7 @@ export function SectionHeadline({
   }, []);
 
   return (
-    <Tag ref={ref} className={className}>
+    <Tag ref={ref} className={`text-balance break-words ${className}`.trim()}>
       {children}
     </Tag>
   );

@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import {
   createFpsGate,
+  debounce,
   getFpsLimit,
   getPixelRatioCap,
-  isMobileViewport,
+  shouldUseLiteShaders,
 } from "@/lib/webglPerf";
 
 const vertexShader = /* glsl */ `
@@ -47,11 +48,14 @@ const fragmentShader = /* glsl */ `
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
   }
 
-  float fbm(vec2 p) {
+  float fbm(vec2 p, float lite) {
     float v = 0.0;
     float a = 0.5;
     mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
-    for (int i = 0; i < 6; i++) {
+    // Desktop: 4 octaves · Lite/touch: 2
+    int maxIter = lite > 0.5 ? 2 : 4;
+    for (int i = 0; i < 4; i++) {
+      if (i >= maxIter) break;
       v += a * noise(p);
       p = m * p;
       a *= 0.5;
@@ -64,25 +68,24 @@ const fragmentShader = /* glsl */ `
     float aspect = uResolution.x / max(uResolution.y, 1.0);
     vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
 
-    float t = uTime * 0.22;
+    // Editorial — slower time base
+    float t = uTime * 0.10;
     float scroll = uScroll;
 
-    // Scroll shifts the aura downward / sideways
+    // Gentle scroll parallax + soft drift
     vec2 center = vec2(
-      sin(t * 0.35) * 0.08 + scroll * 0.12,
-      0.02 - scroll * 0.55 + cos(t * 0.28) * 0.05
+      sin(t * 0.35) * 0.04 + scroll * 0.06,
+      0.02 - scroll * 0.28 + cos(t * 0.28) * 0.025
     );
 
-    // Organic fluid displacement field
     vec2 q = p - center;
-    float n1 = fbm(q * 1.55 + vec2(t * 0.55, -t * 0.4));
-    float n2 = fbm(q * 2.1 + vec2(-t * 0.35, t * 0.6) + n1 * 1.6);
-    float fluid = fbm(q * 1.2 + n2 * 2.4 + vec2(scroll * 0.5, t * 0.25));
+    float n1 = fbm(q * 1.55 + vec2(t * 0.25, -t * 0.2), uLite);
+    float n2 = fbm(q * 2.1 + vec2(-t * 0.18, t * 0.3) + n1 * 1.6, uLite);
+    float fluid = fbm(q * 1.2 + n2 * 2.4 + vec2(scroll * 0.25, t * 0.12), uLite);
 
-    // Domain-warped radius — breathing halo from center
-    float warp = (fluid - 0.5) * 0.55;
+    float warp = (fluid - 0.5) * 0.28;
     float dist = length(q + vec2(warp * 0.35, warp * 0.55));
-    float breathe = 0.92 + sin(t * 1.4 + fluid * 3.0) * 0.08;
+    float breathe = 0.92 + sin(t * 0.7 + fluid * 3.0) * 0.035;
 
     float core = smoothstep(0.42 * breathe, 0.0, dist + warp * 0.15);
     float halo = smoothstep(1.15 * breathe, 0.12, dist + warp * 0.25);
@@ -92,44 +95,44 @@ const fragmentShader = /* glsl */ `
     aura *= 0.55 + fluid * 0.7;
     aura = clamp(aura, 0.0, 1.2);
 
-    // Secondary drifting lobes for depth
-    vec2 lobeA = p - (center + vec2(-0.45 + sin(t) * 0.1, 0.25 - scroll * 0.2));
-    vec2 lobeB = p - (center + vec2(0.5 + cos(t * 0.7) * 0.08, -0.3 + scroll * 0.15));
-    aura += smoothstep(0.9, 0.05, length(lobeA) + fluid * 0.3) * 0.35;
-    aura += smoothstep(0.85, 0.06, length(lobeB) + fluid * 0.28) * 0.28;
+    // Secondary lobes — quieter on desktop; skip depth on lite
+    if (uLite < 0.5) {
+      vec2 lobeA = p - (center + vec2(-0.45 + sin(t) * 0.05, 0.25 - scroll * 0.12));
+      vec2 lobeB = p - (center + vec2(0.5 + cos(t * 0.7) * 0.04, -0.3 + scroll * 0.08));
+      aura += smoothstep(0.9, 0.05, length(lobeA) + fluid * 0.3) * 0.18;
+      aura += smoothstep(0.85, 0.06, length(lobeB) + fluid * 0.28) * 0.14;
+    }
     aura = clamp(aura, 0.0, 1.35);
 
     vec3 glow = mix(BLOOD, CRIMSON, clamp(fluid * 1.2 + core, 0.0, 1.0));
     glow = mix(glow, EMBER, core * 0.55);
 
     float vig = smoothstep(1.55, 0.2, length(p * vec2(0.75, 1.05)));
-    vec3 col = mix(INK, glow, aura * vig * 0.95);
+    vec3 col = mix(INK, glow, aura * vig * 0.72);
 
-    // Soften as user scrolls deep into the page
     float presence = mix(1.0, 0.5, smoothstep(0.0, 0.65, scroll));
     col = mix(INK, col, presence);
 
-    // Heavy CRT / grain / phosphor — desktop only
+    // CRT / grain / phosphor — fine-pointer desktop only
     if (uLite < 0.5) {
       float scanY = uv.y * uResolution.y;
       float scan = sin(scanY * 3.14159) * 0.5 + 0.5;
-      col *= 1.0 - scan * 0.085;
+      col *= 1.0 - scan * 0.04;
 
       float roll = fract(uv.y * 0.35 - uTime * 0.08);
-      col *= 1.0 - smoothstep(0.0, 0.04, roll) * smoothstep(0.08, 0.04, roll) * 0.12;
+      col *= 1.0 - smoothstep(0.0, 0.04, roll) * smoothstep(0.08, 0.04, roll) * 0.08;
 
       vec2 gridUv = uv * uResolution / 3.0;
       float phosphor =
         (0.66 + 0.34 * sin(gridUv.x * 6.28318)) *
         (0.66 + 0.34 * sin(gridUv.y * 6.28318));
-      col *= mix(0.92, 1.0, phosphor);
+      col *= mix(0.95, 1.0, phosphor);
 
       float grain = hash(uv * uResolution + fract(uTime * 23.17)) * 2.0 - 1.0;
-      col += grain * 0.045;
+      col += grain * 0.02;
     }
 
-    // Slight crimson lift in midtones so the aura reads on screenshots
-    col = mix(col, col * vec3(1.08, 0.95, 0.95), 0.15);
+    col = mix(col, col * vec3(1.08, 0.95, 0.95), 0.12);
 
     gl_FragColor = vec4(col, 1.0);
   }
@@ -144,13 +147,13 @@ export function CrimsonBackgroundCanvas() {
 
     let disposed = false;
     let raf = 0;
-    let mobile = isMobileViewport();
+    let lite = shouldUseLiteShaders();
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: false,
       alpha: false,
-      powerPreference: mobile ? "low-power" : "high-performance",
+      powerPreference: lite ? "low-power" : "high-performance",
     });
     renderer.setClearColor(new THREE.Color("#0A0A0A"), 1);
 
@@ -160,7 +163,7 @@ export function CrimsonBackgroundCanvas() {
     const uniforms = {
       uTime: { value: 0 },
       uScroll: { value: 0 },
-      uLite: { value: mobile ? 1 : 0 },
+      uLite: { value: lite ? 1 : 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
     };
 
@@ -189,20 +192,22 @@ export function CrimsonBackgroundCanvas() {
       if (disposed) return;
       const w = window.innerWidth;
       const h = window.innerHeight;
-      mobile = isMobileViewport(w);
+      lite = shouldUseLiteShaders(w);
       const dpr = getPixelRatioCap(w);
       renderer.setPixelRatio(dpr);
       renderer.setSize(w, h, false);
-      uniforms.uLite.value = mobile ? 1 : 0;
+      uniforms.uLite.value = lite ? 1 : 0;
       uniforms.uResolution.value.set(w * dpr, h * dpr);
     };
+
+    const syncSizeDebounced = debounce(syncSize, 100);
 
     syncScroll();
     syncSize();
 
+    // Lenis updates window scroll position and fires scroll — one passive listener is enough
     window.addEventListener("scroll", syncScroll, { passive: true });
-    window.addEventListener("touchmove", syncScroll, { passive: true });
-    window.addEventListener("resize", syncSize, { passive: true });
+    window.addEventListener("resize", syncSizeDebounced, { passive: true });
 
     const clock = new THREE.Clock();
     const shouldRender = createFpsGate(() => getFpsLimit());
@@ -214,7 +219,8 @@ export function CrimsonBackgroundCanvas() {
       if (!shouldRender(time)) return;
 
       uniforms.uTime.value = clock.getElapsedTime();
-      uniforms.uScroll.value += (scrollTarget - uniforms.uScroll.value) * 0.07;
+      // Tighter follow so scroll-driven aura stays in sync with Lenis / native scroll
+      uniforms.uScroll.value += (scrollTarget - uniforms.uScroll.value) * 0.14;
       renderer.render(scene, camera);
     };
 
@@ -224,8 +230,8 @@ export function CrimsonBackgroundCanvas() {
       disposed = true;
       window.cancelAnimationFrame(raf);
       window.removeEventListener("scroll", syncScroll);
-      window.removeEventListener("touchmove", syncScroll);
-      window.removeEventListener("resize", syncSize);
+      window.removeEventListener("resize", syncSizeDebounced);
+      syncSizeDebounced.cancel();
       material.dispose();
       mesh.geometry.dispose();
       renderer.dispose();
@@ -250,5 +256,5 @@ export function CrimsonBackgroundCanvas() {
   );
 }
 
-/** @deprecated Prefer CrimsonBackgroundCanvas */
+/** @deprecated Prefer CrimsonBackgroundCanvas — kept for rare named imports */
 export const BackgroundCanvas = CrimsonBackgroundCanvas;

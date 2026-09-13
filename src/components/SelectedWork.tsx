@@ -23,35 +23,35 @@ function TunnelOverlay({
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between px-6 py-8 text-champagne md:px-10 md:py-12"
+      className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between py-8 text-champagne md:py-12"
       aria-live="polite"
     >
       <div
-        className="flex items-start justify-between gap-6 transition-opacity duration-500"
+        className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-6 transition-opacity duration-500 sm:flex-row sm:items-start sm:justify-between sm:gap-6 md:px-10"
         style={{ opacity }}
       >
-        <div>
+        <div className="min-w-0 pr-2">
           <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-champagne/50">
             Selected Work
           </p>
-          <h2 className="display-heading mt-3 max-w-xl text-[clamp(1.75rem,4vw,3.25rem)] leading-[0.95] text-champagne">
+          <h2 className="display-heading mt-3 max-w-xl text-balance break-words text-[clamp(1.75rem,4vw,3.25rem)] leading-[0.95] text-champagne">
             Stories in motion
           </h2>
         </div>
-        <span className="font-sans text-[11px] tracking-[0.2em] text-champagne/45 tabular-nums">
+        <span className="shrink-0 font-sans text-[11px] tracking-[0.2em] text-champagne/45 tabular-nums">
           {project.id} / {String(total).padStart(2, "0")}
         </span>
       </div>
 
       <div
-        className="flex flex-col gap-6 transition-opacity duration-500 md:flex-row md:items-end md:justify-between"
+        className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-6 transition-opacity duration-500 md:flex-row md:items-end md:justify-between md:px-10"
         style={{ opacity }}
       >
         <div className="max-w-lg">
-          <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-burgundy">
+          <span className="editorial-tag">
             [{project.code}] {project.category}
           </span>
-          <h3 className="display-heading mt-3 text-[clamp(2rem,5vw,3.75rem)] leading-[0.92] text-champagne">
+          <h3 className="display-heading mt-3 text-balance break-words text-[clamp(2rem,5vw,3.75rem)] leading-[0.92] text-champagne">
             {project.title}
           </h3>
           <p className="mt-4 max-w-md font-sans text-sm leading-relaxed tracking-wide text-champagne/55 md:text-base">
@@ -63,11 +63,7 @@ function TunnelOverlay({
           <span className="font-sans text-[11px] tracking-[0.18em] text-champagne/35">
             {project.year}
           </span>
-          <button
-            type="button"
-            onClick={onEnter}
-            className="cursor-hover group border border-champagne/25 px-5 py-3 font-sans text-[10px] uppercase tracking-[0.24em] text-champagne transition-colors duration-500 hover:border-champagne/60 hover:bg-champagne/5"
-          >
+          <button type="button" onClick={onEnter} className="editorial-cta group">
             Enter project
             <span className="ml-2 inline-block transition-transform duration-500 group-hover:translate-x-1">
               →
@@ -155,17 +151,17 @@ function CaseStudyView({
           <button
             type="button"
             onClick={onClose}
-            className="case-reveal cursor-hover border border-champagne/30 px-4 py-2 font-sans text-[10px] uppercase tracking-[0.2em] text-champagne transition-colors hover:border-champagne/70"
+            className="case-reveal editorial-cta !px-4 !py-2"
           >
             Close
           </button>
         </div>
 
         <div className="max-w-2xl pb-8">
-          <span className="case-reveal font-sans text-[10px] uppercase tracking-[0.22em] text-burgundy">
+          <span className="case-reveal editorial-tag">
             [{project.code}] {project.category}
           </span>
-          <h2 className="case-reveal display-heading mt-4 text-[clamp(2.5rem,7vw,5rem)] leading-[0.92] text-champagne">
+          <h2 className="case-reveal display-heading mt-4 text-balance break-words text-[clamp(2.5rem,7vw,5rem)] leading-[0.92] text-champagne">
             {project.title}
           </h2>
           <p className="case-reveal mt-6 max-w-lg font-sans text-base leading-relaxed tracking-wide text-champagne/60 md:text-lg">

@@ -8,7 +8,7 @@ import {
   createFpsGate,
   getFpsLimit,
   getPixelRatioCap,
-  isMobileViewport,
+  shouldUseLiteShaders,
 } from "@/lib/webglPerf";
 
 export type TunnelApi = {
@@ -20,8 +20,8 @@ export type TunnelApi = {
 
 const RADIUS = 5.2;
 const SPACING = 6.4;
-const CARD_W = 4.2;
-const CARD_H = 2.85;
+const CARD_W = 4.0;
+const CARD_H = 3.0;
 const ANGLE_STEP = Math.PI * 0.55;
 
 /* ─── Curved card plane (cylinder-matched bend) ─── */
@@ -135,13 +135,23 @@ const cardFragment = /* glsl */ `
     float b = texture2D(uMap, uv - offset * 1.4).b;
     vec3 col = mix(texture2D(uMap, uv).rgb, vec3(r, g, b), h);
 
-    // Soft vignette / editorial grade
+    // Soft vignette / editorial grade — deepen slightly on hover for contrast
     float vig = smoothstep(0.95, 0.25, length(uv - 0.5));
     col *= mix(0.72, 1.0, vig);
     col = mix(col, col * vec3(1.05, 0.96, 0.9), 0.2);
+    col *= mix(1.0, 0.88, h * 0.35);
 
     // Active card lift
     col += vec3(0.04, 0.03, 0.02) * uActive;
+
+    // Champagne rim light on hover
+    float rim = (1.0 - smoothstep(0.0, 0.08, uv.x))
+              + (1.0 - smoothstep(0.0, 0.08, 1.0 - uv.x))
+              + (1.0 - smoothstep(0.0, 0.07, uv.y))
+              + (1.0 - smoothstep(0.0, 0.07, 1.0 - uv.y));
+    rim = clamp(rim, 0.0, 1.0);
+    vec3 champagne = vec3(0.898, 0.867, 0.796);
+    col += champagne * rim * h * 0.45;
 
     // Edge soft falloff
     float edge = smoothstep(0.0, 0.04, uv.x) * smoothstep(1.0, 0.96, uv.x)
@@ -201,7 +211,7 @@ export function WorksTunnelCanvas({
     let hoverEnabled = true;
     let flyOverride: number | null = null;
 
-    const mobile = isMobileViewport();
+    const mobile = shouldUseLiteShaders();
     const n = projects.length;
     const tunnelLength = (n - 1) * SPACING + 10;
 
@@ -494,14 +504,17 @@ export function WorksTunnelCanvas({
           (wantHover - mat.uniforms.uHover.value) * 0.1;
         mat.uniforms.uDistort.value = 0.4 + (1 - prox) * 0.8;
 
-        // Subtle breathe toward camera when active
+        // Subtle breathe + hover pull toward camera
         const breathe = i === active ? Math.sin(t * 1.2) * 0.025 : 0;
-        const pull = 1 - prox * 0.12 - breathe;
+        const hoverPull = mat.uniforms.uHover.value * 0.035;
+        const pull = 1 - prox * 0.12 - breathe - hoverPull;
         const side = data.side;
         const orbit = data.orbit * pull;
         card.position.x =
           Math.cos(data.baseAngle) * orbit * side * 0.85 + side * 0.9;
         card.position.y = data.cy * pull;
+        const baseScale = 1 + mat.uniforms.uHover.value * 0.04;
+        card.scale.setScalar(baseScale);
       });
 
       if (active !== lastActive || Math.abs(bestProx - lastProx) > 0.02) {

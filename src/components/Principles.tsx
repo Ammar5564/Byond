@@ -275,7 +275,7 @@ export function Principles() {
                 How we think
               </p>
 
-              <h2 className="display-heading mt-4 max-w-[600px] text-[clamp(1.35rem,2.6vw,2.15rem)] leading-[1.15] text-champagne/90">
+              <h2 className="display-heading mt-4 max-w-[600px] text-balance break-words text-[clamp(1.35rem,2.6vw,2.15rem)] leading-[1.15] text-champagne/90">
                 Building brands that endure isn&apos;t magic — it requires:
               </h2>
 
@@ -290,7 +290,7 @@ export function Principles() {
                   <span className="mb-3 block font-sans text-[10px] tracking-[0.28em] text-stone md:hidden">
                     {active.index} / {String(STEP_COUNT).padStart(2, "0")}
                   </span>
-                  <h3 className="manifesto-split display-heading text-[clamp(2.5rem,7vw,5rem)] leading-[0.94] text-champagne">
+                  <h3 className="manifesto-split display-heading text-balance break-words text-[clamp(2.25rem,7vw,5rem)] leading-[0.94] text-champagne">
                     {displayTitles[active.title] ?? active.title}
                   </h3>
                   <p className="manifesto-split mt-5 max-w-xl font-sans text-[clamp(0.95rem,1.5vw,1.125rem)] leading-relaxed tracking-wide text-fog/70">

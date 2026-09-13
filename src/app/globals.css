@@ -124,14 +124,6 @@
     @apply font-display font-normal leading-[0.95] tracking-editorial;
   }
 
-  .editorial-body {
-    @apply font-sans text-sm leading-relaxed tracking-wide text-snow/65 md:text-base;
-  }
-
-  .editorial-body-light {
-    @apply font-sans text-sm leading-relaxed tracking-wide text-ink/60 md:text-base;
-  }
-
   .link-underline {
     @apply relative inline-block after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-luxury hover:after:scale-x-100;
   }
@@ -149,20 +141,33 @@
     background:
       linear-gradient(
         180deg,
-        rgba(12, 10, 12, 0.5) 0%,
-        rgba(12, 10, 12, 0.28) 45%,
-        rgba(12, 10, 12, 0.72) 100%
+        rgba(12, 10, 12, 0.55) 0%,
+        rgba(12, 10, 12, 0.32) 42%,
+        rgba(12, 10, 12, 0.78) 100%
       ),
       radial-gradient(
         ellipse 80% 60% at 0% 100%,
-        rgba(60, 5, 15, 0.42) 0%,
+        rgba(60, 5, 15, 0.48) 0%,
         transparent 55%
+      ),
+      radial-gradient(
+        ellipse 50% 40% at 100% 0%,
+        rgba(229, 221, 203, 0.06) 0%,
+        transparent 50%
       ),
       radial-gradient(
         ellipse 55% 45% at 100% 0%,
         rgba(60, 5, 15, 0.22) 0%,
         transparent 50%
       );
+  }
+
+  .editorial-tag {
+    @apply font-sans text-[10px] uppercase tracking-[0.22em] text-burgundy;
+  }
+
+  .editorial-cta {
+    @apply cursor-hover border border-champagne/25 px-5 py-3 font-sans text-[10px] uppercase tracking-[0.24em] text-champagne transition-all duration-500 ease-luxury hover:scale-[1.02] hover:border-champagne/60 hover:bg-champagne/5;
   }
 
   .capabilities-nav-fade {
@@ -194,14 +199,6 @@
         rgba(251, 251, 251, 0.04) 0%,
         transparent 50%
       );
-  }
-
-  .work-light-leak {
-    background: linear-gradient(
-      105deg,
-      rgba(60, 5, 15, 0.28) 0%,
-      transparent 42%
-    );
   }
 }
 

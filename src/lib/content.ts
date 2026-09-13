@@ -12,49 +12,6 @@ export const siteConfig = {
   },
 };
 
-export const heroStatements = [
-  "Every brand is a story",
-  "Strategy · Cinema · Digital",
-  "We do it in double",
-  "Built for the world",
-];
-
-export const movingStatements = {
-  afterHero: [
-    "Narratives that outlive the moment",
-    "Strategy · Creativity · Technology",
-    "Cairo-born · Globally minded",
-  ],
-  afterWork: [
-    "Stories we love to tell",
-    "Film · Brand · Digital",
-    "Nothing felt staged",
-  ],
-  beforeContact: [
-    "Begin a conversation",
-    "Forge a partnership",
-    "Beyond expectation",
-  ],
-};
-
-export const editorialQuotes = [
-  {
-    quote:
-      "People create stories to understand the meaning of what surrounds us. A brand is just that — a story.",
-    author: "On narrative",
-  },
-  {
-    quote:
-      "Creativity without strategy is noise. We study context first — then we create work that lands.",
-    author: "On craft",
-  },
-  {
-    quote:
-      "Our goal is not one-time assignments. We forge partnerships built to endure locally and thrive globally.",
-    author: "On partnership",
-  },
-];
-
 export const principles = [
   {
     index: "01",
@@ -136,39 +93,6 @@ export const capabilities: Capability[] = [
 ];
 
 export const capabilityMarquee = capabilities.map((c) => c.title);
-
-export const approach = [
-  {
-    step: "01",
-    title: "Acknowledge",
-    text: "Listen first — to objectives, audience, and the space you wish to occupy.",
-  },
-  {
-    step: "02",
-    title: "Plan & Optimize",
-    text: "Strategy, concept, moodboard — the path from intention to impact.",
-  },
-  {
-    step: "03",
-    title: "Guide",
-    text: "Alignment on process and creative direction before a frame is made.",
-  },
-  {
-    step: "04",
-    title: "Visualize",
-    text: "Location, design, storyboard — until the vision is undeniable.",
-  },
-  {
-    step: "05",
-    title: "Execute",
-    text: "Cameras roll. Campaigns launch. Nothing less than exceptional.",
-  },
-  {
-    step: "06",
-    title: "Deliver",
-    text: "Masterpiece in hand — on time, refined until the objective is met.",
-  },
-];
 
 export type WorkItem = {
   id: string;

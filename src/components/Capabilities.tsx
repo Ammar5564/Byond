@@ -139,7 +139,7 @@ export function Capabilities() {
           <div className="flex h-full flex-col">
             <div className="shrink-0 px-6 md:px-10">
               <p className="section-label">Capabilities</p>
-              <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.3em] text-snow/35">
+              <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.28em] text-snow/40">
                 What we do
               </p>
             </div>
@@ -153,7 +153,7 @@ export function Capabilities() {
                 {capabilities.map((item) => (
                   <p
                     key={`ghost-${item.index}`}
-                    className="cap-ghost display-heading absolute inset-x-6 top-1/2 max-w-[88vw] -translate-y-1/2 text-center text-[clamp(2rem,8.5vw,7.5rem)] leading-[0.92] text-snow/[0.07] md:inset-x-10"
+                    className="cap-ghost display-heading absolute inset-x-0 top-1/2 -translate-y-1/2 px-2 text-center text-balance break-words text-[clamp(2rem,8.5vw,7.5rem)] leading-[0.92] text-snow/[0.055]"
                   >
                     {item.title}
                   </p>
@@ -191,17 +191,15 @@ export function Capabilities() {
                       key={item.index}
                       className="cap-panel absolute inset-0 flex items-end md:items-center"
                     >
-                      <div className="max-w-2xl pb-2 md:pb-0">
+                      <div className="max-w-2xl min-w-0 pb-2 md:pb-0">
                         <span className="font-display text-[clamp(3.5rem,11vw,9rem)] leading-none text-snow/15">
                           {item.index}
                         </span>
-                        <div className="mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-2 md:-mt-6">
-                          <h3 className="display-heading text-[clamp(2.25rem,5vw,4.5rem)] leading-[0.95] text-snow">
+                        <div className="mt-2 flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-2 md:-mt-6">
+                          <h3 className="display-heading min-w-0 text-balance break-words text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] text-snow">
                             {item.title}
                           </h3>
-                          <span className="font-sans text-[10px] tracking-wider text-burgundy">
-                            [{item.code}]
-                          </span>
+                          <span className="editorial-tag shrink-0">[{item.code}]</span>
                         </div>
                         <p className="mt-5 max-w-lg font-sans text-sm leading-relaxed tracking-wide text-snow/60 md:mt-6 md:text-base">
                           {item.description}

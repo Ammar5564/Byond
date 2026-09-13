@@ -1,29 +1,51 @@
 /**
  * Shared WebGL performance helpers.
- * Mobile caps apply ONLY when viewport width < 768px.
+ * Lite / FPS caps: viewport < 768 OR pointer: coarse.
+ * Desktop fine-pointer keeps full quality (up to 60fps / 2× DPR).
  */
 
 export const MOBILE_BREAKPOINT = 768;
 export const MOBILE_MAX_TEXTURE = 1024;
 
-export function isMobileViewport(width = typeof window !== "undefined" ? window.innerWidth : 1024) {
+export function isMobileViewport(
+  width = typeof window !== "undefined" ? window.innerWidth : 1024
+) {
   return width < MOBILE_BREAKPOINT;
 }
 
-/** Desktop up to 2×; mobile capped at 1.5× — never apply mobile caps on desktop. */
-export function getPixelRatioCap(width?: number) {
-  const mobile = isMobileViewport(width);
-  const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-  return Math.min(dpr, mobile ? 1.5 : 2);
+export function isCoarsePointer() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia("(pointer: coarse)").matches;
 }
 
-export function getFpsLimit(width?: number) {
-  return isMobileViewport(width) ? 30 : 60;
+/** Lite shaders when narrow viewport or touch-primary device. */
+export function shouldUseLiteShaders(
+  width = typeof window !== "undefined" ? window.innerWidth : 1024
+) {
+  return isMobileViewport(width) || isCoarsePointer();
+}
+
+/** Desktop fine: up to 2×. Narrow: 1.5×. Coarse pointer: 1.25×. */
+export function getPixelRatioCap(
+  width = typeof window !== "undefined" ? window.innerWidth : 1024
+) {
+  const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+  if (isCoarsePointer()) return Math.min(dpr, 1.25);
+  if (isMobileViewport(width)) return Math.min(dpr, 1.5);
+  return Math.min(dpr, 2);
+}
+
+export function getFpsLimit(
+  width = typeof window !== "undefined" ? window.innerWidth : 1024
+) {
+  return shouldUseLiteShaders(width) ? 30 : 60;
 }
 
 /**
  * Keeps rAF running (ambient shaders stay alive) but skips renders
- * that would exceed the target FPS on the current viewport.
+ * that would exceed the target FPS on the current device tier.
  */
 export function createFpsGate(getLimit: () => number = getFpsLimit) {
   let lastTime = 0;
@@ -36,12 +58,15 @@ export function createFpsGate(getLimit: () => number = getFpsLimit) {
   };
 }
 
-/** Downscale image/canvas textures on mobile to ≤1024². */
+/** Downscale image/canvas textures on lite devices to ≤1024². */
 export function clampTextureForMobile(
-  texture: { image?: { width?: number; height?: number }; needsUpdate?: boolean },
-  mobile = isMobileViewport()
+  texture: {
+    image?: { width?: number; height?: number };
+    needsUpdate?: boolean;
+  },
+  lite = shouldUseLiteShaders()
 ) {
-  if (!mobile) return texture;
+  if (!lite) return texture;
   const img = texture.image as
     | HTMLImageElement
     | HTMLCanvasElement
@@ -74,4 +99,24 @@ export function addPassive(
 ) {
   target.addEventListener(type, handler, { ...options, passive: true });
   return () => target.removeEventListener(type, handler);
+}
+
+/** Debounce helper for resize storms. */
+export function debounce<T extends (...args: never[]) => void>(
+  fn: T,
+  ms: number
+) {
+  let id: ReturnType<typeof setTimeout> | null = null;
+  const wrapped = (...args: Parameters<T>) => {
+    if (id) clearTimeout(id);
+    id = setTimeout(() => {
+      id = null;
+      fn(...args);
+    }, ms);
+  };
+  wrapped.cancel = () => {
+    if (id) clearTimeout(id);
+    id = null;
+  };
+  return wrapped;
 }
