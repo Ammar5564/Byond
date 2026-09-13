@@ -1,23 +1,36 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { selectedWork, type WorkItem } from "@/lib/content";
 import {
   WorksTunnelCanvasClient,
   type TunnelApi,
 } from "./WorksTunnelCanvasClient";
+import { VideoModal } from "./VideoModal";
+
+function PlayIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M8.25 5.75v12.5L19 12 8.25 5.75z" />
+    </svg>
+  );
+}
 
 function TunnelOverlay({
   project,
   proximity,
   total,
-  onEnter,
+  onPlay,
 }: {
   project: WorkItem;
   proximity: number;
   total: number;
-  onEnter: () => void;
+  onPlay: () => void;
 }) {
   const opacity = 0.35 + proximity * 0.65;
 
@@ -43,133 +56,53 @@ function TunnelOverlay({
         </span>
       </div>
 
+      {/* Active card play affordance — DOM overlay (WebGL planes can't host CSS hover) */}
+      <div
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+        style={{ opacity }}
+      >
+        <button
+          type="button"
+          onClick={onPlay}
+          className="group pointer-events-auto"
+          aria-label={`Play ${project.title}`}
+        >
+          <span className="relative flex h-16 w-16 items-center justify-center rounded-full border border-champagne/35 bg-ink/55 text-champagne shadow-[0_0_40px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 md:h-20 md:w-20">
+            <PlayIcon className="ml-1 h-7 w-7 md:h-8 md:w-8" />
+          </span>
+        </button>
+      </div>
+
       <div
         className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-6 transition-opacity duration-500 md:flex-row md:items-end md:justify-between md:px-10"
         style={{ opacity }}
       >
         <div className="max-w-lg">
-          <span className="editorial-tag">
-            [{project.code}] {project.category}
-          </span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="editorial-tag">{project.category}</span>
+            <span className="editorial-tag tabular-nums">
+              [ {project.duration} ]
+            </span>
+          </div>
           <h3 className="display-heading mt-3 text-balance break-words text-[clamp(2rem,5vw,3.75rem)] leading-[0.92] text-champagne">
             {project.title}
           </h3>
           <p className="mt-4 max-w-md font-sans text-sm leading-relaxed tracking-wide text-champagne/55 md:text-base">
-            {project.description}
+            {project.client}
           </p>
         </div>
 
         <div className="pointer-events-auto flex items-end gap-8">
-          <span className="font-sans text-[11px] tracking-[0.18em] text-champagne/35">
-            {project.year}
-          </span>
-          <button type="button" onClick={onEnter} className="editorial-cta group">
-            Enter project
+          <button
+            type="button"
+            onClick={onPlay}
+            className="editorial-cta group"
+          >
+            Play film
             <span className="ml-2 inline-block transition-transform duration-500 group-hover:translate-x-1">
               →
             </span>
           </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CaseStudyView({
-  project,
-  onClose,
-}: {
-  project: WorkItem;
-  onClose: () => void;
-}) {
-  const panelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const panel = panelRef.current;
-    if (!panel) return;
-    let cancelled = false;
-
-    async function animate() {
-      const { default: gsap } = await import("gsap");
-      if (cancelled || !panel) return;
-      gsap.fromTo(
-        panel,
-        { opacity: 0, scale: 1.04 },
-        { opacity: 1, scale: 1, duration: 0.9, ease: "power3.out" }
-      );
-      gsap.fromTo(
-        panel.querySelectorAll(".case-reveal"),
-        { y: 28, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.08,
-          ease: "power2.out",
-          delay: 0.25,
-        }
-      );
-    }
-    animate();
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      cancelled = true;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      ref={panelRef}
-      className="absolute inset-0 z-40 flex flex-col overflow-hidden bg-ink"
-      role="dialog"
-      aria-modal="true"
-      aria-label={project.title}
-    >
-      <div className="absolute inset-0">
-        <Image
-          src={project.image}
-          alt={project.imageAlt}
-          fill
-          className="object-cover"
-          sizes="100vw"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/70 to-ink/30" />
-        <div className="work-symphony-wash absolute inset-0 opacity-60" />
-      </div>
-
-      <div className="relative z-10 flex h-full flex-col justify-between px-6 py-8 md:px-10 md:py-12">
-        <div className="flex items-start justify-between">
-          <span className="case-reveal font-sans text-[10px] uppercase tracking-[0.24em] text-champagne/50">
-            Case study · {project.id}
-          </span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="case-reveal editorial-cta !px-4 !py-2"
-          >
-            Close
-          </button>
-        </div>
-
-        <div className="max-w-2xl pb-8">
-          <span className="case-reveal editorial-tag">
-            [{project.code}] {project.category}
-          </span>
-          <h2 className="case-reveal display-heading mt-4 text-balance break-words text-[clamp(2.5rem,7vw,5rem)] leading-[0.92] text-champagne">
-            {project.title}
-          </h2>
-          <p className="case-reveal mt-6 max-w-lg font-sans text-base leading-relaxed tracking-wide text-champagne/60 md:text-lg">
-            {project.description}
-          </p>
-          <p className="case-reveal mt-4 font-sans text-sm tracking-wide text-champagne/35">
-            {project.mediaBrief} · {project.year}
-          </p>
         </div>
       </div>
     </div>
@@ -184,38 +117,24 @@ export function SelectedWork() {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [proximity, setProximity] = useState(1);
-  const [caseOpen, setCaseOpen] = useState(false);
-  const [caseIndex, setCaseIndex] = useState(0);
-  const caseOpenRef = useRef(false);
+  const [activeYoutubeId, setActiveYoutubeId] = useState<string | null>(null);
 
   const onActiveChange = useCallback((index: number, prox: number) => {
     setActiveIndex(index);
     setProximity(prox);
   }, []);
 
-  const openCase = useCallback(async (index: number) => {
-    const api = apiRef.current;
-    api?.setHoverEnabled(false);
-    if (api) {
-      await api.flyToIndex(index);
-    }
-    setCaseIndex(index);
-    setCaseOpen(true);
-    caseOpenRef.current = true;
-  }, []);
-
-  const closeCase = useCallback(() => {
-    setCaseOpen(false);
-    caseOpenRef.current = false;
-    apiRef.current?.setHoverEnabled(true);
+  const openVideo = useCallback((index: number) => {
+    const item = selectedWork[index];
+    if (!item) return;
+    setActiveYoutubeId(item.youtubeId);
   }, []);
 
   const onSelect = useCallback(
     (index: number) => {
-      if (caseOpenRef.current) return;
-      void openCase(index);
+      openVideo(index);
     },
-    [openCase]
+    [openVideo]
   );
 
   useEffect(() => {
@@ -257,7 +176,9 @@ export function SelectedWork() {
   }, []);
 
   const project = selectedWork[activeIndex] ?? selectedWork[0];
-  const caseProject = selectedWork[caseIndex] ?? selectedWork[0];
+  const playingTitle =
+    selectedWork.find((w) => w.youtubeId === activeYoutubeId)?.title ??
+    project.title;
   const railProgress =
     (activeIndex + proximity * 0.15) / Math.max(1, selectedWork.length - 1);
 
@@ -288,32 +209,30 @@ export function SelectedWork() {
           aria-hidden="true"
         />
 
-        {!caseOpen && (
-          <TunnelOverlay
-            project={project}
-            proximity={proximity}
-            total={selectedWork.length}
-            onEnter={() => void openCase(activeIndex)}
-          />
-        )}
+        <TunnelOverlay
+          project={project}
+          proximity={proximity}
+          total={selectedWork.length}
+          onPlay={() => openVideo(activeIndex)}
+        />
 
-        {!caseOpen && (
+        <div
+          className="pointer-events-none absolute right-6 top-1/2 z-20 hidden h-32 w-px -translate-y-1/2 bg-champagne/10 md:right-10 md:block"
+          aria-hidden="true"
+        >
           <div
-            className="pointer-events-none absolute right-6 top-1/2 z-20 hidden h-32 w-px -translate-y-1/2 bg-champagne/10 md:right-10 md:block"
-            aria-hidden="true"
-          >
-            <div
-              className="w-px origin-top bg-champagne/50 transition-[height] duration-300"
-              style={{
-                height: `${Math.min(1, Math.max(0.08, railProgress)) * 100}%`,
-              }}
-            />
-          </div>
-        )}
+            className="w-px origin-top bg-champagne/50 transition-[height] duration-300"
+            style={{
+              height: `${Math.min(1, Math.max(0.08, railProgress)) * 100}%`,
+            }}
+          />
+        </div>
 
-        {caseOpen && (
-          <CaseStudyView project={caseProject} onClose={closeCase} />
-        )}
+        <VideoModal
+          youtubeId={activeYoutubeId}
+          title={playingTitle}
+          onClose={() => setActiveYoutubeId(null)}
+        />
       </div>
     </section>
   );

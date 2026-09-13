@@ -97,93 +97,67 @@ export const capabilityMarquee = capabilities.map((c) => c.title);
 export type WorkItem = {
   id: string;
   title: string;
+  client: string;
   category: string;
-  year: string;
-  code: string;
-  image: string;
-  imageAlt: string;
-  description: string;
-  mediaBrief: string;
+  youtubeId: string;
+  duration: string;
+  thumbnail: string;
 };
 
 export const selectedWork: WorkItem[] = [
   {
     id: "01",
-    title: "Felopateer Palace",
-    category: "Brand Film · Identity",
-    year: "2025",
-    code: "FP",
-    image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600&q=80",
-    imageAlt: "Luxury interior with warm ambient lighting",
-    description:
-      "Heritage reimagined as cinema — identity and atmosphere before message.",
-    mediaBrief: "Dark luxury interior — marble, warm gold light",
+    title: "PGESCO Video",
+    client: "PGESCO",
+    category: "BRAND FILM",
+    youtubeId: "ZsMYbdpliQE",
+    duration: "09:50",
+    thumbnail: "https://img.youtube.com/vi/ZsMYbdpliQE/hqdefault.jpg",
   },
   {
     id: "02",
-    title: "Hassan Allam",
-    category: "Employer Branding · Film",
-    year: "2024",
-    code: "HA",
-    image:
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
-    imageAlt: "Modern corporate tower at dusk",
-    description:
-      "Employer brand as architecture — scale without coldness, ambition with soul.",
-    mediaBrief: "Corporate architecture at golden hour",
+    title: "Hassan Allam Academy",
+    client: "Hassan Allam",
+    category: "CORPORATE",
+    youtubeId: "MavqDosrHV8",
+    duration: "03:11",
+    thumbnail: "https://img.youtube.com/vi/MavqDosrHV8/hqdefault.jpg",
   },
   {
     id: "03",
-    title: "Lorenz Global",
-    category: "Marketing · Campaign",
-    year: "2024",
-    code: "LG",
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80",
-    imageAlt: "Product detail with dramatic lighting",
-    description:
-      "Product as narrative — light, shadow, and restraint in every frame.",
-    mediaBrief: "Premium product photography, moody lighting",
+    title: "Sorouh AD",
+    client: "Sorouh",
+    category: "COMMERCIAL",
+    youtubeId: "rm5jroM6kCg",
+    duration: "01:10",
+    thumbnail: "https://img.youtube.com/vi/rm5jroM6kCg/hqdefault.jpg",
   },
   {
     id: "04",
-    title: "Presidential Affairs",
-    category: "Documentary · Film",
-    year: "2023",
-    code: "PA",
-    image:
-      "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&q=80",
-    imageAlt: "City skyline at night",
-    description:
-      "Institutional storytelling with cinematic weight — truth before rhetoric.",
-    mediaBrief: "Institutional cityscape, cinematic wide shot",
+    title: "Hassan Allam - NEW CAPITAL",
+    client: "Hassan Allam",
+    category: "DOCUMENTARY",
+    youtubeId: "ZA_YPogBMRU",
+    duration: "01:34",
+    thumbnail: "https://img.youtube.com/vi/ZA_YPogBMRU/hqdefault.jpg",
   },
   {
     id: "05",
-    title: "KO Squad",
-    category: "Creative Ad · Digital",
-    year: "2024",
-    code: "KO",
-    image:
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&q=80",
-    imageAlt: "Abstract fluid gradient",
-    description:
-      "Digital craft with editorial edge — motion that feels authored, not automated.",
-    mediaBrief: "Abstract dark luxury gradient",
+    title: "Menassat Commercial",
+    client: "Menassat",
+    category: "COMMERCIAL",
+    youtubeId: "mpRjRP7kbUU",
+    duration: "01:56",
+    thumbnail: "https://img.youtube.com/vi/mpRjRP7kbUU/hqdefault.jpg",
   },
   {
     id: "06",
-    title: "Real Estate Launch",
-    category: "Film · 3D Visualization",
-    year: "2025",
-    code: "RE",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
-    imageAlt: "Luxury residence at twilight",
-    description:
-      "Space sold through story — twilight, texture, and the life imagined within.",
-    mediaBrief: "Luxury villa twilight cinematic",
+    title: "Jotun Factory - Egypt",
+    client: "Jotun",
+    category: "INDUSTRIAL",
+    youtubeId: "OTM-4qm5ljk",
+    duration: "01:18",
+    thumbnail: "https://img.youtube.com/vi/OTM-4qm5ljk/hqdefault.jpg",
   },
 ];
 

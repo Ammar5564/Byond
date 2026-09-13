@@ -325,7 +325,7 @@ export function WorksTunnelCanvas({
       cards.push(mesh as CardMesh);
 
       loader.load(
-        project.image,
+        project.thumbnail,
         (tex) => {
           if (disposed) {
             tex.dispose();
