@@ -132,7 +132,7 @@ export function Navigation() {
           aria-label="Primary"
         >
           <ul
-            className={`flex items-center gap-1 rounded-full border px-2 py-1.5 backdrop-blur-xl transition-colors duration-500 ${
+            className={`flex items-center gap-1 rounded-full border px-2 py-1.5 backdrop-blur-none transition-colors duration-500 md:backdrop-blur-xl ${
               isLight
                 ? "border-ink/10 bg-snow/75"
                 : "border-white/10 bg-black/50"
@@ -183,7 +183,7 @@ export function Navigation() {
         aria-label="Primary mobile"
       >
         <ul
-          className={`flex w-max items-center gap-1 rounded-full border px-1.5 py-1 backdrop-blur-xl ${
+          className={`flex w-max items-center gap-1 rounded-full border px-1.5 py-1 backdrop-blur-none ${
             isLight ? "border-ink/10 bg-snow/75" : "border-white/10 bg-black/50"
           }`}
         >

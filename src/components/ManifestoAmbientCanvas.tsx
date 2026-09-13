@@ -4,8 +4,10 @@ import { useEffect, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
 import {
   createFpsGate,
+  createScrollFreeze,
   getFpsLimit,
   getPixelRatioCap,
+  isNarrowViewport,
   shouldUseLiteShaders,
 } from "@/lib/webglPerf";
 
@@ -175,6 +177,7 @@ export function ManifestoAmbientCanvas({
     let smoothProgress = 0;
     let smoothStep = 0;
     const shouldRender = createFpsGate(() => getFpsLimit());
+    const scrollFreeze = createScrollFreeze();
 
     let visible = true;
     const io = new IntersectionObserver(
@@ -195,6 +198,7 @@ export function ManifestoAmbientCanvas({
       raf = requestAnimationFrame(tick);
 
       if (!visible || document.hidden) return;
+      if (isNarrowViewport() && scrollFreeze.isFrozen()) return;
       if (!shouldRender(time)) return;
 
       const t = clock.getElapsedTime();
@@ -214,6 +218,7 @@ export function ManifestoAmbientCanvas({
       cancelAnimationFrame(raf);
       ro.disconnect();
       io.disconnect();
+      scrollFreeze.dispose();
       document.removeEventListener("visibilitychange", onVisibility);
       mesh.geometry.dispose();
       material.dispose();

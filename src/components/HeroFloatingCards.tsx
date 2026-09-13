@@ -259,7 +259,7 @@ export function HeroFloatingCards({ heroRef }: HeroFloatingCardsProps) {
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-10 origin-center scale-[0.72] md:scale-100"
+      className="pointer-events-none absolute inset-0 z-10 origin-center scale-[0.72] gpu-accelerate md:scale-100"
       aria-hidden="true"
     >
       {cards.map((card, index) => (

@@ -1,16 +1,24 @@
 /**
  * Shared WebGL performance helpers.
- * Lite / FPS caps: viewport < 768 OR pointer: coarse.
- * Desktop fine-pointer keeps full quality (up to 60fps / 2× DPR).
+ * DPR: min(devicePixelRatio, 1.5) on all devices.
+ * FPS: 60 desktop (≥768), 30 mobile (<768) + scroll freeze on mobile.
+ * Lite shaders: pointer: coarse OR hardwareConcurrency ≤ 4.
  */
 
 export const MOBILE_BREAKPOINT = 768;
 export const MOBILE_MAX_TEXTURE = 1024;
 
-export function isMobileViewport(
+export function isNarrowViewport(
   width = typeof window !== "undefined" ? window.innerWidth : 1024
 ) {
   return width < MOBILE_BREAKPOINT;
+}
+
+/** @deprecated Prefer isNarrowViewport — kept for call-site clarity. */
+export function isMobileViewport(
+  width = typeof window !== "undefined" ? window.innerWidth : 1024
+) {
+  return isNarrowViewport(width);
 }
 
 export function isCoarsePointer() {
@@ -20,32 +28,32 @@ export function isCoarsePointer() {
   return window.matchMedia("(pointer: coarse)").matches;
 }
 
-/** Lite shaders when narrow viewport or touch-primary device. */
-export function shouldUseLiteShaders(
-  width = typeof window !== "undefined" ? window.innerWidth : 1024
-) {
-  return isMobileViewport(width) || isCoarsePointer();
+export function isLowConcurrency() {
+  if (typeof navigator === "undefined") return false;
+  const cores = navigator.hardwareConcurrency ?? 8;
+  return cores > 0 && cores <= 4;
 }
 
-/** Desktop fine: up to 2×. Narrow: 1.5×. Coarse pointer: 1.25×. */
-export function getPixelRatioCap(
-  width = typeof window !== "undefined" ? window.innerWidth : 1024
-) {
+/** Lite shaders / skip particles: coarse pointer OR low CPU cores. */
+export function shouldUseLiteShaders() {
+  return isCoarsePointer() || isLowConcurrency();
+}
+
+/** Cap DPR at 1.5 on desktop and mobile. */
+export function getPixelRatioCap() {
   const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-  if (isCoarsePointer()) return Math.min(dpr, 1.25);
-  if (isMobileViewport(width)) return Math.min(dpr, 1.5);
-  return Math.min(dpr, 2);
+  return Math.min(dpr, 1.5);
 }
 
+/** Desktop ≥768 → 60 FPS. Mobile <768 → 30 FPS. */
 export function getFpsLimit(
   width = typeof window !== "undefined" ? window.innerWidth : 1024
 ) {
-  return shouldUseLiteShaders(width) ? 30 : 60;
+  return isNarrowViewport(width) ? 30 : 60;
 }
 
 /**
- * Keeps rAF running (ambient shaders stay alive) but skips renders
- * that would exceed the target FPS on the current device tier.
+ * Keeps rAF running but skips renders that would exceed the target FPS.
  */
 export function createFpsGate(getLimit: () => number = getFpsLimit) {
   let lastTime = 0;
@@ -55,6 +63,37 @@ export function createFpsGate(getLimit: () => number = getFpsLimit) {
     if (time - lastTime < minDelta) return false;
     lastTime = time;
     return true;
+  };
+}
+
+/**
+ * Pause draws while the page is actively scrolling.
+ * Cleared after `idleMs` without scroll events.
+ */
+export function createScrollFreeze(idleMs = 140) {
+  let frozen = false;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const onScroll = () => {
+    frozen = true;
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      frozen = false;
+      timer = null;
+    }, idleMs);
+  };
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("scroll", onScroll, { passive: true });
+  }
+
+  return {
+    isFrozen: () => frozen,
+    dispose: () => {
+      if (typeof window === "undefined") return;
+      window.removeEventListener("scroll", onScroll);
+      if (timer) clearTimeout(timer);
+    },
   };
 }
 

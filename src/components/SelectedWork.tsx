@@ -67,7 +67,7 @@ function TunnelOverlay({
           className="group pointer-events-auto"
           aria-label={`Play ${project.title}`}
         >
-          <span className="relative flex h-16 w-16 items-center justify-center rounded-full border border-champagne/35 bg-ink/55 text-champagne shadow-[0_0_40px_rgba(0,0,0,0.45)] backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 md:h-20 md:w-20">
+          <span className="relative flex h-16 w-16 items-center justify-center rounded-full border border-champagne/35 bg-ink/55 text-champagne shadow-[0_0_40px_rgba(0,0,0,0.45)] backdrop-blur-none transition-transform duration-300 group-hover:scale-110 md:h-20 md:w-20 md:backdrop-blur-sm">
             <PlayIcon className="ml-1 h-7 w-7 md:h-8 md:w-8" />
           </span>
         </button>
@@ -190,7 +190,7 @@ export function SelectedWork() {
     >
       <div
         ref={pinRef}
-        className="relative h-screen w-full overflow-hidden bg-ink"
+        className="relative h-screen w-full overflow-hidden bg-ink gpu-accelerate"
       >
         <WorksTunnelCanvasClient
           projects={selectedWork}

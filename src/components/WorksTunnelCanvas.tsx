@@ -6,8 +6,10 @@ import type { WorkItem } from "@/lib/content";
 import {
   clampTextureForMobile,
   createFpsGate,
+  createScrollFreeze,
   getFpsLimit,
   getPixelRatioCap,
+  isNarrowViewport,
   shouldUseLiteShaders,
 } from "@/lib/webglPerf";
 
@@ -211,15 +213,15 @@ export function WorksTunnelCanvas({
     let hoverEnabled = true;
     let flyOverride: number | null = null;
 
-    const mobile = shouldUseLiteShaders();
+    const lite = shouldUseLiteShaders();
     const n = projects.length;
     const tunnelLength = (n - 1) * SPACING + 10;
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: !mobile,
+      antialias: !lite,
       alpha: true,
-      powerPreference: mobile ? "low-power" : "high-performance",
+      powerPreference: lite ? "low-power" : "high-performance",
     });
     renderer.setPixelRatio(getPixelRatioCap());
     renderer.setClearColor(0x0a0a0a, 1);
@@ -240,8 +242,8 @@ export function WorksTunnelCanvas({
     rim.position.set(0, -2, -8);
     scene.add(rim);
 
-    // Lattice walls — skip on mobile for lighter draw calls
-    const lattice = mobile
+    // Lattice walls — skip on lite devices for lighter draw calls
+    const lattice = lite
       ? null
       : createTunnelLattice(RADIUS + 0.15, tunnelLength);
     if (lattice) scene.add(lattice);
@@ -278,7 +280,7 @@ export function WorksTunnelCanvas({
       CARD_W,
       CARD_H,
       RADIUS * 1.1,
-      mobile ? 16 : 36
+      lite ? 16 : 36
     );
 
     const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
@@ -331,7 +333,7 @@ export function WorksTunnelCanvas({
             tex.dispose();
             return;
           }
-          clampTextureForMobile(tex, mobile);
+          clampTextureForMobile(tex, lite);
           tex.colorSpace = THREE.SRGBColorSpace;
           tex.minFilter = THREE.LinearFilter;
           tex.generateMipmaps = false;
@@ -446,11 +448,13 @@ export function WorksTunnelCanvas({
     };
 
     const shouldRender = createFpsGate(() => getFpsLimit());
+    const scrollFreeze = createScrollFreeze();
 
     const tick = (time: number) => {
       if (disposed) return;
       raf = requestAnimationFrame(tick);
       if (document.hidden) return;
+      if (isNarrowViewport() && scrollFreeze.isFrozen()) return;
       if (!shouldRender(time)) return;
 
       const t = clock.getElapsedTime();
@@ -473,8 +477,8 @@ export function WorksTunnelCanvas({
       key.position.z = camZ - 1.5;
       rim.position.z = camZ - 10;
 
-      // Hover raycast — skip on mobile for cheaper frames
-      if (hoverEnabled && !mobile) {
+      // Hover raycast — skip on lite devices for cheaper frames
+      if (hoverEnabled && !lite) {
         raycaster.setFromCamera(pointerNDC, camera);
         const hits = raycaster.intersectObjects(cards, false);
         hoveredIndex =
@@ -534,6 +538,7 @@ export function WorksTunnelCanvas({
       disposed = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      scrollFreeze.dispose();
       wrap.removeEventListener("pointermove", onPointerMove);
       wrap.removeEventListener("pointerleave", onPointerLeave);
       wrap.removeEventListener("click", onClick);

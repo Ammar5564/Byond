@@ -111,14 +111,14 @@ export function Capabilities() {
     >
       <div
         ref={pinRef}
-        className="relative h-screen w-full overflow-hidden bg-ink"
+        className="relative h-screen w-full overflow-hidden bg-ink gpu-accelerate"
       >
         {/* Layer 2 — full-bleed image behind header (edge to edge) */}
         <div className="absolute inset-0 z-0" aria-hidden="true">
           {capabilities.map((item, index) => (
             <div
               key={item.index}
-              className="cap-bg absolute inset-0 will-change-transform"
+              className="cap-bg absolute inset-0 will-change-transform gpu-accelerate"
             >
               <Image
                 src={item.image}
@@ -214,7 +214,7 @@ export function Capabilities() {
         </div>
 
         {/* Bottom marquee */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 border-t border-symphony bg-ink/40 py-5 backdrop-blur-sm">
+        <div className="absolute bottom-0 left-0 right-0 z-20 border-t border-symphony bg-ink/40 py-5 backdrop-blur-none md:backdrop-blur-sm">
           <MarqueeBand
             items={capabilityMarquee}
             speed="slow"

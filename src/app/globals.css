@@ -48,6 +48,23 @@
   }
 }
 
+/* Promote animated stages onto their own compositor layer */
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Heavy backdrop-filter is a major scroll jank source on phones */
+@media (max-width: 767px) {
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-xl {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
 @layer components {
   .symphony-void {
     background-color: var(--ink);

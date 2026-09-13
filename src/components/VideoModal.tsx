@@ -34,7 +34,7 @@ export function VideoModal({ youtubeId, onClose, title }: VideoModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-none md:backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-label={title ?? "Video player"}

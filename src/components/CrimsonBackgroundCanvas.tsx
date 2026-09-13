@@ -4,9 +4,11 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import {
   createFpsGate,
+  createScrollFreeze,
   debounce,
   getFpsLimit,
   getPixelRatioCap,
+  isNarrowViewport,
   shouldUseLiteShaders,
 } from "@/lib/webglPerf";
 
@@ -192,8 +194,8 @@ export function CrimsonBackgroundCanvas() {
       if (disposed) return;
       const w = window.innerWidth;
       const h = window.innerHeight;
-      lite = shouldUseLiteShaders(w);
-      const dpr = getPixelRatioCap(w);
+      lite = shouldUseLiteShaders();
+      const dpr = getPixelRatioCap();
       renderer.setPixelRatio(dpr);
       renderer.setSize(w, h, false);
       uniforms.uLite.value = lite ? 1 : 0;
@@ -211,11 +213,13 @@ export function CrimsonBackgroundCanvas() {
 
     const clock = new THREE.Clock();
     const shouldRender = createFpsGate(() => getFpsLimit());
+    const scrollFreeze = createScrollFreeze();
 
     const tick = (time: number) => {
       if (disposed) return;
       raf = window.requestAnimationFrame(tick);
       if (document.hidden) return;
+      if (isNarrowViewport() && scrollFreeze.isFrozen()) return;
       if (!shouldRender(time)) return;
 
       uniforms.uTime.value = clock.getElapsedTime();
@@ -231,6 +235,7 @@ export function CrimsonBackgroundCanvas() {
       window.cancelAnimationFrame(raf);
       window.removeEventListener("scroll", syncScroll);
       window.removeEventListener("resize", syncSizeDebounced);
+      scrollFreeze.dispose();
       syncSizeDebounced.cancel();
       material.dispose();
       mesh.geometry.dispose();

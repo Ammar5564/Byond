@@ -49,9 +49,9 @@ export function CustomCursor() {
       raf = requestAnimationFrame(tick);
     };
 
-    window.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseover", onOver);
-    document.addEventListener("mouseout", onOut);
+    window.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseover", onOver, { passive: true });
+    document.addEventListener("mouseout", onOut, { passive: true });
     raf = requestAnimationFrame(tick);
 
     return () => {
