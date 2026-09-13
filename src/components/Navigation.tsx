@@ -128,104 +128,105 @@ export function Navigation() {
     : "border-white/10 bg-black/50";
 
   return (
-    <header
-      ref={headerRef}
-      className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
-        scrolled ? "py-3" : "py-4"
-      }`}
-    >
-      <div className="relative z-50 mx-auto grid max-w-[1400px] grid-cols-[1fr_auto] items-center gap-x-4 px-4 sm:gap-x-6 sm:px-6 md:grid-cols-[1fr_auto_1fr] md:gap-x-8 md:px-10">
-        <Link
-          href="#hero"
-          className="cursor-hover block w-24 shrink-0 justify-self-start sm:w-28 md:w-32"
-          onClick={() => setMenuOpen(false)}
-        >
-          <Image
-            src="/logo-full-lockup.png"
-            alt="Byond"
-            width={160}
-            height={40}
-            className={`h-auto w-full transition-all duration-500 ${
-              isLight ? "brightness-0" : "brightness-0 invert"
-            }`}
-            priority
-          />
-        </Link>
-
-        <nav
-          className="hidden justify-self-center md:block"
-          aria-label="Primary"
-        >
-          <ul
-            className={`flex items-center gap-1 rounded-full border px-2 py-1.5 backdrop-blur-none transition-colors duration-500 md:backdrop-blur-xl ${pillTone}`}
+    <header ref={headerRef} className="fixed inset-x-0 top-0 z-50">
+      <div
+        className={`relative z-50 transition-colors duration-500 ${
+          scrolled ? "bg-ink/80" : "bg-transparent"
+        }`}
+      >
+        <div className="mx-auto grid h-14 max-w-[1400px] grid-cols-[1fr_auto] items-center gap-x-4 px-4 sm:h-16 sm:gap-x-6 sm:px-6 md:grid-cols-[1fr_auto_1fr] md:gap-x-8 md:px-10">
+          <Link
+            href="#hero"
+            className="relative block h-8 w-[7.5rem] shrink-0 justify-self-start sm:h-9 sm:w-36 md:h-10 md:w-40"
+            onClick={() => setMenuOpen(false)}
           >
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.id;
-              return (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    aria-current={isActive ? "page" : undefined}
-                    className={`cursor-hover block whitespace-nowrap rounded-full px-4 py-2 font-sans text-[13px] tracking-[-0.01em] transition-all duration-300 ease-luxury ${
-                      isActive
-                        ? isLight
-                          ? "bg-ink text-snow shadow-[0_0_0_1px_rgba(10,10,10,0.08)]"
-                          : "bg-champagne text-ink shadow-[0_0_20px_rgba(229,221,203,0.18)]"
-                        : isLight
-                          ? "text-ink/45 hover:bg-ink/5 hover:text-ink"
-                          : "text-white/50 hover:bg-white/10 hover:text-champagne"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+            <Image
+              src="/logo-full-lockup.png"
+              alt="Byond"
+              fill
+              sizes="160px"
+              className={`object-contain object-left transition-all duration-500 ${
+                isLight ? "brightness-0" : "brightness-0 invert"
+              }`}
+              priority
+            />
+          </Link>
 
-        <div className="flex items-center justify-self-end gap-2">
-          <a
-            href={`mailto:${siteConfig.email}`}
-            className={`cursor-hover hidden truncate rounded-full px-3 py-2 font-sans text-[12px] tracking-[-0.01em] transition-colors duration-300 sm:inline-flex md:text-[13px] ${
-              isLight
-                ? "text-ink/65 hover:text-ink"
-                : "text-champagne/70 hover:text-champagne"
-            }`}
+          <nav
+            className="hidden justify-self-center md:block"
+            aria-label="Primary"
           >
-            {siteConfig.email}
-          </a>
+            <ul
+              className={`flex items-center gap-1 rounded-full border px-2 py-1.5 backdrop-blur-none transition-colors duration-500 md:backdrop-blur-xl ${pillTone}`}
+            >
+              {navLinks.map((link) => {
+                const isActive = activeSection === link.id;
+                return (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`cursor-hover block whitespace-nowrap rounded-full px-4 py-2 font-sans text-[13px] tracking-[-0.01em] transition-all duration-300 ease-luxury ${
+                        isActive
+                          ? isLight
+                            ? "bg-ink text-snow shadow-[0_0_0_1px_rgba(10,10,10,0.08)]"
+                            : "bg-champagne text-ink shadow-[0_0_20px_rgba(229,221,203,0.18)]"
+                          : isLight
+                            ? "text-ink/45 hover:bg-ink/5 hover:text-ink"
+                            : "text-white/50 hover:bg-white/10 hover:text-champagne"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-          <button
-            type="button"
-            className={`cursor-hover flex h-10 w-10 items-center justify-center rounded-full border transition-colors md:hidden ${
-              isLight
-                ? "border-ink/15 text-ink hover:bg-ink/5"
-                : "border-white/15 text-champagne hover:bg-white/10"
-            }`}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-nav"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <span className="relative block h-3.5 w-4" aria-hidden="true">
-              <span
-                className={`absolute left-0 top-0 h-px w-full bg-current transition-transform duration-300 ${
-                  menuOpen ? "translate-y-[7px] rotate-45" : ""
-                }`}
-              />
-              <span
-                className={`absolute left-0 top-[7px] h-px w-full bg-current transition-opacity duration-300 ${
-                  menuOpen ? "opacity-0" : "opacity-100"
-                }`}
-              />
-              <span
-                className={`absolute left-0 top-[14px] h-px w-full bg-current transition-transform duration-300 ${
-                  menuOpen ? "-translate-y-[7px] -rotate-45" : ""
-                }`}
-              />
-            </span>
-          </button>
+          <div className="flex items-center justify-self-end gap-2">
+            <a
+              href={`mailto:${siteConfig.email}`}
+              className={`cursor-hover hidden truncate rounded-full px-3 py-2 font-sans text-[12px] tracking-[-0.01em] transition-colors duration-300 sm:inline-flex md:text-[13px] ${
+                isLight
+                  ? "text-ink/65 hover:text-ink"
+                  : "text-champagne/70 hover:text-champagne"
+              }`}
+            >
+              {siteConfig.email}
+            </a>
+
+            <button
+              type="button"
+              className={`cursor-hover flex h-10 w-10 items-center justify-center rounded-full border transition-colors md:hidden ${
+                isLight
+                  ? "border-ink/15 text-ink hover:bg-ink/5"
+                  : "border-white/15 text-champagne hover:bg-white/10"
+              }`}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              <span className="relative block h-3.5 w-4" aria-hidden="true">
+                <span
+                  className={`absolute left-0 top-0 h-px w-full bg-current transition-transform duration-300 ${
+                    menuOpen ? "translate-y-[7px] rotate-45" : ""
+                  }`}
+                />
+                <span
+                  className={`absolute left-0 top-[7px] h-px w-full bg-current transition-opacity duration-300 ${
+                    menuOpen ? "opacity-0" : "opacity-100"
+                  }`}
+                />
+                <span
+                  className={`absolute left-0 top-[14px] h-px w-full bg-current transition-transform duration-300 ${
+                    menuOpen ? "-translate-y-[7px] -rotate-45" : ""
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 

@@ -9,7 +9,7 @@
     --crimson: #8b0000;
     --snow: #fbfbfb;
     --champagne: #e5ddcb;
-    --nav-height: 5.5rem;
+    --nav-height: 4rem;
   }
 
   html {
@@ -65,11 +65,42 @@
   }
 }
 
-/* Works pin: prefer vertical touch pans; don't let canvas steal swipe */
-#work,
+/* Works: section prefers vertical pans; carousel allows nested horizontal snap */
+#work {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
 #work .gpu-accelerate {
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
+}
+
+#work .works-carousel {
+  overflow-x: auto;
+  overflow-y: visible;
+  /* pan-x + pan-y so horizontal snap works without locking the page */
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+
+#work .works-carousel-card {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+@media (min-width: 768px) {
+  #work .works-carousel-shell {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  #work .works-carousel-shell {
+    padding-top: 7rem; /* clears fixed logo + hamburger */
+  }
 }
 
 @layer components {

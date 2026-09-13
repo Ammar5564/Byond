@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { selectedWork, type WorkItem } from "@/lib/content";
 import {
   WorksTunnelCanvasClient,
@@ -56,7 +57,6 @@ function TunnelOverlay({
         </span>
       </div>
 
-      {/* Active card play affordance — DOM overlay (WebGL planes can't host CSS hover) */}
       <div
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
         style={{ opacity }}
@@ -109,6 +109,73 @@ function TunnelOverlay({
   );
 }
 
+function WorksMobileCarousel({
+  onPlay,
+}: {
+  onPlay: (index: number) => void;
+}) {
+  return (
+    <div className="works-carousel-shell bg-ink pb-16 pt-28 md:hidden">
+      <div className="px-4 sm:px-6">
+        <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-champagne/50">
+          Selected Work
+        </p>
+        <h2 className="display-heading mt-3 text-balance break-words text-3xl leading-[0.95] text-champagne">
+          Stories in motion
+        </h2>
+      </div>
+
+      <div
+        className="works-carousel mt-10 flex gap-4 px-4 pb-2 sm:px-6"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        {selectedWork.map((item, index) => (
+          <article
+            key={item.id}
+            className="works-carousel-card group relative w-[min(85vw,340px)] shrink-0"
+          >
+            <button
+              type="button"
+              onClick={() => onPlay(index)}
+              className="block w-full text-left"
+              aria-label={`Play ${item.title}`}
+            >
+              <div className="relative aspect-video overflow-hidden bg-ink/80">
+                <Image
+                  src={item.thumbnail}
+                  alt={item.title}
+                  fill
+                  sizes="(max-width: 768px) 85vw, 340px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+                <span className="absolute inset-0 flex items-center justify-center bg-ink/25">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full border border-champagne/35 bg-ink/55 text-champagne transition-transform duration-300 group-hover:scale-110">
+                    <PlayIcon className="ml-0.5 h-6 w-6" />
+                  </span>
+                </span>
+              </div>
+              <div className="mt-4 min-w-0">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                  <span className="editorial-tag">{item.category}</span>
+                  <span className="editorial-tag tabular-nums">
+                    [ {item.duration} ]
+                  </span>
+                </div>
+                <h3 className="display-heading mt-2 text-balance break-words text-2xl leading-[0.95] text-champagne">
+                  {item.title}
+                </h3>
+                <p className="mt-1 font-sans text-sm tracking-wide text-champagne/55">
+                  {item.client}
+                </p>
+              </div>
+            </button>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function SelectedWork() {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
@@ -137,21 +204,27 @@ export function SelectedWork() {
     [openVideo]
   );
 
+  // Desktop only: ScrollTrigger pin + tunnel scrub (no mobile scroll-lock)
   useEffect(() => {
     const section = sectionRef.current;
     const pin = pinRef.current;
     if (!section || !pin) return;
 
+    const mq = window.matchMedia("(min-width: 768px)");
     let pinTrigger: { kill: () => void } | null = null;
     let cancelled = false;
 
-    async function animate() {
+    async function setup() {
+      pinTrigger?.kill();
+      pinTrigger = null;
+      if (cancelled || !mq.matches || !section || !pin) return;
+
       const { default: gsap } = await import("gsap");
       const { ScrollTrigger } = await import("gsap/ScrollTrigger");
       gsap.registerPlugin(ScrollTrigger);
-      if (cancelled || !section || !pin) return;
+      if (cancelled || !mq.matches) return;
 
-      const st = ScrollTrigger.create({
+      pinTrigger = ScrollTrigger.create({
         trigger: section,
         start: "top top",
         end: () => `+=${window.innerHeight * selectedWork.length * 1.15}`,
@@ -164,13 +237,14 @@ export function SelectedWork() {
           apiRef.current?.setProgress(self.progress);
         },
       });
-
-      pinTrigger = st;
     }
 
-    animate();
+    setup();
+    mq.addEventListener("change", setup);
+
     return () => {
       cancelled = true;
+      mq.removeEventListener("change", setup);
       pinTrigger?.kill();
     };
   }, []);
@@ -189,9 +263,11 @@ export function SelectedWork() {
       className="relative scroll-mt-[var(--nav-height)] touch-pan-y symphony-void"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
+      <WorksMobileCarousel onPlay={openVideo} />
+
       <div
         ref={pinRef}
-        className="relative h-screen w-full touch-pan-y overflow-hidden bg-ink gpu-accelerate"
+        className="relative hidden h-screen w-full overflow-hidden bg-ink gpu-accelerate touch-pan-y md:block"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <WorksTunnelCanvasClient
@@ -229,13 +305,13 @@ export function SelectedWork() {
             }}
           />
         </div>
-
-        <VideoModal
-          youtubeId={activeYoutubeId}
-          title={playingTitle}
-          onClose={() => setActiveYoutubeId(null)}
-        />
       </div>
+
+      <VideoModal
+        youtubeId={activeYoutubeId}
+        title={playingTitle}
+        onClose={() => setActiveYoutubeId(null)}
+      />
     </section>
   );
 }
