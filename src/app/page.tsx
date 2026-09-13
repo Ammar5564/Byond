@@ -9,12 +9,12 @@ import { Contact, Footer } from "@/components/Contact";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-transparent">
+    <main className="relative min-h-screen overflow-x-hidden bg-transparent">
       {/* WebGL layer — fixed, behind everything */}
       <BackgroundCanvasClient />
 
       {/* Editorial UI above the shader */}
-      <div className="relative z-10 bg-transparent">
+      <div className="relative z-10 overflow-x-hidden bg-transparent">
         <Navigation />
         <Hero />
         <Principles />

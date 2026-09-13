@@ -40,14 +40,14 @@ function TunnelOverlay({
       aria-live="polite"
     >
       <div
-        className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-6 transition-opacity duration-500 sm:flex-row sm:items-start sm:justify-between sm:gap-6 md:px-10"
+        className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-4 transition-opacity duration-500 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:px-6 md:px-10"
         style={{ opacity }}
       >
         <div className="min-w-0 pr-2">
           <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-champagne/50">
             Selected Work
           </p>
-          <h2 className="display-heading mt-3 max-w-xl text-balance break-words text-[clamp(1.75rem,4vw,3.25rem)] leading-[0.95] text-champagne">
+          <h2 className="display-heading mt-3 max-w-xl text-balance break-words text-3xl leading-[0.95] text-champagne md:text-4xl lg:text-5xl">
             Stories in motion
           </h2>
         </div>
@@ -74,7 +74,7 @@ function TunnelOverlay({
       </div>
 
       <div
-        className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-6 transition-opacity duration-500 md:flex-row md:items-end md:justify-between md:px-10"
+        className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-4 transition-opacity duration-500 sm:px-6 md:flex-row md:items-end md:justify-between md:px-10"
         style={{ opacity }}
       >
         <div className="max-w-lg">

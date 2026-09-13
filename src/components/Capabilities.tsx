@@ -137,7 +137,7 @@ export function Capabilities() {
         {/* Layer 1 — safe zone: all readable content below header height */}
         <div className="cap-safe-zone absolute inset-0 z-10 overflow-hidden pb-[4.5rem] pt-[calc(var(--nav-height)+1rem)] md:pb-[5rem] md:pt-[calc(var(--nav-height)+1.25rem)]">
           <div className="flex h-full flex-col">
-            <div className="shrink-0 px-6 md:px-10">
+            <div className="shrink-0 px-4 sm:px-6 md:px-10">
               <p className="section-label">Capabilities</p>
               <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.28em] text-snow/40">
                 What we do
@@ -147,7 +147,7 @@ export function Capabilities() {
             <div className="relative mt-6 min-h-0 flex-1 overflow-hidden md:mt-8">
               {/* Ghost titles — live only in the band below labels */}
               <div
-                className="pointer-events-none absolute inset-0 overflow-hidden px-6 md:px-10"
+                className="pointer-events-none absolute inset-0 overflow-hidden px-4 sm:px-6 md:px-10"
                 aria-hidden="true"
               >
                 {capabilities.map((item) => (
@@ -184,8 +184,8 @@ export function Capabilities() {
               </div>
 
               {/* Foreground panels */}
-              <div className="absolute inset-x-0 bottom-0 px-6 md:inset-0 md:flex md:items-center md:px-10">
-                <div className="relative w-full min-h-[180px] md:min-h-[240px]">
+              <div className="absolute inset-x-0 bottom-0 px-4 sm:px-6 md:inset-0 md:flex md:items-center md:px-10">
+                <div className="relative w-full min-h-[160px] sm:min-h-[180px] md:min-h-[240px]">
                   {capabilities.map((item) => (
                     <div
                       key={item.index}

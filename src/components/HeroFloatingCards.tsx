@@ -41,7 +41,7 @@ const cards: CardData[] = [
     depth: "bg",
     proximity: 0.35,
     className:
-      "absolute left-[-6%] top-[8%] aspect-[4/3] w-[280px] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[360px]",
+      "absolute left-[-6%] top-[8%] aspect-[4/3] w-[min(42vw,240px)] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[280px] lg:w-[360px]",
   },
   {
     id: "02",
@@ -50,7 +50,7 @@ const cards: CardData[] = [
     depth: "bg",
     proximity: 0.3,
     className:
-      "absolute bottom-[5%] left-[-4%] aspect-[3/4] w-[260px] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[320px]",
+      "absolute bottom-[5%] left-[-4%] aspect-[3/4] w-[min(40vw,220px)] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[260px] lg:w-[320px]",
   },
   {
     id: "03",
@@ -59,7 +59,7 @@ const cards: CardData[] = [
     depth: "fg",
     proximity: 0.85,
     className:
-      "absolute left-[16%] top-[-4%] aspect-square w-[260px] overflow-hidden rounded-2xl border-2 border-[#E15223] shadow-2xl md:w-[320px]",
+      "absolute left-[16%] top-[-4%] aspect-square w-[min(40vw,220px)] overflow-hidden rounded-2xl border-2 border-[#E15223] shadow-2xl md:w-[260px] lg:w-[320px]",
   },
   {
     id: "04",
@@ -68,7 +68,7 @@ const cards: CardData[] = [
     depth: "mid",
     proximity: 0.45,
     className:
-      "absolute bottom-[-8%] left-[18%] aspect-[4/3] w-[280px] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[340px]",
+      "absolute bottom-[-8%] left-[18%] aspect-[4/3] w-[min(42vw,240px)] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[280px] lg:w-[340px]",
   },
   {
     id: "05",
@@ -77,7 +77,7 @@ const cards: CardData[] = [
     depth: "bg",
     proximity: 0.25,
     className:
-      "absolute left-[50%] top-[-6%] h-[150px] w-[220px] -translate-x-1/2 rounded-xl border border-white/10 bg-neutral-900 opacity-90 shadow-xl md:w-[280px]",
+      "absolute left-[50%] top-[-6%] h-[120px] w-[min(36vw,200px)] -translate-x-1/2 rounded-xl border border-white/10 bg-neutral-900 opacity-90 shadow-xl md:h-[150px] md:w-[240px] lg:w-[280px]",
   },
   {
     id: "06",
@@ -86,7 +86,7 @@ const cards: CardData[] = [
     depth: "mid",
     proximity: 0.4,
     className:
-      "absolute bottom-[-10%] left-[50%] h-[220px] w-[240px] -translate-x-1/2 rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl md:w-[300px]",
+      "absolute bottom-[-10%] left-[50%] h-[180px] w-[min(38vw,210px)] -translate-x-1/2 rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl md:h-[220px] md:w-[240px] lg:w-[300px]",
   },
   {
     id: "07",
@@ -95,7 +95,7 @@ const cards: CardData[] = [
     depth: "fg",
     proximity: 0.9,
     className:
-      "absolute right-[16%] top-[4%] aspect-[3/4] w-[280px] overflow-hidden rounded-2xl border-4 border-white shadow-2xl md:w-[340px]",
+      "absolute right-[16%] top-[4%] aspect-[3/4] w-[min(42vw,240px)] overflow-hidden rounded-2xl border-4 border-white shadow-2xl md:w-[280px] lg:w-[340px]",
   },
   {
     id: "08",
@@ -104,7 +104,7 @@ const cards: CardData[] = [
     depth: "fg",
     proximity: 0.95,
     className:
-      "absolute bottom-[2%] right-[18%] aspect-[3/4] w-[260px] overflow-hidden rounded-2xl border-2 border-purple-800 shadow-2xl md:w-[320px]",
+      "absolute bottom-[2%] right-[18%] aspect-[3/4] w-[min(40vw,220px)] overflow-hidden rounded-2xl border-2 border-purple-800 shadow-2xl md:w-[260px] lg:w-[320px]",
   },
   {
     id: "09",
@@ -113,7 +113,7 @@ const cards: CardData[] = [
     depth: "bg",
     proximity: 0.15,
     className:
-      "absolute right-[-6%] top-[14%] aspect-[3/4] w-[260px] rounded-2xl border border-white/10 opacity-70 md:w-[320px]",
+      "absolute right-[-6%] top-[14%] aspect-[3/4] w-[min(40vw,220px)] rounded-2xl border border-white/10 opacity-70 md:w-[260px] lg:w-[320px]",
   },
   {
     id: "10",
@@ -122,7 +122,7 @@ const cards: CardData[] = [
     depth: "bg",
     proximity: 0.2,
     className:
-      "absolute bottom-[10%] right-[-5%] aspect-square w-[280px] rounded-2xl border border-white/10 opacity-60 md:w-[340px]",
+      "absolute bottom-[10%] right-[-5%] aspect-square w-[min(42vw,240px)] rounded-2xl border border-white/10 opacity-60 md:w-[280px] lg:w-[340px]",
   },
 ];
 
@@ -259,7 +259,7 @@ export function HeroFloatingCards({ heroRef }: HeroFloatingCardsProps) {
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-10 origin-center scale-[0.72] gpu-accelerate md:scale-100"
+      className="pointer-events-none absolute inset-0 z-10 origin-center scale-[0.62] gpu-accelerate sm:scale-[0.72] md:scale-[0.85] lg:scale-100"
       aria-hidden="true"
     >
       {cards.map((card, index) => (

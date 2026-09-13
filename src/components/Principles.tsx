@@ -275,7 +275,7 @@ export function Principles() {
                 How we think
               </p>
 
-              <h2 className="display-heading mt-4 max-w-[600px] text-balance break-words text-[clamp(1.35rem,2.6vw,2.15rem)] leading-[1.15] text-champagne/90">
+              <h2 className="display-heading mt-4 max-w-xl text-balance break-words text-xl leading-[1.15] text-champagne/90 sm:text-2xl md:text-3xl lg:text-[2.15rem]">
                 Building brands that endure isn&apos;t magic — it requires:
               </h2>
 

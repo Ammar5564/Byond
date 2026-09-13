@@ -49,14 +49,14 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="relative symphony-void px-6 py-20 md:px-10 md:py-32 lg:py-40"
+      className="relative symphony-void px-4 py-20 sm:px-6 md:px-10 md:py-32 lg:py-40"
     >
       <div className="mx-auto max-w-[1400px]">
-        <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
+        <div className="grid gap-10 md:gap-12 lg:grid-cols-2 lg:gap-24">
           <RevealOnScroll>
             <div>
               <span className="section-label">Begin</span>
-              <SectionHeadline className="display-heading mt-4 text-[clamp(2.5rem,5vw,4.5rem)] text-champagne">
+              <SectionHeadline className="display-heading mt-4 text-3xl text-champagne sm:text-4xl md:text-5xl lg:text-6xl">
                 Work with us
               </SectionHeadline>
               <p className="mt-8 max-w-md font-sans text-sm leading-relaxed tracking-wide text-champagne/50 md:text-base">
@@ -71,7 +71,7 @@ export function Contact() {
                 >
                   {siteConfig.email}
                 </a>
-                <p className="font-sans text-sm tracking-wide text-champagne/40">
+                <p className="break-words font-sans text-sm tracking-wide text-champagne/40">
                   {siteConfig.address}
                 </p>
               </div>
@@ -80,7 +80,7 @@ export function Contact() {
 
           <RevealOnScroll delay={0.15}>
             {submitted ? (
-              <div className="flex h-full min-h-[320px] flex-col items-start justify-center border border-symphony p-10">
+              <div className="flex h-full min-h-[280px] flex-col items-start justify-center border border-symphony p-6 sm:min-h-[320px] sm:p-8 md:p-10">
                 <span className="font-display text-3xl text-champagne">
                   Thank you.
                 </span>
@@ -92,7 +92,7 @@ export function Contact() {
               <form
                 onSubmit={handleSubmit}
                 noValidate
-                className="space-y-8 border border-symphony p-8 md:p-10"
+                className="space-y-8 border border-symphony p-5 sm:p-8 md:p-10"
               >
                 <div>
                   <label
@@ -204,7 +204,7 @@ export function Contact() {
 
 export function Footer() {
   return (
-    <footer className="border-t border-symphony symphony-void px-6 py-12 md:px-10">
+    <footer className="border-t border-symphony symphony-void px-4 py-12 sm:px-6 md:px-10">
       <div className="mx-auto grid max-w-[1400px] grid-cols-1 items-center gap-8 md:grid-cols-[1fr_auto] md:gap-12">
         <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-champagne/35">
           © {new Date().getFullYear()} Byond Media — All rights reserved
