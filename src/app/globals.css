@@ -76,42 +76,25 @@
   -webkit-overflow-scrolling: touch;
 }
 
-#work .works-carousel {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-}
-
 @media (max-width: 767px) {
   #work .works-cards-shell {
     padding-top: max(3rem, calc(var(--nav-height) + 1.25rem));
   }
 
-  #work .works-carousel {
-    overflow-x: auto;
-    overflow-y: visible;
-    touch-action: pan-x pan-y;
-    scroll-snap-type: x mandatory;
-  }
-
-  #work .works-carousel-card {
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
+  #work .works-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    touch-action: pan-y;
+    overflow-x: visible;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  #work .works-carousel {
+  #work .works-card-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 2rem;
-    overflow: visible;
-    scroll-snap-type: none;
-    touch-action: pan-y;
-  }
-
-  #work .works-carousel-card {
-    width: auto;
-    scroll-snap-align: unset;
   }
 }
 

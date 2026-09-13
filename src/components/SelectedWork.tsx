@@ -125,14 +125,11 @@ function WorksCardsShell({
         </h2>
       </div>
 
-      <div
-        className="works-carousel mx-auto mt-10 flex max-w-[1400px] gap-6 pb-2 md:gap-8"
-        style={{ WebkitOverflowScrolling: "touch" }}
-      >
+      <div className="works-card-list mx-auto mt-10 flex max-w-[1400px] flex-col gap-6 touch-pan-y md:grid md:grid-cols-2 md:gap-8">
         {selectedWork.map((item, index) => (
           <article
             key={item.id}
-            className="works-carousel-card group relative w-[min(85vw,340px)] shrink-0 md:w-auto md:shrink"
+            className="works-card group relative w-full min-w-0"
           >
             <button
               type="button"
@@ -145,7 +142,7 @@ function WorksCardsShell({
                   src={item.thumbnail}
                   alt={item.title}
                   fill
-                  sizes="(max-width: 767px) 85vw, (max-width: 1023px) 45vw, 340px"
+                  sizes="(max-width: 767px) 100vw, (max-width: 1023px) 45vw, 340px"
                   className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
                 <span className="absolute inset-0 flex items-center justify-center bg-ink/25">

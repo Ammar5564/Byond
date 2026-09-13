@@ -566,7 +566,7 @@ export function WorksTunnelCanvas({
   return (
     <div
       ref={wrapRef}
-      className="absolute inset-0 z-0 touch-pan-y max-md:pointer-events-none md:cursor-hover md:pointer-events-auto"
+      className="pointer-events-none absolute inset-0 z-0 touch-pan-y"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
       <canvas
