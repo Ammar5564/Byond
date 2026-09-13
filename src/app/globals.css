@@ -79,14 +79,26 @@
 @media (max-width: 767px) {
   #work .works-cards-shell {
     padding-top: max(3rem, calc(var(--nav-height) + 1.25rem));
+    padding-left: 1rem;
+    padding-right: 1rem;
+    overflow-x: hidden;
   }
 
   #work .works-card-list {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     touch-action: pan-y;
-    overflow-x: visible;
+    overflow-x: hidden;
+  }
+
+  #work .works-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 }
 

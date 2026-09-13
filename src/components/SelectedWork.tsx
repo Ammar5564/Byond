@@ -115,8 +115,8 @@ function WorksCardsShell({
   onPlay: (index: number) => void;
 }) {
   return (
-    <div className="works-cards-shell bg-ink px-4 pb-16 pt-12 sm:px-6 md:pt-20 lg:hidden">
-      <div className="mx-auto max-w-[1400px]">
+    <div className="works-cards-shell bg-ink px-4 pb-16 pt-12 max-md:overflow-x-hidden sm:px-6 md:pt-20 lg:hidden">
+      <div className="mx-auto w-full min-w-0 max-w-[1400px]">
         <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-champagne/50">
           Selected Work
         </p>
@@ -125,19 +125,19 @@ function WorksCardsShell({
         </h2>
       </div>
 
-      <div className="works-card-list mx-auto mt-10 flex max-w-[1400px] flex-col gap-6 touch-pan-y md:grid md:grid-cols-2 md:gap-8">
+      <div className="works-card-list mx-auto mt-10 flex w-full min-w-0 max-w-[1400px] flex-col gap-6 touch-pan-y max-md:w-full max-md:max-w-full md:grid md:grid-cols-2 md:gap-8">
         {selectedWork.map((item, index) => (
           <article
             key={item.id}
-            className="works-card group relative w-full min-w-0"
+            className="works-card group relative w-full min-w-0 max-w-full"
           >
             <button
               type="button"
               onClick={() => onPlay(index)}
-              className="block w-full text-left"
+              className="block w-full min-w-0 max-w-full text-left"
               aria-label={`Play ${item.title}`}
             >
-              <div className="relative aspect-video overflow-hidden bg-ink/80">
+              <div className="relative aspect-video w-full max-w-full overflow-hidden bg-ink/80">
                 <Image
                   src={item.thumbnail}
                   alt={item.title}
@@ -151,7 +151,7 @@ function WorksCardsShell({
                   </span>
                 </span>
               </div>
-              <div className="mt-4 min-w-0">
+              <div className="mt-4 min-w-0 max-w-full">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
                   <span className="editorial-tag">{item.category}</span>
                   <span className="editorial-tag tabular-nums">
@@ -161,7 +161,7 @@ function WorksCardsShell({
                 <h3 className="display-heading mt-2 text-balance break-words text-2xl leading-[0.95] text-champagne md:text-[1.75rem]">
                   {item.title}
                 </h3>
-                <p className="mt-1 font-sans text-sm tracking-wide text-champagne/55">
+                <p className="mt-1 break-words font-sans text-sm tracking-wide text-champagne/55">
                   {item.client}
                 </p>
               </div>
