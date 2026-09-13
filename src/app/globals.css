@@ -65,7 +65,7 @@
   }
 }
 
-/* Works: section prefers vertical pans; carousel allows nested horizontal snap */
+/* Works: section prefers vertical pans; cards adapt by breakpoint */
 #work {
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
@@ -77,29 +77,47 @@
 }
 
 #work .works-carousel {
-  overflow-x: auto;
-  overflow-y: visible;
-  /* pan-x + pan-y so horizontal snap works without locking the page */
-  touch-action: pan-x pan-y;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
 }
 
-#work .works-carousel-card {
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
-}
+@media (max-width: 767px) {
+  #work .works-cards-shell {
+    padding-top: max(3rem, calc(var(--nav-height) + 1.25rem));
+  }
 
-@media (min-width: 768px) {
-  #work .works-carousel-shell {
-    display: none;
+  #work .works-carousel {
+    overflow-x: auto;
+    overflow-y: visible;
+    touch-action: pan-x pan-y;
+    scroll-snap-type: x mandatory;
+  }
+
+  #work .works-carousel-card {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
   }
 }
 
-@media (max-width: 767px) {
-  #work .works-carousel-shell {
-    padding-top: 7rem; /* clears fixed logo + hamburger */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #work .works-carousel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+    overflow: visible;
+    scroll-snap-type: none;
+    touch-action: pan-y;
+  }
+
+  #work .works-carousel-card {
+    width: auto;
+    scroll-snap-align: unset;
+  }
+}
+
+@media (min-width: 1024px) {
+  #work .works-cards-shell {
+    display: none;
   }
 }
 

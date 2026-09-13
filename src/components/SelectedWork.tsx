@@ -109,30 +109,30 @@ function TunnelOverlay({
   );
 }
 
-function WorksMobileCarousel({
+function WorksCardsShell({
   onPlay,
 }: {
   onPlay: (index: number) => void;
 }) {
   return (
-    <div className="works-carousel-shell bg-ink pb-16 pt-28 md:hidden">
-      <div className="px-4 sm:px-6">
+    <div className="works-cards-shell bg-ink px-4 pb-16 pt-12 sm:px-6 md:pt-20 lg:hidden">
+      <div className="mx-auto max-w-[1400px]">
         <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-champagne/50">
           Selected Work
         </p>
-        <h2 className="display-heading mt-3 text-balance break-words text-3xl leading-[0.95] text-champagne">
+        <h2 className="display-heading mt-3 text-balance break-words text-3xl leading-[0.95] text-champagne md:text-4xl">
           Stories in motion
         </h2>
       </div>
 
       <div
-        className="works-carousel mt-10 flex gap-4 px-4 pb-2 sm:px-6"
+        className="works-carousel mx-auto mt-10 flex max-w-[1400px] gap-6 pb-2 md:gap-8"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         {selectedWork.map((item, index) => (
           <article
             key={item.id}
-            className="works-carousel-card group relative w-[min(85vw,340px)] shrink-0"
+            className="works-carousel-card group relative w-[min(85vw,340px)] shrink-0 md:w-auto md:shrink"
           >
             <button
               type="button"
@@ -145,7 +145,7 @@ function WorksMobileCarousel({
                   src={item.thumbnail}
                   alt={item.title}
                   fill
-                  sizes="(max-width: 768px) 85vw, 340px"
+                  sizes="(max-width: 767px) 85vw, (max-width: 1023px) 45vw, 340px"
                   className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
                 <span className="absolute inset-0 flex items-center justify-center bg-ink/25">
@@ -161,7 +161,7 @@ function WorksMobileCarousel({
                     [ {item.duration} ]
                   </span>
                 </div>
-                <h3 className="display-heading mt-2 text-balance break-words text-2xl leading-[0.95] text-champagne">
+                <h3 className="display-heading mt-2 text-balance break-words text-2xl leading-[0.95] text-champagne md:text-[1.75rem]">
                   {item.title}
                 </h3>
                 <p className="mt-1 font-sans text-sm tracking-wide text-champagne/55">
@@ -210,7 +210,7 @@ export function SelectedWork() {
     const pin = pinRef.current;
     if (!section || !pin) return;
 
-    const mq = window.matchMedia("(min-width: 768px)");
+    const mq = window.matchMedia("(min-width: 1024px)");
     let pinTrigger: { kill: () => void } | null = null;
     let cancelled = false;
 
@@ -263,11 +263,11 @@ export function SelectedWork() {
       className="relative scroll-mt-[var(--nav-height)] touch-pan-y symphony-void"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
-      <WorksMobileCarousel onPlay={openVideo} />
+      <WorksCardsShell onPlay={openVideo} />
 
       <div
         ref={pinRef}
-        className="relative hidden h-screen w-full overflow-hidden bg-ink gpu-accelerate touch-pan-y md:block"
+        className="relative hidden h-screen w-full overflow-hidden bg-ink gpu-accelerate touch-pan-y lg:block"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <WorksTunnelCanvasClient
