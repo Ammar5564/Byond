@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import { selectedWork, type WorkItem } from "@/lib/content";
 import {
   WorksTunnelCanvasClient,
@@ -109,6 +110,76 @@ function TunnelOverlay({
   );
 }
 
+function WorksMobileCard({
+  item,
+  index,
+  onPlay,
+}: {
+  item: WorkItem;
+  index: number;
+  onPlay: (index: number) => void;
+}) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.article
+      className="works-card group relative w-full min-w-0 max-w-full"
+      initial={reduceMotion ? false : { opacity: 0.45, scale: 0.96, y: 18 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      viewport={{ once: false, amount: 0.35, margin: "0px 0px -8% 0px" }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <button
+        type="button"
+        onClick={() => onPlay(index)}
+        className="block w-full min-w-0 max-w-full text-left"
+        aria-label={`Play ${item.title}`}
+      >
+        <div className="relative aspect-video w-full max-w-full overflow-hidden bg-ink/80">
+          <Image
+            src={item.thumbnail}
+            alt={item.title}
+            fill
+            sizes="(max-width: 767px) 100vw, (max-width: 1023px) 45vw, 340px"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] group-active:scale-[1.02]"
+          />
+          {/* Sleek dark grade + vignette */}
+          <span
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-ink/20"
+            aria-hidden="true"
+          />
+          <span
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(10,10,10,0.55)_100%)]"
+            aria-hidden="true"
+          />
+
+          {/* Crisp play badge */}
+          <span className="absolute inset-0 flex items-center justify-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full border border-champagne/50 bg-ink/70 text-champagne shadow-[0_8px_32px_rgba(0,0,0,0.45)] ring-1 ring-white/10 backdrop-blur-none transition-transform duration-300 group-hover:scale-110 group-active:scale-105 md:h-16 md:w-16">
+              <PlayIcon className="ml-0.5 h-6 w-6 drop-shadow-sm md:h-7 md:w-7" />
+            </span>
+          </span>
+        </div>
+
+        <div className="mt-4 min-w-0 max-w-full">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+            <span className="editorial-tag">{item.category}</span>
+            <span className="editorial-tag tabular-nums">
+              [ {item.duration} ]
+            </span>
+          </div>
+          <h3 className="display-heading mt-2 text-balance break-words text-2xl leading-[0.95] text-champagne md:text-[1.75rem]">
+            {item.title}
+          </h3>
+          <p className="mt-1 break-words font-sans text-sm tracking-wide text-champagne/55">
+            {item.client}
+          </p>
+        </div>
+      </button>
+    </motion.article>
+  );
+}
+
 function WorksCardsShell({
   onPlay,
 }: {
@@ -127,46 +198,12 @@ function WorksCardsShell({
 
       <div className="works-card-list mx-auto mt-10 flex w-full min-w-0 max-w-[1400px] flex-col gap-6 touch-pan-y max-md:w-full max-md:max-w-full md:grid md:grid-cols-2 md:gap-8">
         {selectedWork.map((item, index) => (
-          <article
+          <WorksMobileCard
             key={item.id}
-            className="works-card group relative w-full min-w-0 max-w-full"
-          >
-            <button
-              type="button"
-              onClick={() => onPlay(index)}
-              className="block w-full min-w-0 max-w-full text-left"
-              aria-label={`Play ${item.title}`}
-            >
-              <div className="relative aspect-video w-full max-w-full overflow-hidden bg-ink/80">
-                <Image
-                  src={item.thumbnail}
-                  alt={item.title}
-                  fill
-                  sizes="(max-width: 767px) 100vw, (max-width: 1023px) 45vw, 340px"
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-                <span className="absolute inset-0 flex items-center justify-center bg-ink/25">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full border border-champagne/35 bg-ink/55 text-champagne transition-transform duration-300 group-hover:scale-110">
-                    <PlayIcon className="ml-0.5 h-6 w-6" />
-                  </span>
-                </span>
-              </div>
-              <div className="mt-4 min-w-0 max-w-full">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-                  <span className="editorial-tag">{item.category}</span>
-                  <span className="editorial-tag tabular-nums">
-                    [ {item.duration} ]
-                  </span>
-                </div>
-                <h3 className="display-heading mt-2 text-balance break-words text-2xl leading-[0.95] text-champagne md:text-[1.75rem]">
-                  {item.title}
-                </h3>
-                <p className="mt-1 break-words font-sans text-sm tracking-wide text-champagne/55">
-                  {item.client}
-                </p>
-              </div>
-            </button>
-          </article>
+            item={item}
+            index={index}
+            onPlay={onPlay}
+          />
         ))}
       </div>
     </div>
