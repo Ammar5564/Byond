@@ -65,55 +65,11 @@
   }
 }
 
-/* Works: section prefers vertical pans; cards adapt by breakpoint */
-#work {
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
-}
-
+/* Works pin: vertical touch pans; canvas stays non-intercepting */
+#work,
 #work .gpu-accelerate {
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
-}
-
-@media (max-width: 767px) {
-  #work .works-cards-shell {
-    padding-top: max(3rem, calc(var(--nav-height) + 1.25rem));
-    padding-left: 1rem;
-    padding-right: 1rem;
-    overflow-x: hidden;
-  }
-
-  #work .works-card-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    touch-action: pan-y;
-    overflow-x: hidden;
-  }
-
-  #work .works-card {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  #work .works-card-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  #work .works-cards-shell {
-    display: none;
-  }
 }
 
 @layer components {

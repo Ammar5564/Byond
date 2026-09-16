@@ -1,8 +1,6 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
 import { selectedWork, type WorkItem } from "@/lib/content";
 import {
   WorksTunnelCanvasClient,
@@ -58,6 +56,7 @@ function TunnelOverlay({
         </span>
       </div>
 
+      {/* Active card play affordance ΓÇö DOM overlay (WebGL planes can't host CSS hover) */}
       <div
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
         style={{ opacity }}
@@ -101,110 +100,10 @@ function TunnelOverlay({
           >
             Play film
             <span className="ml-2 inline-block transition-transform duration-500 group-hover:translate-x-1">
-              →
+              ΓåÆ
             </span>
           </button>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function WorksMobileCard({
-  item,
-  index,
-  onPlay,
-}: {
-  item: WorkItem;
-  index: number;
-  onPlay: (index: number) => void;
-}) {
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <motion.article
-      className="works-card group relative w-full min-w-0 max-w-full"
-      initial={reduceMotion ? false : { opacity: 0.45, scale: 0.96, y: 18 }}
-      whileInView={{ opacity: 1, scale: 1, y: 0 }}
-      viewport={{ once: false, amount: 0.35, margin: "0px 0px -8% 0px" }}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <button
-        type="button"
-        onClick={() => onPlay(index)}
-        className="block w-full min-w-0 max-w-full text-left"
-        aria-label={`Play ${item.title}`}
-      >
-        <div className="relative aspect-video w-full max-w-full overflow-hidden bg-ink/80">
-          <Image
-            src={item.thumbnail}
-            alt={item.title}
-            fill
-            sizes="(max-width: 767px) 100vw, (max-width: 1023px) 45vw, 340px"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] group-active:scale-[1.02]"
-          />
-          {/* Sleek dark grade + vignette */}
-          <span
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink via-ink/45 to-ink/20"
-            aria-hidden="true"
-          />
-          <span
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(10,10,10,0.55)_100%)]"
-            aria-hidden="true"
-          />
-
-          {/* Crisp play badge */}
-          <span className="absolute inset-0 flex items-center justify-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full border border-champagne/50 bg-ink/70 text-champagne shadow-[0_8px_32px_rgba(0,0,0,0.45)] ring-1 ring-white/10 backdrop-blur-none transition-transform duration-300 group-hover:scale-110 group-active:scale-105 md:h-16 md:w-16">
-              <PlayIcon className="ml-0.5 h-6 w-6 drop-shadow-sm md:h-7 md:w-7" />
-            </span>
-          </span>
-        </div>
-
-        <div className="mt-4 min-w-0 max-w-full">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-            <span className="editorial-tag">{item.category}</span>
-            <span className="editorial-tag tabular-nums">
-              [ {item.duration} ]
-            </span>
-          </div>
-          <h3 className="display-heading mt-2 text-balance break-words text-2xl leading-[0.95] text-champagne md:text-[1.75rem]">
-            {item.title}
-          </h3>
-          <p className="mt-1 break-words font-sans text-sm tracking-wide text-champagne/55">
-            {item.client}
-          </p>
-        </div>
-      </button>
-    </motion.article>
-  );
-}
-
-function WorksCardsShell({
-  onPlay,
-}: {
-  onPlay: (index: number) => void;
-}) {
-  return (
-    <div className="works-cards-shell bg-ink px-4 pb-16 pt-12 max-md:overflow-x-hidden sm:px-6 md:pt-20 lg:hidden">
-      <div className="mx-auto w-full min-w-0 max-w-[1400px]">
-        <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-champagne/50">
-          Selected Work
-        </p>
-        <h2 className="display-heading mt-3 text-balance break-words text-3xl leading-[0.95] text-champagne md:text-4xl">
-          Stories in motion
-        </h2>
-      </div>
-
-      <div className="works-card-list mx-auto mt-10 flex w-full min-w-0 max-w-[1400px] flex-col gap-6 touch-pan-y max-md:w-full max-md:max-w-full md:grid md:grid-cols-2 md:gap-8">
-        {selectedWork.map((item, index) => (
-          <WorksMobileCard
-            key={item.id}
-            item={item}
-            index={index}
-            onPlay={onPlay}
-          />
-        ))}
       </div>
     </div>
   );
@@ -238,27 +137,21 @@ export function SelectedWork() {
     [openVideo]
   );
 
-  // Desktop only: ScrollTrigger pin + tunnel scrub (no mobile scroll-lock)
   useEffect(() => {
     const section = sectionRef.current;
     const pin = pinRef.current;
     if (!section || !pin) return;
 
-    const mq = window.matchMedia("(min-width: 1024px)");
     let pinTrigger: { kill: () => void } | null = null;
     let cancelled = false;
 
-    async function setup() {
-      pinTrigger?.kill();
-      pinTrigger = null;
-      if (cancelled || !mq.matches || !section || !pin) return;
-
+    async function animate() {
       const { default: gsap } = await import("gsap");
       const { ScrollTrigger } = await import("gsap/ScrollTrigger");
       gsap.registerPlugin(ScrollTrigger);
-      if (cancelled || !mq.matches) return;
+      if (cancelled || !section || !pin) return;
 
-      pinTrigger = ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: section,
         start: "top top",
         end: () => `+=${window.innerHeight * selectedWork.length * 1.15}`,
@@ -271,14 +164,13 @@ export function SelectedWork() {
           apiRef.current?.setProgress(self.progress);
         },
       });
+
+      pinTrigger = st;
     }
 
-    setup();
-    mq.addEventListener("change", setup);
-
+    animate();
     return () => {
       cancelled = true;
-      mq.removeEventListener("change", setup);
       pinTrigger?.kill();
     };
   }, []);
@@ -297,11 +189,9 @@ export function SelectedWork() {
       className="relative scroll-mt-[var(--nav-height)] touch-pan-y symphony-void"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
-      <WorksCardsShell onPlay={openVideo} />
-
       <div
         ref={pinRef}
-        className="relative hidden h-screen w-full overflow-hidden bg-ink gpu-accelerate touch-pan-y lg:block"
+        className="relative h-screen w-full touch-pan-y overflow-hidden bg-ink gpu-accelerate"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <WorksTunnelCanvasClient
@@ -339,13 +229,13 @@ export function SelectedWork() {
             }}
           />
         </div>
-      </div>
 
-      <VideoModal
-        youtubeId={activeYoutubeId}
-        title={playingTitle}
-        onClose={() => setActiveYoutubeId(null)}
-      />
+        <VideoModal
+          youtubeId={activeYoutubeId}
+          title={playingTitle}
+          onClose={() => setActiveYoutubeId(null)}
+        />
+      </div>
     </section>
   );
 }
