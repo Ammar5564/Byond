@@ -17,10 +17,10 @@ export default function Home() {
       <div className="relative z-10 overflow-x-hidden bg-transparent">
         <Navigation />
         <Hero />
+        <Testimonials />
         <Principles />
         <Capabilities />
         <SelectedWork />
-        <Testimonials />
         <Contact />
         <Footer />
       </div>

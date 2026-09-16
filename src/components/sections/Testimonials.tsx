@@ -14,11 +14,14 @@ interface Testimonial {
   role: string;
   company: string;
   logoUrl?: string;
+  brandColor?: string;
 }
 
 interface BrandLogo {
   name: string;
   logoUrl?: string;
+  /** Official brand accent for glow / fallback */
+  brandColor: string;
 }
 
 const STATS: Stat[] = [
@@ -34,6 +37,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Head of Global Marketing & Communication",
     company: "Lorenz",
     logoUrl: "/partners/lorenz.png",
+    brandColor: "#C8102E",
     quote:
       "I am very lucky to have met this team. Their attention to detail and coming up with new things to improve in every shoot and every creation are unmatched. I would highly recommend them.",
   },
@@ -42,6 +46,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "CEO",
     company: "Beuniqueness",
     logoUrl: "/partners/beuniqueness.png",
+    brandColor: "#C9A227",
     quote:
       "Byond Media is competing with top US, and UK agencies. We were beyond amazed with the outcome, their professionalism matched the international standards that we already deal with...",
   },
@@ -50,6 +55,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Senior Manager",
     company: "Ministry of Presidential Affairs UAE",
     logoUrl: "/partners/ministry-presidential-affairs-uae.png",
+    brandColor: "#B68A35",
     quote:
       "They are undoubtedly a different video production agency that takes video directing and presentation to a completely different level...",
   },
@@ -58,6 +64,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Talent Management Director",
     company: "Hassan Allam",
     logoUrl: "/partners/hassan-allam.png",
+    brandColor: "#005EB8",
     quote:
       "Byond team is an exceptional creative team, they are bringing life to the ideas and you can sense the efforts and the extra mile they took to achieve the goal.",
   },
@@ -66,6 +73,7 @@ const TESTIMONIALS: Testimonial[] = [
     role: "Founder & CEO",
     company: "KO Squad",
     logoUrl: "/partners/ko-squad.png",
+    brandColor: "#E10600",
     quote:
       "The best team for the job, their videos are captivating, informative, and inspiring, they add their passion and talent into every single piece of the process...",
   },
@@ -74,77 +82,166 @@ const TESTIMONIALS: Testimonial[] = [
     role: "HR Director",
     company: "PGESCO",
     logoUrl: "/partners/pgesco.png",
+    brandColor: "#00843D",
     quote:
       "Their video not only captured testimonials and rhetoric but also the spirit and the sentiment. Their approach was so welcoming that nothing felt staged...",
   },
 ];
 
-/** Partner marks sourced from byond.media/uploads/partner_images (site order → brand list). */
 const BRANDS: BrandLogo[] = [
-  { name: "Hassan Allam", logoUrl: "/partners/hassan-allam.png" },
-  { name: "Lorenz", logoUrl: "/partners/lorenz.png" },
-  { name: "PGESCO", logoUrl: "/partners/pgesco.png" },
-  { name: "Beuniqueness", logoUrl: "/partners/beuniqueness.png" },
-  { name: "KO Squad", logoUrl: "/partners/ko-squad.png" },
-  { name: "Felopateer Palace", logoUrl: "/partners/felopateer-palace.png" },
+  { name: "Hassan Allam", logoUrl: "/partners/hassan-allam.png", brandColor: "#005EB8" },
+  { name: "Lorenz", logoUrl: "/partners/lorenz.png", brandColor: "#C8102E" },
+  { name: "PGESCO", logoUrl: "/partners/pgesco.png", brandColor: "#00843D" },
+  { name: "Beuniqueness", logoUrl: "/partners/beuniqueness.png", brandColor: "#C9A227" },
+  { name: "KO Squad", logoUrl: "/partners/ko-squad.png", brandColor: "#E10600" },
+  { name: "Felopateer Palace", logoUrl: "/partners/felopateer-palace.png", brandColor: "#8B6F47" },
   {
     name: "Ministry of Presidential Affairs UAE",
     logoUrl: "/partners/ministry-presidential-affairs-uae.png",
+    brandColor: "#B68A35",
   },
-  { name: "Four Seasons", logoUrl: "/partners/four-seasons.png" },
-  { name: "Allianz", logoUrl: "/partners/allianz.png" },
-  { name: "Century City", logoUrl: "/partners/century-city.png" },
-  { name: "Cityscape", logoUrl: "/partners/cityscape.png" },
-  { name: "ExxonMobil", logoUrl: "/partners/exxonmobil.png" },
-  { name: "Emaar", logoUrl: "/partners/emaar.png" },
-  { name: "Ignite", logoUrl: "/partners/ignite.png" },
-  { name: "Menassat Developments", logoUrl: "/partners/menassat-developments.png" },
-  { name: "New Avenue Real Estate", logoUrl: "/partners/new-avenue-real-estate.png" },
-  { name: "Palm Hills Developments", logoUrl: "/partners/palm-hills-developments.png" },
+  { name: "Four Seasons", logoUrl: "/partners/four-seasons.png", brandColor: "#A8A8A8" },
+  { name: "Allianz", logoUrl: "/partners/allianz.png", brandColor: "#003781" },
+  { name: "Century City", logoUrl: "/partners/century-city.png", brandColor: "#1A365D" },
+  { name: "Cityscape", logoUrl: "/partners/cityscape.png", brandColor: "#0066B3" },
+  { name: "ExxonMobil", logoUrl: "/partners/exxonmobil.png", brandColor: "#E40000" },
+  { name: "Emaar", logoUrl: "/partners/emaar.png", brandColor: "#003366" },
+  { name: "Ignite", logoUrl: "/partners/ignite.png", brandColor: "#FF6B00" },
+  { name: "Menassat Developments", logoUrl: "/partners/menassat-developments.png", brandColor: "#2E7D32" },
+  { name: "New Avenue Real Estate", logoUrl: "/partners/new-avenue-real-estate.png", brandColor: "#1B4332" },
+  { name: "Palm Hills Developments", logoUrl: "/partners/palm-hills-developments.png", brandColor: "#006633" },
 ];
 
 const TOTAL = TESTIMONIALS.length;
 
-function BrandMark({ brand }: { brand: BrandLogo }) {
+/** Soft brand-tinted drop-shadow stack for editorial 3D lift. */
+function brandGlow(hex: string, intensity: "rest" | "hover" = "rest"): string {
+  const raw = hex.replace("#", "");
+  const full =
+    raw.length === 3
+      ? raw
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : raw;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+
+  if (intensity === "hover") {
+    return [
+      `drop-shadow(0 14px 28px rgba(${r},${g},${b},0.45))`,
+      `drop-shadow(0 6px 12px rgba(${r},${g},${b},0.28))`,
+      `drop-shadow(0 2px 4px rgba(0,0,0,0.35))`,
+    ].join(" ");
+  }
+
+  return [
+    `drop-shadow(0 10px 22px rgba(${r},${g},${b},0.32))`,
+    `drop-shadow(0 4px 10px rgba(${r},${g},${b},0.18))`,
+    `drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,
+  ].join(" ");
+}
+
+function BrandFallbackPill({ name, brandColor }: { name: string; brandColor: string }) {
+  return (
+    <span
+      className="inline-flex max-w-[11rem] items-center justify-center rounded-sm border px-3 py-2 text-center font-sans text-[11px] font-bold uppercase tracking-wider"
+      style={{
+        color: brandColor,
+        borderColor: `${brandColor}55`,
+        backgroundColor: `${brandColor}18`,
+        filter: brandGlow(brandColor),
+      }}
+    >
+      {name}
+    </span>
+  );
+}
+
+/**
+ * Logo slot: fixed min size + burgundy glass tile for contrast
+ * (keeps light/white brand marks like Emaar readable).
+ */
+function FloatingBrandLogo({ brand }: { brand: BrandLogo }) {
   const [failed, setFailed] = useState(!brand.logoUrl);
 
-  if (failed || !brand.logoUrl) {
+  return (
+    <div className="flex w-full min-h-[80px] items-center justify-center overflow-visible p-4 transition-all duration-300 hover:-translate-y-1 hover:scale-105 sm:min-h-[96px] md:min-h-[112px]">
+      <div className="flex h-full min-h-[80px] w-full items-center justify-center overflow-visible rounded-xl border border-white/5 bg-neutral-900/40 px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[2px] sm:min-h-[96px] sm:px-5 sm:py-6 md:min-h-[112px]">
+        {failed || !brand.logoUrl ? (
+          <BrandFallbackPill name={brand.name} brandColor={brand.brandColor} />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={brand.logoUrl}
+            alt={brand.name}
+            className="h-12 w-auto max-w-[85%] object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.35)] transition-all duration-300 hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.6)] sm:h-14 md:h-16"
+            onError={() => setFailed(true)}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PartnerLogoGrid({ brands }: { brands: BrandLogo[] }) {
+  return (
+    <div className="relative z-10 border-t border-white/10 px-4 py-14 sm:px-6 md:px-10 md:py-20">
+      <div className="mx-auto w-full max-w-[1400px]">
+        <p className="mb-10 font-sans text-[10px] uppercase tracking-[0.28em] text-neutral-400">
+          Trusted by
+        </p>
+        <ul
+          className="grid grid-cols-2 gap-3 overflow-visible sm:gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6"
+          aria-label="Client brand logos"
+        >
+          {brands.map((brand) => (
+            <li key={brand.name} className="overflow-visible">
+              <FloatingBrandLogo brand={brand} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function ClientLogoBadge({
+  company,
+  logoUrl,
+  brandColor,
+}: {
+  company: string;
+  logoUrl?: string;
+  brandColor?: string;
+}) {
+  const [failed, setFailed] = useState(!logoUrl);
+  const color = brandColor ?? "#FFFFFF";
+
+  if (failed || !logoUrl) {
     return (
-      <span className="inline-flex h-10 max-w-[11rem] items-center justify-center px-2 font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-        {brand.name}
+      <span
+        className="inline-flex h-12 items-center rounded-sm border px-3 font-sans text-[10px] font-bold uppercase tracking-wider sm:h-14"
+        style={{ color, borderColor: `${color}55`, backgroundColor: `${color}18` }}
+      >
+        {company}
       </span>
     );
   }
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={brand.logoUrl}
-      alt={brand.name}
-      className="h-8 w-auto max-w-[7.5rem] object-contain opacity-70 brightness-0 invert transition-opacity duration-300 hover:opacity-100 sm:h-9 sm:max-w-[9rem]"
-      onError={() => setFailed(true)}
-      loading="lazy"
-      decoding="async"
-    />
-  );
-}
-
-function PartnerLogoMarquee({ brands }: { brands: BrandLogo[] }) {
-  const loop = [...brands, ...brands];
-
-  return (
-    <div className="overflow-hidden whitespace-nowrap border-t border-white/10 bg-black py-6">
-      <div className="animate-marquee-slow inline-flex items-center">
-        {loop.map((brand, i) => (
-          <span
-            key={`${brand.name}-${i}`}
-            className="mx-6 inline-flex h-12 shrink-0 items-center justify-center sm:mx-10"
-          >
-            <BrandMark brand={brand} />
-          </span>
-        ))}
-      </div>
-    </div>
+    <span className="inline-flex h-12 items-center rounded-sm border border-white/10 bg-white px-3 sm:h-14">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={logoUrl}
+        alt={company}
+        className="h-8 w-auto max-w-[8rem] object-contain sm:h-10 sm:max-w-[9rem]"
+        onError={() => setFailed(true)}
+      />
+    </span>
   );
 }
 
@@ -188,10 +285,21 @@ export function Testimonials() {
   return (
     <section
       id="trust"
-      className="relative overflow-x-hidden border-y border-white/10 bg-[#050505]"
+      className="relative overflow-x-hidden border-y border-white/10 bg-neutral-950"
       aria-labelledby="testimonials-heading"
     >
-      <div className="mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-6 md:px-10 md:py-24 lg:py-28">
+      {/* Burgundy ambient glow — blends with site crimson accents */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-0"
+        aria-hidden="true"
+      >
+        <div className="absolute left-1/2 top-[-12%] h-[55%] w-[90%] max-w-[1100px] -translate-x-1/2 rounded-full bg-[#4a0817]/25 blur-3xl" />
+        <div className="absolute bottom-[-8%] right-[-10%] h-[42%] w-[55%] rounded-full bg-[#3b0712]/30 blur-3xl" />
+        <div className="absolute bottom-[18%] left-[-12%] h-[36%] w-[40%] rounded-full bg-[#4a0817]/15 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,7,18,0.28)_0%,transparent_55%)]" />
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-6 md:px-10 md:py-24 lg:py-28">
         <div className="max-w-2xl">
           <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-neutral-500">
             Social proof
@@ -204,7 +312,6 @@ export function Testimonials() {
           </h2>
         </div>
 
-        {/* 1. Impact metrics bar */}
         <div
           className="mt-12 grid grid-cols-2 border border-white/10 md:mt-16 md:grid-cols-4"
           role="list"
@@ -230,7 +337,6 @@ export function Testimonials() {
           ))}
         </div>
 
-        {/* 2. Featured testimonial switcher */}
         <div className="mt-16 border border-white/10 md:mt-20">
           <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-8">
             <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-neutral-500">
@@ -294,30 +400,11 @@ export function Testimonials() {
                       {item.role} · {item.company}
                     </p>
                   </div>
-                  <span className="inline-flex h-10 w-fit shrink-0 items-center border border-white/10 px-3 py-1.5">
-                    {item.logoUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.logoUrl}
-                        alt={item.company}
-                        className="h-5 w-auto max-w-[6.5rem] object-contain brightness-0 invert"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                          const sibling = e.currentTarget.nextElementSibling;
-                          if (sibling instanceof HTMLElement) {
-                            sibling.style.display = "inline";
-                          }
-                        }}
-                      />
-                    ) : null}
-                    <span
-                      className={`font-mono text-[10px] uppercase tracking-widest text-neutral-300 ${
-                        item.logoUrl ? "hidden" : "inline"
-                      }`}
-                    >
-                      {item.company}
-                    </span>
-                  </span>
+                  <ClientLogoBadge
+                    company={item.company}
+                    logoUrl={item.logoUrl}
+                    brandColor={item.brandColor}
+                  />
                 </figcaption>
               </motion.figure>
             </AnimatePresence>
@@ -347,8 +434,7 @@ export function Testimonials() {
         </div>
       </div>
 
-      {/* 3. Client logo marquee */}
-      <PartnerLogoMarquee brands={BRANDS} />
+      <PartnerLogoGrid brands={BRANDS} />
     </section>
   );
 }
