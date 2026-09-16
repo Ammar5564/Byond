@@ -4,7 +4,7 @@ import { Hero } from "@/components/Hero";
 import { Principles } from "@/components/Principles";
 import { Capabilities } from "@/components/Capabilities";
 import { SelectedWork } from "@/components/SelectedWork";
-import { Trust } from "@/components/Trust";
+import { Testimonials } from "@/components/sections/Testimonials";
 import { Contact, Footer } from "@/components/Contact";
 
 export default function Home() {
@@ -20,7 +20,7 @@ export default function Home() {
         <Principles />
         <Capabilities />
         <SelectedWork />
-        <Trust />
+        <Testimonials />
         <Contact />
         <Footer />
       </div>
