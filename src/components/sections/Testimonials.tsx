@@ -10,8 +10,6 @@ interface Stat {
 interface BrandLogo {
   name: string;
   logoUrl?: string;
-  /** Invert black/monochrome logos to white on dark backgrounds */
-  invertToWhite?: boolean;
 }
 
 const STATS: Stat[] = [
@@ -21,75 +19,69 @@ const STATS: Stat[] = [
   { value: "5", label: "Countries" },
 ];
 
+/**
+ * 18 partner marks from byond.media/uploads/partner_images (site order).
+ * One live-site asset is empty/corrupt → text fallback.
+ */
 const BRANDS: BrandLogo[] = [
-  { name: "Hassan Allam", logoUrl: "/partners/hassan-allam.png" },
-  { name: "Lorenz", logoUrl: "/partners/lorenz.png" },
-  { name: "PGESCO", logoUrl: "/partners/pgesco.png" },
-  { name: "Beuniqueness", logoUrl: "/partners/beuniqueness.png" },
-  { name: "KO Squad", logoUrl: "/partners/ko-squad.png" },
-  { name: "Felopateer Palace", logoUrl: "/partners/felopateer-palace.png" },
-  {
-    name: "Ministry of Presidential Affairs UAE",
-    logoUrl: "/partners/ministry-presidential-affairs-uae.png",
-  },
-  { name: "Four Seasons", logoUrl: "/partners/four-seasons.png", invertToWhite: true },
   { name: "Allianz", logoUrl: "/partners/allianz.png" },
-  { name: "Century City", logoUrl: "/partners/century-city.png", invertToWhite: true },
+  { name: "Century City", logoUrl: "/partners/century-city.png" },
   { name: "Cityscape", logoUrl: "/partners/cityscape.png" },
   { name: "ExxonMobil", logoUrl: "/partners/exxonmobil.png" },
-  { name: "Emaar", logoUrl: "/partners/emaar.png", invertToWhite: true },
+  { name: "Hassan Allam", logoUrl: "/partners/hassan-allam.png" },
+  { name: "KO Squad" }, // live asset empty/corrupt
   { name: "Ignite", logoUrl: "/partners/ignite.png" },
+  { name: "Lorenz", logoUrl: "/partners/lorenz.png" },
   { name: "Menassat Developments", logoUrl: "/partners/menassat-developments.png" },
-  {
-    name: "New Avenue Real Estate",
-    logoUrl: "/partners/new-avenue-real-estate.png",
-    invertToWhite: true,
-  },
+  { name: "New Avenue Real Estate", logoUrl: "/partners/new-avenue-real-estate.png" },
   { name: "Palm Hills Developments", logoUrl: "/partners/palm-hills-developments.png" },
+  { name: "PGESCO", logoUrl: "/partners/pgesco.png" },
+  { name: "Jotun", logoUrl: "/partners/jotun.png" },
+  { name: "XTB", logoUrl: "/partners/xtb.png" },
+  { name: "Al Ahly Sabbour", logoUrl: "/partners/al-ahly-sabbour.png" },
+  { name: "Elsewedy Electric", logoUrl: "/partners/elsewedy-electric.png" },
+  { name: "SODIC", logoUrl: "/partners/sodic.png" },
+  { name: "Dorra", logoUrl: "/partners/dorra.png" },
 ];
 
 function BrandFallbackPill({ name }: { name: string }) {
   return (
-    <span className="inline-flex h-12 max-w-[11rem] items-center justify-center px-2 font-sans text-[11px] font-bold uppercase tracking-wider text-white/90 md:h-16">
+    <span className="inline-flex max-w-[90%] items-center justify-center px-2 text-center font-sans text-[10px] font-bold uppercase tracking-wider text-white/85 sm:text-[11px]">
       {name}
     </span>
   );
 }
 
-function MarqueeLogo({ brand }: { brand: BrandLogo }) {
+function PartnerLogoCard({ brand }: { brand: BrandLogo }) {
   const [failed, setFailed] = useState(!brand.logoUrl);
 
-  if (failed || !brand.logoUrl) {
-    return <BrandFallbackPill name={brand.name} />;
-  }
-
-  // Dark/monochrome vectors: force white so they read on dark UI.
-  // Colorful brands: leave natural colors; screen blend knocks out baked black PNG backgrounds.
-  if (brand.invertToWhite) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={brand.logoUrl}
-        alt={brand.name}
-        className="h-12 w-auto max-w-[11rem] object-contain opacity-90 brightness-0 invert transition-opacity hover:opacity-100 sm:h-14 sm:max-w-[12rem] md:h-16 md:max-w-[13rem]"
-        style={{ filter: "brightness(0) invert(1)" }}
-        onError={() => setFailed(true)}
-        loading="lazy"
-        decoding="async"
-      />
-    );
-  }
-
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={brand.logoUrl}
-      alt={brand.name}
-      className="h-12 w-auto max-w-[11rem] object-contain opacity-90 mix-blend-screen transition-opacity hover:opacity-100 sm:h-14 sm:max-w-[12rem] md:h-16 md:max-w-[13rem]"
-      onError={() => setFailed(true)}
-      loading="lazy"
-      decoding="async"
-    />
+    <div
+      className="flex h-[72px] w-[150px] shrink-0 items-center justify-center rounded-xl border px-4 py-3 transition-[transform,border-color,background-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:scale-[1.03] hover:border-white/20 hover:bg-white/[0.06] hover:shadow-[0_12px_28px_-12px_rgba(0,0,0,0.55)] sm:h-[90px] sm:w-[160px] md:h-[100px] md:w-[180px] md:px-5"
+      style={{
+        backgroundColor: "rgba(255, 255, 255, 0.03)",
+        borderColor: "rgba(255, 255, 255, 0.08)",
+      }}
+    >
+      {failed || !brand.logoUrl ? (
+        <BrandFallbackPill name={brand.name} />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={brand.logoUrl}
+          alt={brand.name}
+          className="h-auto max-h-full w-auto max-w-full object-contain"
+          style={{
+            filter:
+              "drop-shadow(0px 0px 8px rgba(255, 255, 255, 0.2)) brightness(1.06)",
+          }}
+          onError={() => setFailed(true)}
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      )}
+    </div>
   );
 }
 
@@ -97,21 +89,35 @@ function PartnerLogoMarquee({ brands }: { brands: BrandLogo[] }) {
   const loop = [...brands, ...brands];
 
   return (
-    <div className="relative z-10 mt-12 md:mt-16">
+    <div className="relative z-10 w-full">
       <div className="mx-auto mb-8 w-full max-w-[1400px] px-4 sm:px-6 md:px-10">
         <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-neutral-400">
           Trusted by
         </p>
       </div>
-      <div className="overflow-hidden whitespace-nowrap border-y border-white/10 py-8 md:py-10">
-        <div className="animate-marquee-slow inline-flex items-center">
+
+      {/* Outer viewport: overflow hidden only on the track, not on logo cards */}
+      <div
+        className="group/marquee relative w-full overflow-hidden py-2"
+        style={{
+          maskImage:
+            "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
+        }}
+      >
+        <div
+          className="animate-marquee-slow flex w-max items-center gap-4 sm:gap-5 md:gap-6 group-hover/marquee:[animation-play-state:paused]"
+          aria-label="Client brand logos"
+        >
           {loop.map((brand, i) => (
-            <span
+            <div
               key={`${brand.name}-${i}`}
-              className="mx-8 inline-flex h-12 shrink-0 items-center justify-center sm:mx-12 md:h-16"
+              className="shrink-0"
+              aria-hidden={i >= brands.length ? true : undefined}
             >
-              <MarqueeLogo brand={brand} />
-            </span>
+              <PartnerLogoCard brand={brand} />
+            </div>
           ))}
         </div>
       </div>
