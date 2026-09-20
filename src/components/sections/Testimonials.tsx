@@ -1,14 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
+import { useState } from "react";
 
 interface Stat {
   value: string;
@@ -17,8 +9,7 @@ interface Stat {
 
 interface BrandLogo {
   name: string;
-  logoUrl?: string;
-  needsGlow?: boolean;
+  logoUrl: string;
 }
 
 const STATS: Stat[] = [
@@ -28,217 +19,331 @@ const STATS: Stat[] = [
   { value: "5", label: "Countries" },
 ];
 
+/** Partner logos sourced from /Logos (copied into /public/partners as-is) */
 const BRANDS: BrandLogo[] = [
-  { name: "Allianz", logoUrl: "/partners/allianz.png", needsGlow: true },
-  { name: "Century City", logoUrl: "/partners/century-city.png", needsGlow: true },
+  { name: "Allianz", logoUrl: "/partners/allianz.png" },
+  { name: "Century City", logoUrl: "/partners/century-city.png" },
   { name: "Cityscape", logoUrl: "/partners/cityscape.png" },
   { name: "ExxonMobil", logoUrl: "/partners/exxonmobil.png" },
-  { name: "Hassan Allam", logoUrl: "/partners/hassan-allam.png", needsGlow: true },
-  { name: "KO Squad" },
+  { name: "Hassan Allam", logoUrl: "/partners/hassan-allam.png" },
+  { name: "EMAAR", logoUrl: "/partners/emaar.png" },
   { name: "Ignite", logoUrl: "/partners/ignite.png" },
   { name: "Lorenz", logoUrl: "/partners/lorenz.png" },
-  { name: "Menassat Developments", logoUrl: "/partners/menassat-developments.png", needsGlow: true },
-  { name: "New Avenue Real Estate", logoUrl: "/partners/new-avenue-real-estate.png", needsGlow: true },
+  { name: "Menassat Developments", logoUrl: "/partners/menassat-developments.png" },
+  { name: "New Avenue Real Estate", logoUrl: "/partners/new-avenue-real-estate.png" },
   { name: "Palm Hills Developments", logoUrl: "/partners/palm-hills-developments.png" },
   { name: "PGESCO", logoUrl: "/partners/pgesco.png" },
   { name: "Jotun", logoUrl: "/partners/jotun.png" },
-  { name: "XTB", logoUrl: "/partners/xtb.png", needsGlow: true },
-  { name: "Al Ahly Sabbour", logoUrl: "/partners/al-ahly-sabbour.png", needsGlow: true },
-  { name: "Elsewedy Electric", logoUrl: "/partners/elsewedy-electric.png", needsGlow: true },
+  { name: "XTB", logoUrl: "/partners/xtb.png" },
+  { name: "Al Ahly Sabbour", logoUrl: "/partners/al-ahly-sabbour.png" },
+  { name: "Elsewedy Electric", logoUrl: "/partners/elsewedy-electric.png" },
   { name: "SODIC", logoUrl: "/partners/sodic.png" },
-  { name: "Dorra", logoUrl: "/partners/dorra.png", needsGlow: true },
+  { name: "Dorra", logoUrl: "/partners/dorra.png" },
 ];
 
-function BrandFallbackPill({ name }: { name: string }) {
-  return (
-    <span className="inline-flex max-w-[90%] items-center justify-center px-2 text-center font-sans text-[10px] font-bold uppercase tracking-wider text-white/85">
-      {name}
-    </span>
-  );
-}
-
-function LogoRibbonCard({ brand }: { brand: BrandLogo }) {
-  const [failed, setFailed] = useState(!brand.logoUrl);
-  const glow = brand.needsGlow;
+function LogoTile({ brand, tone }: { brand: BrandLogo; tone: 0 | 1 | 2 }) {
+  const [failed, setFailed] = useState(false);
 
   return (
-    <div className="flex h-[70px] w-[130px] shrink-0 items-center justify-center rounded-[12px] border border-white/[0.08] bg-white/[0.035] px-3 py-2 backdrop-blur-[10px] sm:h-[80px] sm:w-[150px] md:h-[90px] md:w-[170px] md:px-4">
-      <div
-        className={`flex h-full w-full items-center justify-center ${
-          glow ? "rounded-full bg-white/[0.05]" : ""
-        }`}
-      >
-        {failed || !brand.logoUrl ? (
-          <BrandFallbackPill name={brand.name} />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={brand.logoUrl}
-            alt={brand.name}
-            className="h-auto max-h-[78%] w-auto max-w-[88%] object-contain"
-            style={{
-              filter: glow
-                ? "drop-shadow(0 0 8px rgba(255,255,255,0.18))"
-                : "drop-shadow(0 4px 10px rgba(0,0,0,0.3))",
-            }}
-            onError={() => setFailed(true)}
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function LogoRibbon({
-  brands,
-  direction,
-  scrollX,
-  idleClass,
-  gapClass = "gap-3 md:gap-5",
-}: {
-  brands: BrandLogo[];
-  direction: "left" | "right";
-  scrollX: MotionValue<number>;
-  idleClass: string;
-  gapClass?: string;
-}) {
-  // Duplicate for continuous visual density
-  const loop = useMemo(() => [...brands, ...brands, ...brands], [brands]);
-  const sign = direction === "left" ? -1 : 1;
-
-  const x = useTransform(scrollX, (v) => `${sign * v}px`);
-
-  return (
-    <div className="relative w-full overflow-hidden py-1.5 sm:py-2">
-      <motion.div style={{ x }} className="will-change-transform">
-        <div className={`ribbon-idle ${idleClass} flex w-max items-center ${gapClass}`}>
-          {loop.map((brand, i) => (
-            <LogoRibbonCard key={`${brand.name}-${i}`} brand={brand} />
-          ))}
+    <article className={`logoTile tone-${tone}`} aria-label={brand.name}>
+      <span className="logoRail" aria-hidden="true" />
+      <span className="logoCorner" aria-hidden="true" />
+      <div className="logoStage">
+        <div className="logoMark">
+          {failed ? (
+            <span className="logoFallback">{brand.name}</span>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={brand.logoUrl}
+              alt={brand.name}
+              className="logoImg"
+              onError={() => setFailed(true)}
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+            />
+          )}
         </div>
-      </motion.div>
-    </div>
+      </div>
+      <span className="logoSheen" aria-hidden="true" />
+    </article>
   );
 }
 
-function ParallaxLogoRibbons({ brands }: { brands: BrandLogo[] }) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useReducedMotion();
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const raw = useTransform(scrollYProgress, [0, 1], [0, 220]);
-  const scrollTravel = useSpring(raw, {
-    stiffness: 60,
-    damping: 28,
-    restDelta: 0.001,
-  });
-
-  // Different speeds per ribbon
-  const row1 = useTransform(scrollTravel, (v) => (reduceMotion ? 0 : v * 0.85));
-  const row2 = useTransform(scrollTravel, (v) => (reduceMotion ? 0 : v * 1.05));
-  const row3 = useTransform(scrollTravel, (v) => (reduceMotion ? 0 : v * 0.7));
-
-  const rowA = brands.slice(0, 6);
-  const rowB = brands.slice(6, 12);
-  const rowC = brands.slice(12, 18);
-
-  // Mobile: redistribute into two denser ribbons
-  const mobileA = brands.slice(0, 9);
-  const mobileB = brands.slice(9, 18);
+function PartnerLogoMarquee({ brands }: { brands: BrandLogo[] }) {
+  const PARTNERS = [...brands, ...brands];
 
   return (
-    <div ref={sectionRef} className="relative z-10 w-full overflow-x-hidden">
+    <div className="relative z-10 w-full overflow-x-hidden">
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            @keyframes ribbonDriftLeft {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-33.333%); }
+            .marqueeWrapper {
+              width: 100%;
+              overflow: hidden;
+              padding: 2.75rem 0 3.25rem;
+              -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+              mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
             }
-            @keyframes ribbonDriftRight {
-              0% { transform: translateX(-33.333%); }
-              100% { transform: translateX(0); }
+
+            .marqueeTrack {
+              display: flex;
+              align-items: stretch;
+              gap: 1.35rem;
+              width: max-content;
+              -webkit-animation: marqueeScroll 42s linear infinite;
+              animation: marqueeScroll 42s linear infinite;
+              will-change: transform;
+              -webkit-backface-visibility: hidden;
+              backface-visibility: hidden;
             }
-            .ribbon-idle-left {
-              animation: ribbonDriftLeft 55s linear infinite;
+
+            .marqueeWrapper:hover .marqueeTrack {
+              -webkit-animation-play-state: paused;
+              animation-play-state: paused;
             }
-            .ribbon-idle-right {
-              animation: ribbonDriftRight 60s linear infinite;
+
+            /* Equal gallery frames — black / burgundy shell, ivory stage for the mark */
+            .logoTile {
+              --tile-w: 248px;
+              --tile-h: 136px;
+              flex: 0 0 var(--tile-w);
+              width: var(--tile-w);
+              height: var(--tile-h);
+              position: relative;
+              isolation: isolate;
+              overflow: hidden;
+              border-radius: 4px;
+              background:
+                linear-gradient(160deg, #1a080c 0%, #0b0b0c 42%, #14060a 100%);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              box-shadow:
+                0 0 0 1px rgba(60, 5, 15, 0.55),
+                0 18px 36px -18px rgba(0, 0, 0, 0.75),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+              -webkit-transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+              transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
             }
-            .ribbon-idle-left-slow {
-              animation: ribbonDriftLeft 70s linear infinite;
+
+            .logoTile.tone-1 {
+              background:
+                linear-gradient(155deg, #2a0a12 0%, #0f0a0c 48%, #1c070d 100%);
             }
+
+            .logoTile.tone-2 {
+              background:
+                linear-gradient(165deg, #0c0c0e 0%, #1f0a10 55%, #0b0b0c 100%);
+            }
+
+            .logoRail {
+              position: absolute;
+              left: 0;
+              top: 0;
+              bottom: 0;
+              width: 3px;
+              background: linear-gradient(
+                180deg,
+                #8b1a2e 0%,
+                #3c050f 45%,
+                #1a0508 100%
+              );
+              z-index: 3;
+            }
+
+            .logoCorner {
+              position: absolute;
+              top: 0;
+              right: 0;
+              width: 42px;
+              height: 42px;
+              background:
+                linear-gradient(
+                  225deg,
+                  rgba(139, 26, 46, 0.95) 0%,
+                  rgba(139, 26, 46, 0.55) 38%,
+                  transparent 39%
+                );
+              z-index: 3;
+              pointer-events: none;
+            }
+
+            .logoCorner::after {
+              content: "";
+              position: absolute;
+              top: 9px;
+              right: 9px;
+              width: 5px;
+              height: 5px;
+              border-radius: 50%;
+              background: rgba(251, 251, 251, 0.85);
+              box-shadow: 0 0 0 1px rgba(60, 5, 15, 0.35);
+            }
+
+            .logoStage {
+              position: absolute;
+              inset: 14px 14px 14px 18px;
+              border-radius: 2px;
+              background:
+                linear-gradient(
+                  180deg,
+                  #ffffff 0%,
+                  #f7f4f2 55%,
+                  #efe8e4 100%
+                );
+              box-shadow:
+                inset 0 0 0 1px rgba(60, 5, 15, 0.08),
+                inset 0 10px 24px -16px rgba(60, 5, 15, 0.18),
+                0 1px 0 rgba(255, 255, 255, 0.65);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 1;
+              overflow: hidden;
+            }
+
+            .logoStage::before {
+              content: "";
+              position: absolute;
+              inset: 0;
+              background:
+                repeating-linear-gradient(
+                  -18deg,
+                  transparent,
+                  transparent 11px,
+                  rgba(60, 5, 15, 0.015) 11px,
+                  rgba(60, 5, 15, 0.015) 12px
+                );
+              pointer-events: none;
+              opacity: 0.9;
+            }
+
+            .logoMark {
+              position: relative;
+              z-index: 1;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 86%;
+              height: 78%;
+            }
+
+            .logoImg {
+              width: auto;
+              height: 100%;
+              max-width: 100%;
+              max-height: 100%;
+              object-fit: contain;
+              object-position: center;
+              -webkit-filter: drop-shadow(0 1px 1px rgba(11, 11, 12, 0.06));
+              filter: drop-shadow(0 1px 1px rgba(11, 11, 12, 0.06));
+              -webkit-transition: transform 0.35s ease;
+              transition: transform 0.35s ease;
+            }
+
+            .logoFallback {
+              max-width: 90%;
+              text-align: center;
+              font-family: ui-sans-serif, system-ui, sans-serif;
+              font-size: 10px;
+              font-weight: 700;
+              letter-spacing: 0.18em;
+              text-transform: uppercase;
+              color: #3c050f;
+            }
+
+            .logoSheen {
+              position: absolute;
+              inset: 0;
+              z-index: 4;
+              pointer-events: none;
+              background: linear-gradient(
+                115deg,
+                transparent 42%,
+                rgba(255, 255, 255, 0.07) 50%,
+                transparent 58%
+              );
+              -webkit-transform: translateX(-120%);
+              transform: translateX(-120%);
+              -webkit-transition: transform 0.7s ease;
+              transition: transform 0.7s ease;
+            }
+
+            .logoTile:hover {
+              border-color: rgba(255, 255, 255, 0.22);
+              -webkit-transform: translateY(-4px);
+              transform: translateY(-4px);
+              box-shadow:
+                0 0 0 1px rgba(139, 26, 46, 0.45),
+                0 22px 40px -16px rgba(0, 0, 0, 0.85),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+
+            .logoTile:hover .logoImg {
+              -webkit-transform: scale(1.04);
+              transform: scale(1.04);
+            }
+
+            .logoTile:hover .logoSheen {
+              -webkit-transform: translateX(120%);
+              transform: translateX(120%);
+            }
+
+            @-webkit-keyframes marqueeScroll {
+              0% { -webkit-transform: translateX(0); transform: translateX(0); }
+              100% { -webkit-transform: translateX(-50%); transform: translateX(-50%); }
+            }
+            @keyframes marqueeScroll {
+              0% { -webkit-transform: translateX(0); transform: translateX(0); }
+              100% { -webkit-transform: translateX(-50%); transform: translateX(-50%); }
+            }
+
+            @media (max-width: 768px) {
+              .logoTile {
+                --tile-w: 196px;
+                --tile-h: 112px;
+              }
+              .logoStage {
+                inset: 11px 11px 11px 14px;
+              }
+              .marqueeTrack {
+                gap: 1rem;
+                -webkit-animation-duration: 34s;
+                animation-duration: 34s;
+              }
+              .marqueeWrapper {
+                padding: 2rem 0 2.5rem;
+              }
+            }
+
             @media (prefers-reduced-motion: reduce) {
-              .ribbon-idle-left,
-              .ribbon-idle-right,
-              .ribbon-idle-left-slow {
+              .marqueeTrack {
+                -webkit-animation: none !important;
                 animation: none !important;
+              }
+              .logoSheen {
+                display: none;
               }
             }
           `,
         }}
       />
 
-      <div className="mx-auto mb-8 w-full max-w-[1400px] px-4 sm:px-6 md:px-10">
+      <div className="mx-auto mb-6 w-full max-w-[1400px] px-4 sm:mb-8 sm:px-6 md:px-10">
         <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-neutral-400">
           Trusted by
         </p>
       </div>
 
-      <div
-        className="relative w-full overflow-x-hidden"
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)",
-        }}
-      >
-        {/* Mobile: 2 ribbons */}
-        <div className="flex flex-col gap-4 md:hidden">
-          <LogoRibbon
-            brands={mobileA}
-            direction="left"
-            scrollX={row1}
-            idleClass="ribbon-idle-left"
-            gapClass="gap-4"
-          />
-          <LogoRibbon
-            brands={mobileB}
-            direction="right"
-            scrollX={row2}
-            idleClass="ribbon-idle-right"
-            gapClass="gap-4"
-          />
-        </div>
-
-        {/* Desktop: 3 opposing ribbons */}
-        <div className="hidden flex-col gap-5 md:flex md:gap-6">
-          <LogoRibbon
-            brands={rowA}
-            direction="left"
-            scrollX={row1}
-            idleClass="ribbon-idle-left"
-          />
-          <LogoRibbon
-            brands={rowB}
-            direction="right"
-            scrollX={row2}
-            idleClass="ribbon-idle-right"
-          />
-          <LogoRibbon
-            brands={rowC}
-            direction="left"
-            scrollX={row3}
-            idleClass="ribbon-idle-left-slow"
-          />
+      <div className="marqueeWrapper">
+        <div className="marqueeTrack">
+          {PARTNERS.map((partner, index) => (
+            <LogoTile
+              key={`${partner.name}-${index}`}
+              brand={partner}
+              tone={(index % 3) as 0 | 1 | 2}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -300,8 +405,8 @@ export function Testimonials() {
         </div>
       </div>
 
-      <div className="relative z-10 overflow-x-hidden pb-16 md:pb-24 lg:pb-28">
-        <ParallaxLogoRibbons brands={BRANDS} />
+      <div className="relative z-10 overflow-x-hidden pb-12 md:pb-20">
+        <PartnerLogoMarquee brands={BRANDS} />
       </div>
     </section>
   );
