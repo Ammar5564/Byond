@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 import {
   useEffect,
+  useState,
   type RefObject,
 } from "react";
 
@@ -126,6 +127,28 @@ const cards: CardData[] = [
   },
 ];
 
+function StaticFloatingCard({ card }: { card: CardData }) {
+  return (
+    <div className={card.className}>
+      <div className="relative h-full w-full overflow-hidden rounded-[inherit]">
+        <Image
+          src={card.image}
+          alt=""
+          fill
+          sizes="280px"
+          className="object-cover"
+          priority={
+            card.id === "01" ||
+            card.id === "03" ||
+            card.id === "07" ||
+            card.id === "08"
+          }
+        />
+      </div>
+    </div>
+  );
+}
+
 function FloatingCard({
   card,
   index,
@@ -221,7 +244,20 @@ type HeroFloatingCardsProps = {
   heroRef: RefObject<HTMLElement | null>;
 };
 
-export function HeroFloatingCards({ heroRef }: HeroFloatingCardsProps) {
+function LiteHeroFloatingCards() {
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 z-10 origin-center scale-[0.62] gpu-accelerate sm:scale-[0.72] md:scale-[0.85] lg:scale-100"
+      aria-hidden="true"
+    >
+      {cards.map((card) => (
+        <StaticFloatingCard key={card.id} card={card} />
+      ))}
+    </div>
+  );
+}
+
+function DesktopHeroFloatingCards({ heroRef }: HeroFloatingCardsProps) {
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
   const mouseX = useSpring(rawX, { stiffness: 70, damping: 20, mass: 0.3 });
@@ -274,4 +310,24 @@ export function HeroFloatingCards({ heroRef }: HeroFloatingCardsProps) {
       ))}
     </div>
   );
+}
+
+export function HeroFloatingCards({ heroRef }: HeroFloatingCardsProps) {
+  const [lite, setLite] = useState(true);
+
+  useEffect(() => {
+    const update = () => {
+      setLite(
+        window.innerWidth < 768 ||
+          window.matchMedia("(pointer: coarse)").matches ||
+          navigator.maxTouchPoints > 0
+      );
+    };
+    update();
+    window.addEventListener("resize", update, { passive: true });
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  if (lite) return <LiteHeroFloatingCards />;
+  return <DesktopHeroFloatingCards heroRef={heroRef} />;
 }

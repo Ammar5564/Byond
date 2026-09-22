@@ -31,38 +31,56 @@ function CountUpStat({
   className,
 }: Stat & { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [display, setDisplay] = useState(0);
+  const valueRef = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
+  const rafRef = useRef(0);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    const valueEl = valueRef.current;
+    if (!el || !valueEl) return;
 
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+
+    const write = (n: number) => {
+      valueEl.textContent = formatStat(n, suffix);
+    };
+
+    write(0);
 
     const run = () => {
       if (started.current) return;
       started.current = true;
 
       if (prefersReduced) {
-        setDisplay(value);
+        write(value);
         return;
       }
 
-      const duration = 1600;
+      // Longer, softer ease — fewer React updates (DOM only)
+      const duration = value >= 1000 ? 2800 : 2200;
       const start = performance.now();
+      let lastShown = -1;
 
       const tick = (now: number) => {
         const t = Math.min(1, (now - start) / duration);
-        const eased = 1 - Math.pow(1 - t, 3);
-        setDisplay(Math.round(value * eased));
-        if (t < 1) requestAnimationFrame(tick);
-        else setDisplay(value);
+        // easeOutQuint — smoother than cubic for long counts
+        const eased = 1 - Math.pow(1 - t, 5);
+        const next = Math.round(value * eased);
+        if (next !== lastShown) {
+          lastShown = next;
+          write(next);
+        }
+        if (t < 1) {
+          rafRef.current = requestAnimationFrame(tick);
+        } else {
+          write(value);
+        }
       };
 
-      requestAnimationFrame(tick);
+      rafRef.current = requestAnimationFrame(tick);
     };
 
     const io = new IntersectionObserver(
@@ -72,12 +90,15 @@ function CountUpStat({
           io.disconnect();
         }
       },
-      { threshold: 0.35 }
+      { threshold: 0.3, rootMargin: "0px 0px -8% 0px" }
     );
 
     io.observe(el);
-    return () => io.disconnect();
-  }, [value]);
+    return () => {
+      io.disconnect();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [value, suffix]);
 
   return (
     <div ref={ref} role="listitem" className={className}>
@@ -85,7 +106,7 @@ function CountUpStat({
         className="font-display text-[clamp(2rem,4.5vw,3rem)] leading-none tracking-tight text-white tabular-nums"
         aria-label={`${formatStat(value, suffix)} ${label}`}
       >
-        {formatStat(display, suffix)}
+        <span ref={valueRef}>0{suffix}</span>
       </p>
       <p className="mt-3 font-sans text-[10px] uppercase tracking-[0.22em] text-neutral-400">
         {label}
@@ -175,6 +196,8 @@ function PartnerLogoMarquee({ brands }: { brands: BrandLogo[] }) {
               will-change: transform;
               -webkit-backface-visibility: hidden;
               backface-visibility: hidden;
+              -webkit-transform: translate3d(0, 0, 0);
+              transform: translate3d(0, 0, 0);
             }
 
             .marqueeWrapper:hover .marqueeTrack {
@@ -368,12 +391,12 @@ function PartnerLogoMarquee({ brands }: { brands: BrandLogo[] }) {
             }
 
             @-webkit-keyframes marqueeScroll {
-              0% { -webkit-transform: translateX(0); transform: translateX(0); }
-              100% { -webkit-transform: translateX(-50%); transform: translateX(-50%); }
+              0% { -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); }
+              100% { -webkit-transform: translate3d(-50%, 0, 0); transform: translate3d(-50%, 0, 0); }
             }
             @keyframes marqueeScroll {
-              0% { -webkit-transform: translateX(0); transform: translateX(0); }
-              100% { -webkit-transform: translateX(-50%); transform: translateX(-50%); }
+              0% { -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); }
+              100% { -webkit-transform: translate3d(-50%, 0, 0); transform: translate3d(-50%, 0, 0); }
             }
 
             @media (max-width: 768px) {
@@ -386,8 +409,8 @@ function PartnerLogoMarquee({ brands }: { brands: BrandLogo[] }) {
               }
               .marqueeTrack {
                 gap: 1rem;
-                -webkit-animation-duration: 34s;
-                animation-duration: 34s;
+                -webkit-animation-duration: 55s;
+                animation-duration: 55s;
               }
               .marqueeWrapper {
                 padding: 2rem 0 2.5rem;

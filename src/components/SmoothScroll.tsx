@@ -13,6 +13,16 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     let destroyed = false;
 
     async function init() {
+      const coarse =
+        window.matchMedia("(pointer: coarse)").matches ||
+        navigator.maxTouchPoints > 0;
+      const narrow = window.innerWidth < 768;
+
+      // Native scroll on phones/tablets — Lenis RAF + scroll proxy is a major lag source
+      if (coarse || narrow) {
+        return;
+      }
+
       const [{ default: Lenis }, { default: gsap }, { ScrollTrigger }] =
         await Promise.all([
           import("lenis"),
@@ -25,17 +35,11 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       gsap.registerPlugin(ScrollTrigger);
       gsapRef.current = gsap;
 
-      const narrow = window.innerWidth < 768;
-      const coarse =
-        window.matchMedia("(pointer: coarse)").matches ||
-        navigator.maxTouchPoints > 0;
-
       const lenis = new Lenis({
-        duration: narrow ? 1.0 : 1.2,
+        duration: 1.2,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: !coarse,
+        smoothWheel: true,
         syncTouch: false,
-        touchMultiplier: coarse ? 1.5 : 1.2,
         wheelMultiplier: 0.9,
       });
 

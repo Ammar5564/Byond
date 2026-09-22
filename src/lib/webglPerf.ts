@@ -39,9 +39,10 @@ export function shouldUseLiteShaders() {
   return isCoarsePointer() || isLowConcurrency();
 }
 
-/** Cap DPR at 1.5 on desktop and mobile. */
+/** Cap DPR: 1 on mobile, 1.5 on desktop — big mobile GPU win */
 export function getPixelRatioCap() {
   const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+  if (isNarrowViewport()) return Math.min(dpr, 1);
   return Math.min(dpr, 1.5);
 }
 
@@ -73,6 +74,8 @@ export function createFpsGate(getLimit: () => number = getFpsLimit) {
 export function createScrollFreeze(idleMs = 140) {
   let frozen = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
+  const delay =
+    typeof window !== "undefined" && isNarrowViewport() ? Math.max(idleMs, 220) : idleMs;
 
   const onScroll = () => {
     frozen = true;
@@ -80,7 +83,7 @@ export function createScrollFreeze(idleMs = 140) {
     timer = setTimeout(() => {
       frozen = false;
       timer = null;
-    }, idleMs);
+    }, delay);
   };
 
   if (typeof window !== "undefined") {
