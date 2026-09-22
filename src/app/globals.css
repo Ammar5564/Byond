@@ -15,6 +15,9 @@
   html {
     scroll-behavior: auto;
     scroll-padding-top: var(--nav-height);
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   html.lenis,

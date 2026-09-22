@@ -10,7 +10,7 @@ export function Hero() {
     <section
       id="hero"
       ref={heroRef}
-      className="relative h-screen w-full overflow-hidden bg-[#0A0A0A] gpu-accelerate"
+      className="relative h-svh min-h-[100svh] w-full max-w-[100vw] overflow-hidden bg-[#0A0A0A] gpu-accelerate"
     >
       {/* z-10 — interactive WebGL / floating mockups */}
       <HeroFloatingCards heroRef={heroRef} />

@@ -6,7 +6,7 @@ import { SectionHeadline } from "./SectionHeadline";
 import { siteConfig } from "@/lib/content";
 
 const fieldBase =
-  "w-full border-0 border-b border-champagne/20 bg-transparent py-3 font-sans text-sm text-champagne outline-none transition-colors duration-300 placeholder:text-stone/50 focus-visible:border-champagne focus-visible:ring-0 focus-visible:ring-offset-0";
+  "w-full border-0 border-b border-champagne/20 bg-transparent py-3 font-sans text-base text-champagne outline-none transition-colors duration-300 placeholder:text-stone/50 focus-visible:border-champagne focus-visible:ring-0 focus-visible:ring-offset-0 md:text-sm";
 
 const fieldError = "border-burgundy/80 placeholder:text-burgundy/40";
 

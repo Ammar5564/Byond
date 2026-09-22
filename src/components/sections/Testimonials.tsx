@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Stat {
-  value: string;
+  value: number;
+  suffix?: string;
   label: string;
 }
 
@@ -13,32 +14,106 @@ interface BrandLogo {
 }
 
 const STATS: Stat[] = [
-  { value: "50", label: "Clients" },
-  { value: "300", label: "Projects Completed" },
-  { value: "25,000+", label: "Working Hours" },
-  { value: "5", label: "Countries" },
+  { value: 50, label: "Clients" },
+  { value: 300, label: "Projects Completed" },
+  { value: 25000, suffix: "+", label: "Working Hours" },
+  { value: 5, label: "Countries" },
 ];
 
-/** Partner logos sourced from /Logos (copied into /public/partners as-is) */
+function formatStat(n: number, suffix = "") {
+  return `${n.toLocaleString("en-US")}${suffix}`;
+}
+
+function CountUpStat({
+  value,
+  suffix = "",
+  label,
+  className,
+}: Stat & { className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [display, setDisplay] = useState(0);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const run = () => {
+      if (started.current) return;
+      started.current = true;
+
+      if (prefersReduced) {
+        setDisplay(value);
+        return;
+      }
+
+      const duration = 1600;
+      const start = performance.now();
+
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setDisplay(Math.round(value * eased));
+        if (t < 1) requestAnimationFrame(tick);
+        else setDisplay(value);
+      };
+
+      requestAnimationFrame(tick);
+    };
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          run();
+          io.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, [value]);
+
+  return (
+    <div ref={ref} role="listitem" className={className}>
+      <p
+        className="font-display text-[clamp(2rem,4.5vw,3rem)] leading-none tracking-tight text-white tabular-nums"
+        aria-label={`${formatStat(value, suffix)} ${label}`}
+      >
+        {formatStat(display, suffix)}
+      </p>
+      <p className="mt-3 font-sans text-[10px] uppercase tracking-[0.22em] text-neutral-400">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+/** Partner logos — prestige-first order (from /Logos → /public/partners) */
 const BRANDS: BrandLogo[] = [
-  { name: "Allianz", logoUrl: "/partners/allianz.png" },
-  { name: "Century City", logoUrl: "/partners/century-city.png" },
-  { name: "Cityscape", logoUrl: "/partners/cityscape.png" },
   { name: "ExxonMobil", logoUrl: "/partners/exxonmobil.png" },
-  { name: "Hassan Allam", logoUrl: "/partners/hassan-allam.png" },
+  { name: "Allianz", logoUrl: "/partners/allianz.png" },
   { name: "EMAAR", logoUrl: "/partners/emaar.png" },
-  { name: "Ignite", logoUrl: "/partners/ignite.png" },
-  { name: "Lorenz", logoUrl: "/partners/lorenz.png" },
+  { name: "Jotun", logoUrl: "/partners/jotun.png" },
+  { name: "Palm Hills Developments", logoUrl: "/partners/palm-hills-developments.png" },
+  { name: "SODIC", logoUrl: "/partners/sodic.png" },
+  { name: "Hassan Allam", logoUrl: "/partners/hassan-allam.png" },
+  { name: "Elsewedy Electric", logoUrl: "/partners/elsewedy-electric.png" },
+  { name: "Al Ahly Sabbour", logoUrl: "/partners/al-ahly-sabbour.png" },
+  { name: "Dorra", logoUrl: "/partners/dorra.png" },
+  { name: "XTB", logoUrl: "/partners/xtb.png" },
+  { name: "PGESCO", logoUrl: "/partners/pgesco.png" },
+  { name: "Century City", logoUrl: "/partners/century-city.png" },
   { name: "Menassat Developments", logoUrl: "/partners/menassat-developments.png" },
   { name: "New Avenue Real Estate", logoUrl: "/partners/new-avenue-real-estate.png" },
-  { name: "Palm Hills Developments", logoUrl: "/partners/palm-hills-developments.png" },
-  { name: "PGESCO", logoUrl: "/partners/pgesco.png" },
-  { name: "Jotun", logoUrl: "/partners/jotun.png" },
-  { name: "XTB", logoUrl: "/partners/xtb.png" },
-  { name: "Al Ahly Sabbour", logoUrl: "/partners/al-ahly-sabbour.png" },
-  { name: "Elsewedy Electric", logoUrl: "/partners/elsewedy-electric.png" },
-  { name: "SODIC", logoUrl: "/partners/sodic.png" },
-  { name: "Dorra", logoUrl: "/partners/dorra.png" },
+  { name: "Cityscape", logoUrl: "/partners/cityscape.png" },
+  { name: "Lorenz", logoUrl: "/partners/lorenz.png" },
+  { name: "Ignite", logoUrl: "/partners/ignite.png" },
 ];
 
 function LogoTile({ brand, tone }: { brand: BrandLogo; tone: 0 | 1 | 2 }) {
@@ -81,8 +156,11 @@ function PartnerLogoMarquee({ brands }: { brands: BrandLogo[] }) {
           __html: `
             .marqueeWrapper {
               width: 100%;
+              max-width: 100%;
               overflow: hidden;
               padding: 2.75rem 0 3.25rem;
+              touch-action: pan-y;
+              -webkit-overflow-scrolling: touch;
               -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
               mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
             }
@@ -385,22 +463,17 @@ export function Testimonials() {
           aria-label="Agency impact"
         >
           {STATS.map((stat, i) => (
-            <div
+            <CountUpStat
               key={stat.label}
-              role="listitem"
+              value={stat.value}
+              suffix={stat.suffix}
+              label={stat.label}
               className={`min-w-0 px-5 py-6 sm:px-6 sm:py-8 ${
                 i % 2 === 0 ? "border-r border-white/10" : ""
               } ${i < 2 ? "border-b border-white/10 md:border-b-0" : ""} ${
                 i < STATS.length - 1 ? "md:border-r md:border-white/10" : ""
               }`}
-            >
-              <p className="font-display text-[clamp(2rem,4.5vw,3rem)] leading-none tracking-tight text-white">
-                {stat.value}
-              </p>
-              <p className="mt-3 font-sans text-[10px] uppercase tracking-[0.22em] text-neutral-400">
-                {stat.label}
-              </p>
-            </div>
+            />
           ))}
         </div>
       </div>
