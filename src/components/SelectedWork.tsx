@@ -144,6 +144,7 @@ export function SelectedWork() {
 
     let pinTrigger: { kill: () => void } | null = null;
     let cancelled = false;
+    let onResize: (() => void) | null = null;
 
     async function animate() {
       const { default: gsap } = await import("gsap");
@@ -159,6 +160,7 @@ export function SelectedWork() {
         pinSpacing: true,
         scrub: 1.15,
         anticipatePin: 1,
+        invalidateOnRefresh: true,
         onUpdate: (self) => {
           progressRef.current = self.progress;
           apiRef.current?.setProgress(self.progress);
@@ -166,11 +168,18 @@ export function SelectedWork() {
       });
 
       pinTrigger = st;
+      onResize = () => ScrollTrigger.refresh();
+      window.addEventListener("resize", onResize, { passive: true });
+      window.addEventListener("orientationchange", onResize, { passive: true });
     }
 
     animate();
     return () => {
       cancelled = true;
+      if (onResize) {
+        window.removeEventListener("resize", onResize);
+        window.removeEventListener("orientationchange", onResize);
+      }
       pinTrigger?.kill();
     };
   }, []);
@@ -191,7 +200,7 @@ export function SelectedWork() {
     >
       <div
         ref={pinRef}
-        className="relative h-screen w-full touch-pan-y overflow-hidden bg-ink gpu-accelerate"
+        className="relative h-svh min-h-[100svh] w-full touch-pan-y overflow-hidden bg-ink gpu-accelerate"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <WorksTunnelCanvasClient

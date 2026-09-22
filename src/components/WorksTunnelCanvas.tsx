@@ -6,10 +6,8 @@ import type { WorkItem } from "@/lib/content";
 import {
   clampTextureForMobile,
   createFpsGate,
-  createScrollFreeze,
   getFpsLimit,
   getPixelRatioCap,
-  isNarrowViewport,
   shouldUseLiteShaders,
 } from "@/lib/webglPerf";
 
@@ -447,14 +445,17 @@ export function WorksTunnelCanvas({
       },
     };
 
-    const shouldRender = createFpsGate(() => getFpsLimit());
-    const scrollFreeze = createScrollFreeze();
+    // Keep enough FPS on mobile for scroll-scrubbed camera motion
+    const shouldRender = createFpsGate(() =>
+      window.innerWidth < 768 ? 45 : getFpsLimit()
+    );
 
     const tick = (time: number) => {
       if (disposed) return;
       raf = requestAnimationFrame(tick);
       if (document.hidden) return;
-      if (isNarrowViewport() && scrollFreeze.isFrozen()) return;
+      // Always render while scrolling — this tunnel is scroll-scrubbed.
+      // (Background canvas still uses scroll-freeze; do not add it here.)
       if (!shouldRender(time)) return;
 
       const t = clock.getElapsedTime();
@@ -538,7 +539,6 @@ export function WorksTunnelCanvas({
       disposed = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
-      scrollFreeze.dispose();
       wrap.removeEventListener("pointermove", onPointerMove);
       wrap.removeEventListener("pointerleave", onPointerLeave);
       wrap.removeEventListener("click", onClick);
