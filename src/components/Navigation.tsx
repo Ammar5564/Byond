@@ -7,35 +7,44 @@ import { siteConfig } from "@/lib/content";
 
 const navLinks = [
   { href: "#hero", label: "Intro", id: "hero" },
+  { href: "#trust", label: "Clients", id: "trust" },
   { href: "#how-we-think", label: "Approach", id: "how-we-think" },
-  { href: "#work", label: "Works", id: "work" },
-  { href: "#trust", label: "About", id: "trust" },
+  { href: "#capabilities", label: "Services", id: "capabilities" },
+  { href: "#work", label: "Work", id: "work" },
 ];
 
-const spySections = ["hero", "how-we-think", "work", "trust", "contact"];
-const lightSections = new Set<string>([]);
+const spySections = [
+  "hero",
+  "trust",
+  "how-we-think",
+  "capabilities",
+  "work",
+  "contact",
+];
+/** Sections with a dark background: the nav switches to its light-on-dark look. */
+const darkSections = ["work", "site-footer"];
 
 type NavTheme = "light" | "dark";
 
 function getNavOffset(): number {
-  if (typeof window === "undefined") return 88;
+  if (typeof window === "undefined") return 64;
   const raw = getComputedStyle(document.documentElement)
     .getPropertyValue("--nav-height")
     .trim();
-  return parseFloat(raw) || 88;
+  return parseFloat(raw) || 64;
 }
 
 function getSectionAtNav(): { theme: NavTheme; activeId: string | null } {
   const navOffset = getNavOffset();
-  let theme: NavTheme = "dark";
+  let theme: NavTheme = "light";
   let activeId: string | null = "hero";
 
-  for (const id of lightSections) {
+  for (const id of darkSections) {
     const el = document.getElementById(id);
     if (!el) continue;
     const rect = el.getBoundingClientRect();
-    if (rect.top <= navOffset && rect.bottom > navOffset) {
-      theme = "light";
+    if (rect.top <= navOffset * 0.5 && rect.bottom > navOffset * 0.5) {
+      theme = "dark";
       break;
     }
   }
@@ -54,7 +63,7 @@ function getSectionAtNav(): { theme: NavTheme; activeId: string | null } {
 
 export function Navigation() {
   const [scrolled, setScrolled] = useState(false);
-  const [navTheme, setNavTheme] = useState<NavTheme>("dark");
+  const [navTheme, setNavTheme] = useState<NavTheme>("light");
   const [activeSection, setActiveSection] = useState<string | null>("hero");
   const [menuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -62,41 +71,41 @@ export function Navigation() {
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return;
+    const bar = header.firstElementChild as HTMLElement | null;
+    if (!bar) return;
 
     const syncNavHeight = () => {
       document.documentElement.style.setProperty(
         "--nav-height",
-        `${header.offsetHeight}px`
+        `${bar.offsetHeight}px`
       );
     };
 
     syncNavHeight();
     window.addEventListener("resize", syncNavHeight, { passive: true });
-    const observer = new ResizeObserver(syncNavHeight);
-    observer.observe(header);
-
-    return () => {
-      window.removeEventListener("resize", syncNavHeight);
-      observer.disconnect();
-    };
-  }, [scrolled, navTheme, activeSection, menuOpen]);
+    return () => window.removeEventListener("resize", syncNavHeight);
+  }, []);
 
   useEffect(() => {
+    let raf = 0;
     const update = () => {
+      raf = 0;
       setScrolled(window.scrollY > 24);
       const { theme, activeId } = getSectionAtNav();
       setNavTheme(theme);
       setActiveSection(activeId);
     };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
 
     update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("touchmove", update, { passive: true });
-    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("touchmove", update);
-      window.removeEventListener("resize", update);
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
     };
   }, []);
 
@@ -122,42 +131,49 @@ export function Navigation() {
     };
   }, [menuOpen]);
 
-  const isLight = navTheme === "light";
-  const pillTone = isLight
-    ? "border-ink/10 bg-snow/75"
-    : "border-white/10 bg-black/50";
+  const dark = navTheme === "dark";
+
+  const barTone = menuOpen
+    ? "bg-ivory border-transparent"
+    : scrolled
+      ? dark
+        ? "bg-night/90 border-white/10"
+        : "bg-ivory/90 border-sand"
+      : "bg-transparent border-transparent";
+
+  const pillTone = dark
+    ? "border-white/10 bg-white/5"
+    : "border-ink/10 bg-white/70";
+
+  const effectiveDark = dark && !menuOpen;
 
   return (
     <header ref={headerRef} className="fixed inset-x-0 top-0 z-50">
       <div
-        className={`relative z-50 transition-colors duration-500 ${
-          scrolled ? "bg-ink/80" : "bg-transparent"
-        }`}
+        className={`relative z-50 border-b transition-colors duration-500 ${barTone}`}
       >
-        <div className="mx-auto grid h-14 max-w-[1400px] grid-cols-[1fr_auto] items-center gap-x-4 px-4 sm:h-16 sm:gap-x-6 sm:px-6 md:grid-cols-[1fr_auto_1fr] md:gap-x-8 md:px-10">
+        <div className="mx-auto grid h-16 max-w-[1400px] grid-cols-[1fr_auto] items-center gap-x-4 px-5 sm:gap-x-6 sm:px-8 md:grid-cols-[1fr_auto_1fr] md:gap-x-8 md:px-10">
           <Link
             href="#hero"
-            className="relative block h-8 w-[7.5rem] shrink-0 justify-self-start sm:h-9 sm:w-36 md:h-10 md:w-40"
+            aria-label="Byond Media — home"
+            className="relative block h-9 w-28 shrink-0 justify-self-start sm:w-32 md:h-10 md:w-36"
             onClick={() => setMenuOpen(false)}
           >
             <Image
               src="/logo-full-lockup.png"
-              alt="Byond"
+              alt="Byond Media"
               fill
               sizes="160px"
-              className={`object-contain object-left transition-all duration-500 ${
-                isLight ? "brightness-0" : "brightness-0 invert"
+              className={`object-contain object-left transition-[filter] duration-500 ${
+                effectiveDark ? "brightness-0 invert" : "brightness-0"
               }`}
               priority
             />
           </Link>
 
-          <nav
-            className="hidden justify-self-center md:block"
-            aria-label="Primary"
-          >
+          <nav className="hidden justify-self-center md:block" aria-label="Primary">
             <ul
-              className={`flex items-center gap-1 rounded-full border px-2 py-1.5 backdrop-blur-none transition-colors duration-500 md:backdrop-blur-xl ${pillTone}`}
+              className={`flex items-center gap-0.5 rounded-full border px-1.5 py-1.5 transition-colors duration-500 ${pillTone}`}
             >
               {navLinks.map((link) => {
                 const isActive = activeSection === link.id;
@@ -166,14 +182,14 @@ export function Navigation() {
                     <Link
                       href={link.href}
                       aria-current={isActive ? "page" : undefined}
-                      className={`cursor-hover block whitespace-nowrap rounded-full px-4 py-2 font-sans text-[13px] tracking-[-0.01em] transition-all duration-300 ease-luxury ${
+                      className={`block whitespace-nowrap rounded-full px-3.5 py-2 font-sans text-[13px] tracking-[-0.005em] transition-all duration-300 ease-luxury lg:px-4 ${
                         isActive
-                          ? isLight
-                            ? "bg-ink text-snow shadow-[0_0_0_1px_rgba(10,10,10,0.08)]"
-                            : "bg-champagne text-ink shadow-[0_0_20px_rgba(229,221,203,0.18)]"
-                          : isLight
-                            ? "text-ink/45 hover:bg-ink/5 hover:text-ink"
-                            : "text-white/50 hover:bg-white/10 hover:text-champagne"
+                          ? dark
+                            ? "bg-champagne text-night"
+                            : "bg-burgundy text-ivory"
+                          : dark
+                            ? "text-champagne/65 hover:bg-white/10 hover:text-champagne"
+                            : "text-ink/60 hover:bg-ink/5 hover:text-ink"
                       }`}
                     >
                       {link.label}
@@ -184,24 +200,24 @@ export function Navigation() {
             </ul>
           </nav>
 
-          <div className="flex items-center justify-self-end gap-2">
+          <div className="flex items-center justify-self-end gap-3">
             <a
-              href={`mailto:${siteConfig.email}`}
-              className={`cursor-hover hidden truncate rounded-full px-3 py-2 font-sans text-[12px] tracking-[-0.01em] transition-colors duration-300 sm:inline-flex md:text-[13px] ${
-                isLight
-                  ? "text-ink/65 hover:text-ink"
-                  : "text-champagne/70 hover:text-champagne"
+              href="#contact"
+              className={`hidden rounded-full px-5 py-2.5 font-sans text-[12px] font-medium uppercase tracking-[0.16em] transition-colors duration-300 md:inline-flex ${
+                dark
+                  ? "bg-champagne text-night hover:bg-white"
+                  : "bg-burgundy text-ivory hover:bg-wine"
               }`}
             >
-              {siteConfig.email}
+              Contact
             </a>
 
             <button
               type="button"
-              className={`cursor-hover flex h-10 w-10 items-center justify-center rounded-full border transition-colors md:hidden ${
-                isLight
-                  ? "border-ink/15 text-ink hover:bg-ink/5"
-                  : "border-white/15 text-champagne hover:bg-white/10"
+              className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors md:hidden ${
+                effectiveDark
+                  ? "border-white/20 text-champagne hover:bg-white/10"
+                  : "border-ink/15 text-ink hover:bg-ink/5"
               }`}
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
@@ -233,38 +249,41 @@ export function Navigation() {
       {menuOpen && (
         <div
           id="mobile-nav"
-          className="fixed inset-0 z-40 flex flex-col bg-ink/95 px-6 pb-10 pt-[calc(var(--nav-height)+0.75rem)] backdrop-blur-none md:hidden"
+          className="fixed inset-0 z-40 flex flex-col bg-ivory px-6 pb-10 pt-[calc(var(--nav-height)+1rem)] md:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation"
         >
           <nav aria-label="Primary mobile">
-            <ul className="flex flex-col gap-1">
-              {navLinks.map((link) => {
-                const isActive = activeSection === link.id;
-                return (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      aria-current={isActive ? "page" : undefined}
-                      onClick={() => setMenuOpen(false)}
-                      className={`cursor-hover block rounded-full px-4 py-3.5 font-sans text-lg tracking-wide transition-colors ${
-                        isActive
-                          ? "bg-champagne text-ink"
-                          : "text-champagne/75 hover:bg-white/5 hover:text-champagne"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                );
-              })}
+            <ul className="flex flex-col">
+              {[...navLinks, { href: "#contact", label: "Contact", id: "contact" }].map(
+                (link) => {
+                  const isActive = activeSection === link.id;
+                  return (
+                    <li key={link.href} className="border-b border-sand">
+                      <Link
+                        href={link.href}
+                        aria-current={isActive ? "page" : undefined}
+                        onClick={() => setMenuOpen(false)}
+                        className={`flex items-baseline justify-between py-4 font-display text-3xl tracking-tight transition-colors ${
+                          isActive ? "text-burgundy" : "text-ink hover:text-burgundy"
+                        }`}
+                      >
+                        {link.label}
+                        <span className="font-sans text-[11px] tracking-[0.2em] text-ink-soft">
+                          →
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                }
+              )}
             </ul>
           </nav>
 
           <a
             href={`mailto:${siteConfig.email}`}
-            className="mt-auto cursor-hover pt-10 font-sans text-sm tracking-wide text-champagne/55 hover:text-champagne"
+            className="mt-auto pt-10 font-sans text-sm tracking-wide text-ink-soft hover:text-burgundy"
             onClick={() => setMenuOpen(false)}
           >
             {siteConfig.email}

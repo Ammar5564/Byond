@@ -1,36 +1,91 @@
 "use client";
 
-import { useRef } from "react";
-import { HeroFloatingCards } from "./HeroFloatingCards";
+import { useEffect, useRef } from "react";
+import { HeroFloatingCards, HeroMarquee } from "./HeroFloatingCards";
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
+
+  // Desktop-only cursor parallax. One rAF per pointer move, writes 2 CSS vars;
+  // the cards ease via CSS transitions, so there is no per-frame JS loop.
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!fine || reduce) return;
+
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const r = el.getBoundingClientRect();
+        el.style.setProperty("--px", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
+        el.style.setProperty("--py", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
+      });
+    };
+    const onLeave = () => {
+      el.style.setProperty("--px", "0");
+      el.style.setProperty("--py", "0");
+    };
+    el.addEventListener("pointermove", onMove, { passive: true });
+    el.addEventListener("pointerleave", onLeave);
+    return () => {
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   return (
     <section
       id="hero"
       ref={heroRef}
-      className="relative h-svh min-h-[100svh] w-full max-w-[100vw] overflow-hidden bg-[#0A0A0A] gpu-accelerate"
+      className="relative isolate overflow-hidden bg-ivory xl:flex xl:h-[100svh] xl:min-h-[640px] xl:items-center xl:justify-center"
     >
-      {/* z-10 — interactive WebGL / floating mockups */}
-      <HeroFloatingCards heroRef={heroRef} />
+      {/* Static atmosphere: zero per-frame cost */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(55% 45% at 50% 48%, rgb(255 255 255 / 0.9) 0%, transparent 70%), radial-gradient(40% 40% at 88% 6%, rgb(126 22 49 / 0.09) 0%, transparent 70%), radial-gradient(45% 45% at 6% 96%, rgb(176 141 87 / 0.14) 0%, transparent 70%)",
+        }}
+      />
 
-      {/* z-20 — hero headline above mockups */}
-      <div className="pointer-events-none relative z-20 mx-auto flex h-full max-w-5xl items-center justify-center px-4 text-center sm:px-6 md:px-10">
-        <div className="flex flex-col items-center">
-          <p className="mb-4 font-sans text-[10px] uppercase tracking-[0.28em] text-stone md:mb-5 md:text-[11px]">
-            Strategy, cinema, and digital craft.
-          </p>
+      <div className="hidden xl:block">
+        <HeroFloatingCards />
+      </div>
 
-          <h1 className="font-sans text-4xl font-black uppercase leading-[0.9] tracking-[-0.04em] text-balance text-snow sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
-            Byond Media
-          </h1>
+      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-5 pb-10 pt-[calc(var(--nav-height)+2.5rem)] text-center sm:px-8 xl:max-w-[60rem] xl:pb-0 xl:pt-[var(--nav-height)]">
+        <p className="eyebrow">Strategy, cinema &amp; digital craft</p>
 
-          {/* Controlled overlap: small negative margin only, never beyond legibility */}
-          <p className="relative z-[1] -mt-1 font-accent text-2xl italic leading-none text-champagne/90 sm:text-3xl md:-mt-2 md:text-4xl lg:text-5xl">
-            Born in Cairo
-          </p>
+        <h1 className="mt-5 font-sans text-[clamp(2.4rem,11.5vw,3.6rem)] font-extrabold uppercase leading-[0.92] tracking-[-0.04em] text-ink sm:text-6xl xl:whitespace-nowrap xl:text-[clamp(3.5rem,6.4vw,8rem)]">
+          Byond <span className="text-burgundy">Media</span>
+        </h1>
+
+        <p className="mt-2 font-accent text-3xl leading-none text-wine sm:text-4xl xl:mt-3 xl:text-5xl">
+          Born in Cairo
+        </p>
+
+        <p className="hero-lead mt-6 max-w-md font-sans text-sm leading-relaxed text-ink-soft sm:text-base">
+          A Cairo-born studio crafting narratives that outlive the moment — for
+          the brands building what comes next.
+        </p>
+
+        <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+          <a href="#work" className="btn-primary">
+            View our work
+          </a>
+          <a href="#contact" className="btn-ghost">
+            Start a project
+          </a>
         </div>
+      </div>
+
+      <div className="pb-14 pt-4 sm:pb-16 xl:hidden">
+        <HeroMarquee />
       </div>
     </section>
   );

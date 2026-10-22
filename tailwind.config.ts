@@ -1,5 +1,12 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Design tokens live in src/app/globals.css (as RGB channels) so that
+ * Tailwind utilities, plain CSS and components all read the same palette.
+ * Change a colour there once and the whole site follows.
+ */
+const token = (name: string) => `rgb(var(--c-${name}) / <alpha-value>)`;
+
 const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,13 +16,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#0A0A0A",
-        burgundy: "#3C050F",
-        crimson: "#8B0000",
-        snow: "#FBFBFB",
-        champagne: "#E5DDCB",
-        stone: "#9CA3AF",
-        fog: "#F3F4F6",
+        ivory: token("ivory"), // page background
+        cream: token("cream"), // alternate section background
+        sand: token("sand"), // borders / quiet fills
+        ink: token("ink"), // primary text
+        "ink-soft": token("ink-soft"), // secondary text
+        burgundy: token("burgundy"), // brand accent
+        wine: token("wine"), // brighter accent / hover
+        gold: token("gold"), // fine details / text on dark
+        "gold-deep": token("gold-deep"), // gold text on light backgrounds
+        night: token("night"), // the few deliberate dark bands
+        snow: token("snow"),
+        champagne: token("champagne"),
       },
       fontFamily: {
         display: ["var(--font-playfair)", "Georgia", "serif"],
@@ -23,47 +35,27 @@ const config: Config = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       letterSpacing: {
-        editorial: "0.02em",
+        editorial: "0.01em",
         wide: "0.12em",
         wider: "0.2em",
       },
       transitionTimingFunction: {
-        luxury: "cubic-bezier(0.76, 0, 0.24, 1)",
-      },
-      backgroundImage: {
-        "symphony-crescendo":
-          "linear-gradient(120deg, #0A0A0A 0%, #3C050F 28%, #0A0A0A 52%, #3C050F 72%, #FBFBFB 100%)",
-        "symphony-bridge":
-          "linear-gradient(180deg, #FBFBFB 0%, rgba(60,5,15,0.15) 35%, #3C050F 55%, #0A0A0A 100%)",
-        "symphony-fade":
-          "linear-gradient(180deg, #0A0A0A 0%, #3C050F 50%, #0A0A0A 100%)",
+        luxury: "cubic-bezier(0.22, 1, 0.36, 1)",
       },
       animation: {
-        marquee: "marquee 40s linear infinite",
-        "marquee-reverse": "marquee-reverse 40s linear infinite",
-        "marquee-slow": "marquee 60s linear infinite",
-        "marquee-slow-reverse": "marquee-reverse 60s linear infinite",
-        "marquee-fast": "marquee 25s linear infinite",
-        "marquee-fast-reverse": "marquee-reverse 25s linear infinite",
-        "fade-in": "fadeIn 1.2s ease forwards",
-        "symphony-pulse": "symphonyPulse 8s ease-in-out infinite",
+        marquee: "marquee 60s linear infinite",
+        "marquee-reverse": "marquee-reverse 60s linear infinite",
+        "marquee-slow": "marquee 90s linear infinite",
+        "marquee-slow-reverse": "marquee-reverse 90s linear infinite",
       },
       keyframes: {
         marquee: {
-          "0%": { transform: "translateX(0)" },
-          "100%": { transform: "translateX(-50%)" },
+          "0%": { transform: "translate3d(0,0,0)" },
+          "100%": { transform: "translate3d(-50%,0,0)" },
         },
         "marquee-reverse": {
-          "0%": { transform: "translateX(-50%)" },
-          "100%": { transform: "translateX(0)" },
-        },
-        fadeIn: {
-          "0%": { opacity: "0", transform: "translateY(24px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        symphonyPulse: {
-          "0%, 100%": { opacity: "0.4" },
-          "50%": { opacity: "0.7" },
+          "0%": { transform: "translate3d(-50%,0,0)" },
+          "100%": { transform: "translate3d(0,0,0)" },
         },
       },
     },

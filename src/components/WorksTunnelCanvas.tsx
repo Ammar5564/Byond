@@ -222,11 +222,11 @@ export function WorksTunnelCanvas({
       powerPreference: lite ? "low-power" : "high-performance",
     });
     renderer.setPixelRatio(getPixelRatioCap());
-    renderer.setClearColor(0x0a0a0a, 1);
+    renderer.setClearColor(0x170a0e, 1);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0a0a0a, 0.085);
+    scene.fog = new THREE.FogExp2(0x170a0e, 0.085);
 
     const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 80);
     camera.position.set(0, 0.15, 1.4);
@@ -248,7 +248,7 @@ export function WorksTunnelCanvas({
 
     // Soft radial vignette plane at far end
     const farMat = new THREE.MeshBasicMaterial({
-      color: 0x0a0a0a,
+      color: 0x170a0e,
       transparent: true,
       opacity: 0.85,
       depthWrite: false,
@@ -301,7 +301,7 @@ export function WorksTunnelCanvas({
           uTime: { value: 0 },
           uActive: { value: i === 0 ? 1 : 0.45 },
           uDistort: { value: 0.6 },
-          uFogColor: { value: new THREE.Color(0x0a0a0a) },
+          uFogColor: { value: new THREE.Color(0x170a0e) },
           uFogDensity: { value: 0.075 },
         },
         transparent: true,
@@ -399,6 +399,18 @@ export function WorksTunnelCanvas({
 
     const clock = new THREE.Clock();
 
+    // Only draw while the section is on (or just about to enter) the screen.
+    let visible = true;
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        visible = Boolean(entry?.isIntersecting);
+        // Restart the loop when the section comes back; it stops itself when hidden.
+        if (visible && !raf && !disposed) raf = requestAnimationFrame(tick);
+      },
+      { rootMargin: "300px 0px" }
+    );
+    visibilityObserver.observe(wrap);
+
     const progressToZ = (t: number) => {
       const clamped = Math.max(0, Math.min(1, t));
       return 1.4 - clamped * (n - 1) * SPACING;
@@ -451,7 +463,8 @@ export function WorksTunnelCanvas({
     );
 
     const tick = (time: number) => {
-      if (disposed) return;
+      raf = 0;
+      if (disposed || !visible) return; // off-screen: stop the loop entirely
       raf = requestAnimationFrame(tick);
       if (document.hidden) return;
       // Always render while scrolling — this tunnel is scroll-scrubbed.
@@ -538,6 +551,7 @@ export function WorksTunnelCanvas({
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);
+      visibilityObserver.disconnect();
       ro.disconnect();
       wrap.removeEventListener("pointermove", onPointerMove);
       wrap.removeEventListener("pointerleave", onPointerLeave);

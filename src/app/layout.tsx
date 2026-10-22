@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter, Great_Vibes } from "next/font/google";
 import "./globals.css";
 import { SmoothScroll } from "@/components/SmoothScroll";
-import { CustomCursor } from "@/components/CustomCursor";
-import { ServicesMarquee } from "@/components/ServicesMarquee";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -40,6 +38,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#FAF6F1",
 };
 
 export default function RootLayout({
@@ -54,9 +53,6 @@ export default function RootLayout({
     >
       <body>
         <SmoothScroll>
-          <CustomCursor />
-          <div className="grain-overlay" aria-hidden="true" />
-          <ServicesMarquee />
           {children}
         </SmoothScroll>
       </body>

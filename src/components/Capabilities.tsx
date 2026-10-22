@@ -1,231 +1,164 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { MarqueeBand } from "./MarqueeBand";
-import { capabilityMarquee, capabilities } from "@/lib/content";
+import { capabilities } from "@/lib/content";
+import { blurFor } from "@/lib/img";
+import { Reveal } from "./Reveal";
 
+/**
+ * Services: on desktop a sticky photo frame cross-fades while the list scrolls
+ * beside it (opacity/transform only — no pinning, no scrubbed timelines).
+ * On phones every service is a simple card with its own photo.
+ */
 export function Capabilities() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const pinRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
 
+  // Active service = the one whose centre is closest to the middle of the viewport.
+  // (Scroll-position based, so anchor jumps and fast flicks can't skip a step.)
   useEffect(() => {
-    const section = sectionRef.current;
-    const pin = pinRef.current;
-    if (!section || !pin) return;
-
-    let pinTrigger: { kill: () => void } | null = null;
-    let cancelled = false;
-
-    async function animate() {
-      const { default: gsap } = await import("gsap");
-      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
-      gsap.registerPlugin(ScrollTrigger);
-      if (cancelled || !pin) return;
-
-      const backgrounds = gsap.utils.toArray<HTMLElement>(
-        pin.querySelectorAll(".cap-bg")
-      );
-      const panels = gsap.utils.toArray<HTMLElement>(
-        pin.querySelectorAll(".cap-panel")
-      );
-      const ghosts = gsap.utils.toArray<HTMLElement>(
-        pin.querySelectorAll(".cap-ghost")
-      );
-      const progressFill = pin.querySelector(".cap-progress-fill");
-
-      gsap.set(backgrounds, { opacity: 0, scale: 1.12 });
-      gsap.set(backgrounds[0], { opacity: 1, scale: 1 });
-      gsap.set(panels, { opacity: 0, y: 48 });
-      gsap.set(panels[0], { opacity: 1, y: 0 });
-      gsap.set(ghosts, { opacity: 0 });
-      gsap.set(ghosts[0], { opacity: 1 });
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: () => `+=${window.innerHeight * capabilities.length}`,
-          pin: pin,
-          pinSpacing: true,
-          scrub: 1.2,
-          anticipatePin: 1,
-        },
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const mid = window.innerHeight / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      itemRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const dist = Math.abs(r.top + r.height / 2 - mid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i;
+        }
       });
-
-      const step = 1 / capabilities.length;
-
-      capabilities.forEach((_, i) => {
-        if (i === 0) return;
-
-        const t = i * step;
-
-        tl.to(
-          backgrounds[i - 1],
-          { opacity: 0, scale: 1.08, duration: step, ease: "none" },
-          t
-        )
-          .to(
-            backgrounds[i],
-            { opacity: 1, scale: 1, duration: step, ease: "none" },
-            t
-          )
-          .to(
-            panels[i - 1],
-            { opacity: 0, y: -40, duration: step * 0.6, ease: "power2.in" },
-            t
-          )
-          .to(
-            panels[i],
-            { opacity: 1, y: 0, duration: step * 0.6, ease: "power2.out" },
-            t + step * 0.15
-          )
-          .to(ghosts[i - 1], { opacity: 0, duration: step * 0.5, ease: "none" }, t)
-          .to(ghosts[i], { opacity: 1, duration: step * 0.5, ease: "none" }, t);
-      });
-
-      if (progressFill) {
-        tl.to(
-          progressFill,
-          { scaleY: 1, ease: "none", duration: 1 - step * 0.5 },
-          step * 0.5
-        );
-      }
-
-      pinTrigger = tl.scrollTrigger ?? null;
-    }
-
-    animate();
-
+      setActive(best);
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
     return () => {
-      cancelled = true;
-      pinTrigger?.kill();
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
     };
   }, []);
+
+  const total = String(capabilities.length).padStart(2, "0");
 
   return (
     <section
       id="capabilities"
-      ref={sectionRef}
-      className="relative scroll-mt-[var(--nav-height)]"
+      className="relative scroll-mt-[var(--nav-height)] bg-cream"
     >
-      <div
-        ref={pinRef}
-        className="relative h-screen w-full overflow-hidden bg-ink gpu-accelerate"
-      >
-        {/* Layer 2 — full-bleed image behind header (edge to edge) */}
-        <div className="absolute inset-0 z-0" aria-hidden="true">
-          {capabilities.map((item, index) => (
-            <div
-              key={item.index}
-              className="cap-bg absolute inset-0 will-change-transform gpu-accelerate"
-            >
-              <Image
-                src={item.image}
-                alt=""
-                fill
-                priority={index === 0}
-                sizes="100vw"
-                className="object-cover object-center"
-              />
-              <div className="capabilities-overlay absolute inset-0" />
-            </div>
-          ))}
-          <div className="capabilities-nav-fade absolute inset-x-0 top-0 h-[calc(var(--nav-height)+2rem)]" />
-        </div>
+      <div className="page-shell py-24 md:py-32">
+        <Reveal>
+          <p className="eyebrow">Capabilities</p>
+          <h2 className="display-heading mt-5 text-[clamp(2.4rem,5.4vw,4.25rem)]">
+            What we do
+          </h2>
+        </Reveal>
 
-        {/* Layer 1 — safe zone: all readable content below header height */}
-        <div className="cap-safe-zone absolute inset-0 z-10 overflow-hidden pb-[4.5rem] pt-[calc(var(--nav-height)+1rem)] md:pb-[5rem] md:pt-[calc(var(--nav-height)+1.25rem)]">
-          <div className="flex h-full flex-col">
-            <div className="shrink-0 px-4 sm:px-6 md:px-10">
-              <p className="section-label">Capabilities</p>
-              <p className="mt-2 font-sans text-[10px] uppercase tracking-[0.28em] text-snow/40">
-                What we do
-              </p>
-            </div>
+        <div className="mt-14 grid gap-10 lg:mt-20 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
+          {/* List */}
+          <ol className="order-2 lg:order-1">
+            {capabilities.map((item, i) => {
+              const isActive = i === active;
+              return (
+                <li
+                  key={item.index}
+                  ref={(el) => {
+                    itemRefs.current[i] = el;
+                  }}
+                  data-idx={i}
+                  className="border-t border-sand py-10 first:border-t-0 first:pt-0 lg:flex lg:min-h-[46svh] lg:flex-col lg:justify-center lg:border-t-0 lg:py-0"
+                >
+                  {/* Phone / tablet photo */}
+                  <div className="relative mb-6 aspect-[16/10] overflow-hidden rounded-3xl bg-sand shadow-[0_30px_60px_-34px_rgba(60,10,25,0.55)] lg:hidden">
+                    <Image
+                      src={item.image}
+                      alt={item.imageAlt}
+                      fill
+                      sizes="(max-width:1023px) 92vw, 1px"
+                      quality={80}
+                      placeholder="blur"
+                      blurDataURL={blurFor(item.image)}
+                      className="object-cover"
+                    />
+                  </div>
 
-            <div className="relative mt-6 min-h-0 flex-1 overflow-hidden md:mt-8">
-              {/* Ghost titles — live only in the band below labels */}
-              <div
-                className="pointer-events-none absolute inset-0 overflow-hidden px-4 sm:px-6 md:px-10"
-                aria-hidden="true"
-              >
-                {capabilities.map((item) => (
-                  <p
-                    key={`ghost-${item.index}`}
-                    className="cap-ghost display-heading absolute inset-x-0 top-1/2 -translate-y-1/2 px-2 text-center text-balance break-words text-[clamp(2rem,8.5vw,7.5rem)] leading-[0.92] text-snow/[0.055]"
-                  >
-                    {item.title}
-                  </p>
-                ))}
-              </div>
-
-              {/* Progress rail */}
-              <div
-                className="absolute right-6 top-1/2 hidden -translate-y-1/2 md:right-10 md:block"
-                aria-hidden="true"
-              >
-                <div className="relative h-40 w-px bg-snow/15">
                   <div
-                    className="cap-progress-fill absolute left-0 top-0 w-full origin-top bg-burgundy"
-                    style={{ height: "100%", transform: "scaleY(0)" }}
-                  />
-                </div>
-                <div className="mt-4 space-y-3 text-right">
-                  {capabilities.map((item) => (
-                    <span
-                      key={`rail-${item.index}`}
-                      className="block font-sans text-[10px] tracking-wider text-snow/25"
-                    >
-                      {item.index}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Foreground panels */}
-              <div className="absolute inset-x-0 bottom-0 px-4 sm:px-6 md:inset-0 md:flex md:items-center md:px-10">
-                <div className="relative w-full min-h-[160px] sm:min-h-[180px] md:min-h-[240px]">
-                  {capabilities.map((item) => (
-                    <div
-                      key={item.index}
-                      className="cap-panel absolute inset-0 flex items-end md:items-center"
-                    >
-                      <div className="max-w-2xl min-w-0 pb-2 md:pb-0">
-                        <span className="font-display text-[clamp(3.5rem,11vw,9rem)] leading-none text-snow/15">
-                          {item.index}
-                        </span>
-                        <div className="mt-2 flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-2 md:-mt-6">
-                          <h3 className="display-heading min-w-0 text-balance break-words text-[clamp(2rem,5vw,4.5rem)] leading-[0.95] text-snow">
-                            {item.title}
-                          </h3>
-                          <span className="editorial-tag shrink-0">[{item.code}]</span>
-                        </div>
-                        <p className="mt-5 max-w-lg font-sans text-sm leading-relaxed tracking-wide text-snow/60 md:mt-6 md:text-base">
-                          {item.description}
-                        </p>
-                      </div>
+                    className={`transition-opacity duration-700 ease-luxury ${
+                      isActive ? "lg:opacity-100" : "lg:opacity-30"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="font-sans text-[12px] tabular-nums tracking-[0.28em] text-gold-deep">
+                        {item.index}
+                      </span>
+                      <span className="h-px w-10 bg-gold/50" aria-hidden="true" />
+                      <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-burgundy">
+                        {item.code}
+                      </span>
                     </div>
-                  ))}
+                    <h3 className="display-heading mt-4 text-[clamp(2.1rem,4vw,3.4rem)]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-4 max-w-md font-sans text-base leading-relaxed text-ink-soft">
+                      {item.description}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+
+          {/* Desktop sticky photo frame */}
+          <div className="relative order-1 hidden lg:order-2 lg:block">
+            <div className="sticky top-[calc(var(--nav-height)+2rem)]">
+              <div className="relative aspect-[5/4] max-h-[calc(100svh-var(--nav-height)-4rem)] w-full overflow-hidden rounded-[28px] bg-sand shadow-[0_50px_90px_-45px_rgba(60,10,25,0.6)] ring-1 ring-white/60">
+                {capabilities.map((item, i) => (
+                  <div
+                    key={item.index}
+                    className={`absolute inset-0 transition-[opacity,transform] duration-[900ms] ease-luxury will-change-[opacity,transform] ${
+                      i === active
+                        ? "scale-100 opacity-100"
+                        : "scale-[1.04] opacity-0"
+                    }`}
+                    aria-hidden={i !== active}
+                  >
+                    <Image
+                      src={item.image}
+                      alt={item.imageAlt}
+                      fill
+                      sizes="(min-width:1024px) 50vw, 1px"
+                      quality={80}
+                      placeholder="blur"
+                      blurDataURL={blurFor(item.image)}
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night/55 to-transparent"
+                  aria-hidden="true"
+                />
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-6 md:p-8">
+                  <span className="rounded-full bg-ivory/90 px-4 py-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-burgundy">
+                    {capabilities[active].title}
+                  </span>
+                  <span className="font-sans text-[12px] tabular-nums tracking-[0.24em] text-ivory">
+                    {capabilities[active].index} / {total}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Bottom marquee */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 border-t border-symphony bg-ink/40 py-5 backdrop-blur-none md:backdrop-blur-sm">
-          <MarqueeBand
-            items={capabilityMarquee}
-            speed="slow"
-            textClassName="font-display text-xl italic text-snow/50 md:text-3xl"
-          />
-        </div>
-
-        <div className="sr-only">
-          {capabilities.map((item) => (
-            <p key={`sr-${item.index}`}>{item.imageAlt}</p>
-          ))}
         </div>
       </div>
     </section>

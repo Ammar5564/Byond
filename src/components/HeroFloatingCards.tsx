@@ -1,333 +1,165 @@
 "use client";
 
-import {
-  motion,
-  useMotionValue,
-  useScroll,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
 import Image from "next/image";
-import {
-  useEffect,
-  useState,
-  type RefObject,
-} from "react";
+import type { CSSProperties } from "react";
+import { heroShowcase, type HeroShot } from "@/lib/content";
+import { blurFor } from "@/lib/img";
 
-type DepthLayer = "bg" | "mid" | "fg";
-
-type CardData = {
+/**
+ * Desktop composition. Every card is placed OUTSIDE the headline zone so text
+ * and photos never overlap. Sizes use min(vw, svh) so cards shrink on very
+ * wide / short screens instead of growing into the headline.
+ *
+ * w   = width in vw at a 16:10 screen (svh cap = w * 1.6)
+ * pos = left/right + top, in % of the hero box
+ */
+type Slot = {
   id: string;
-  image: string;
-  className: string;
-  baseRotate: number;
-  depth: DepthLayer;
-  /** Cursor parallax strength 0–1 */
-  proximity: number;
+  side: "left" | "right";
+  x: number;
+  top: number;
+  w: number;
+  aspect: string; // css aspect-ratio  w / h
+  depth: number; // parallax strength 0..1
+  rot: number; // deg
+  dur: number; // float seconds
+  delay: number;
+  priority?: boolean;
 };
 
-const SCROLL_SHIFT: Record<DepthLayer, number> = {
-  bg: -30,
-  mid: -70,
-  fg: -120,
-};
-
-/** Positions unchanged — rotate owned by Framer Motion */
-const cards: CardData[] = [
-  {
-    id: "01",
-    image: "/mockup/card-2.jpg",
-    baseRotate: -3,
-    depth: "bg",
-    proximity: 0.35,
-    className:
-      "absolute left-[-6%] top-[8%] aspect-[4/3] w-[min(42vw,240px)] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[280px] lg:w-[360px]",
-  },
-  {
-    id: "02",
-    image: "/mockup/card-4.jpg",
-    baseRotate: 2,
-    depth: "bg",
-    proximity: 0.3,
-    className:
-      "absolute bottom-[5%] left-[-4%] aspect-[3/4] w-[min(40vw,220px)] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[260px] lg:w-[320px]",
-  },
-  {
-    id: "03",
-    image: "/mockup/card-2.jpg",
-    baseRotate: 0,
-    depth: "fg",
-    proximity: 0.85,
-    className:
-      "absolute left-[16%] top-[-4%] aspect-square w-[min(40vw,220px)] overflow-hidden rounded-2xl border-2 border-[#E15223] shadow-2xl md:w-[260px] lg:w-[320px]",
-  },
-  {
-    id: "04",
-    image: "/mockup/card-6.jpg",
-    baseRotate: 0,
-    depth: "mid",
-    proximity: 0.45,
-    className:
-      "absolute bottom-[-8%] left-[18%] aspect-[4/3] w-[min(42vw,240px)] overflow-hidden rounded-2xl border border-white/10 shadow-2xl md:w-[280px] lg:w-[340px]",
-  },
-  {
-    id: "05",
-    image: "/mockup/card-6.jpg",
-    baseRotate: 0,
-    depth: "bg",
-    proximity: 0.25,
-    className:
-      "absolute left-[50%] top-[-6%] h-[120px] w-[min(36vw,200px)] -translate-x-1/2 rounded-xl border border-white/10 bg-neutral-900 opacity-90 shadow-xl md:h-[150px] md:w-[240px] lg:w-[280px]",
-  },
-  {
-    id: "06",
-    image: "/mockup/card-3.jpg",
-    baseRotate: 0,
-    depth: "mid",
-    proximity: 0.4,
-    className:
-      "absolute bottom-[-10%] left-[50%] h-[180px] w-[min(38vw,210px)] -translate-x-1/2 rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl md:h-[220px] md:w-[240px] lg:w-[300px]",
-  },
-  {
-    id: "07",
-    image: "/mockup/card-3.jpg",
-    baseRotate: 0,
-    depth: "fg",
-    proximity: 0.9,
-    className:
-      "absolute right-[16%] top-[4%] aspect-[3/4] w-[min(42vw,240px)] overflow-hidden rounded-2xl border-4 border-white shadow-2xl md:w-[280px] lg:w-[340px]",
-  },
-  {
-    id: "08",
-    image: "/mockup/card-5.jpg",
-    baseRotate: 0,
-    depth: "fg",
-    proximity: 0.95,
-    className:
-      "absolute bottom-[2%] right-[18%] aspect-[3/4] w-[min(40vw,220px)] overflow-hidden rounded-2xl border-2 border-purple-800 shadow-2xl md:w-[260px] lg:w-[320px]",
-  },
-  {
-    id: "09",
-    image: "/mockup/card-1.jpg",
-    baseRotate: 0,
-    depth: "bg",
-    proximity: 0.15,
-    className:
-      "absolute right-[-6%] top-[14%] aspect-[3/4] w-[min(40vw,220px)] rounded-2xl border border-white/10 opacity-70 md:w-[260px] lg:w-[320px]",
-  },
-  {
-    id: "10",
-    image: "/mockup/card-4.jpg",
-    baseRotate: 0,
-    depth: "bg",
-    proximity: 0.2,
-    className:
-      "absolute bottom-[10%] right-[-5%] aspect-square w-[min(42vw,240px)] rounded-2xl border border-white/10 opacity-60 md:w-[280px] lg:w-[340px]",
-  },
+const SLOTS: Slot[] = [
+  { id: "kareem-stage", side: "left", x: 3, top: 15, w: 17, aspect: "2 / 3", depth: 0.9, rot: -2.5, dur: 9, delay: 0, priority: true },
+  { id: "jewelry", side: "left", x: 22, top: 6, w: 9.5, aspect: "9 / 16", depth: 0.5, rot: 3, dur: 8, delay: 0.8 },
+  { id: "studio", side: "left", x: 6, top: 62, w: 14.5, aspect: "4 / 5", depth: 0.7, rot: 2, dur: 10, delay: 1.4 },
+  { id: "clinics", side: "left", x: 23, top: 70, w: 10, aspect: "2 / 3", depth: 0.4, rot: -3, dur: 8.5, delay: 0.4 },
+  { id: "cosmetics", side: "right", x: 3, top: 11, w: 14, aspect: "9 / 16", depth: 0.9, rot: 2.5, dur: 9.5, delay: 0.6, priority: true },
+  { id: "real-estate", side: "right", x: 20, top: 6, w: 9.5, aspect: "9 / 16", depth: 0.5, rot: -3, dur: 8, delay: 1.1 },
+  { id: "construction", side: "right", x: 5.5, top: 56, w: 12, aspect: "9 / 16", depth: 0.7, rot: -2, dur: 10.5, delay: 0.2 },
+  { id: "corporate", side: "right", x: 21, top: 69, w: 10.5, aspect: "2 / 3", depth: 0.4, rot: 3, dur: 9, delay: 1.7 },
+  { id: "interiors", side: "left", x: 45.5, top: 77, w: 9, aspect: "3 / 4", depth: 0.3, rot: -1.5, dur: 11, delay: 0.9 },
 ];
 
-function StaticFloatingCard({ card }: { card: CardData }) {
+function Label({ children }: { children: string }) {
   return (
-    <div className={card.className}>
-      <div className="relative h-full w-full overflow-hidden rounded-[inherit]">
-        <Image
-          src={card.image}
-          alt=""
-          fill
-          sizes="280px"
-          className="object-cover"
-          priority={
-            card.id === "01" ||
-            card.id === "03" ||
-            card.id === "07" ||
-            card.id === "08"
-          }
-        />
-      </div>
+    <span className="absolute bottom-3 left-3 rounded-full bg-ivory/90 px-3 py-1 font-sans text-[9px] font-medium uppercase tracking-[0.2em] text-burgundy">
+      {children}
+    </span>
+  );
+}
+
+export function HeroPhoto({
+  shot,
+  sizes,
+  priority,
+  className = "",
+}: {
+  shot: HeroShot;
+  sizes: string;
+  priority?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`relative h-full w-full overflow-hidden rounded-[18px] bg-sand shadow-[0_30px_60px_-26px_rgba(60,10,25,0.5)] ring-1 ring-white/70 ${className}`}
+    >
+      <Image
+        src={shot.image}
+        alt={shot.alt}
+        fill
+        sizes={sizes}
+        quality={80}
+        priority={priority}
+        placeholder="blur"
+        blurDataURL={blurFor(shot.image)}
+        className="object-cover"
+        draggable={false}
+      />
+      <Label>{shot.label}</Label>
     </div>
   );
 }
 
-function FloatingCard({
-  card,
-  index,
-  mouseX,
-  mouseY,
-  scrollYProgress,
-}: {
-  card: CardData;
-  index: number;
-  mouseX: MotionValue<number>;
-  mouseY: MotionValue<number>;
-  scrollYProgress: MotionValue<number>;
-}) {
-  const scrollShift = SCROLL_SHIFT[card.depth];
-  const scrollY = useTransform(scrollYProgress, [0, 1], [0, scrollShift]);
-
-  // Cursor magnetic shift — near cards move more
-  const cursorStrength = 0.018 + card.proximity * 0.028;
-  const cursorRange = cursorStrength * 1000;
-  const cursorX = useTransform(mouseX, [-0.5, 0.5], [-cursorRange, cursorRange]);
-  const cursorY = useTransform(
-    mouseY,
-    [-0.5, 0.5],
-    [-cursorRange * 0.75, cursorRange * 0.75]
-  );
-
-  const duration = 6 + (index % 5) * 0.9; // 6s → ~9.6s
-  const delay = index * 0.55;
-  const drift = index % 2 === 0 ? 8 : -8;
-  const { baseRotate } = card;
+export function HeroFloatingCards() {
+  const byId = new Map(heroShowcase.map((s) => [s.id, s]));
 
   return (
-    <div className={card.className}>
-      {/* Scroll parallax (GPU transform) */}
-      <motion.div
-        className="h-full w-full will-change-transform"
-        style={{ y: scrollY }}
-      >
-        {/* Cursor parallax */}
-        <motion.div
-          className="h-full w-full will-change-transform"
-          style={{ x: cursorX, y: cursorY }}
-        >
-          {/* Organic float + hover */}
-          <motion.div
-            className="pointer-events-auto h-full w-full cursor-pointer will-change-transform"
-            animate={{
-              y: [0, -20, 0],
-              x: [0, drift, 0],
-              rotate: [
-                baseRotate,
-                baseRotate + 3,
-                baseRotate - 2,
-                baseRotate,
-              ],
-            }}
-            transition={{
-              duration,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay,
-            }}
-            whileHover={{
-              scale: 1.08,
-              zIndex: 40,
-              rotate: 0,
-              transition: { type: "spring", stiffness: 260, damping: 20 },
-            }}
+    <div className="pointer-events-none absolute inset-0 z-0">
+      {SLOTS.map((slot) => {
+        const shot = byId.get(slot.id);
+        if (!shot) return null;
+        const style: CSSProperties = {
+          [slot.side]: `${slot.x}%`,
+          top: `${slot.top}%`,
+          width: `min(${slot.w}vw, ${(slot.w * 1.6).toFixed(1)}svh)`,
+          aspectRatio: slot.aspect,
+          ["--depth" as string]: slot.depth,
+          ["--rot" as string]: `${slot.rot}deg`,
+          ["--dur" as string]: `${slot.dur}s`,
+          ["--delay" as string]: `-${slot.delay * 3}s`,
+        };
+        return (
+          <div
+            key={slot.id}
+            className={`hero-card-outer absolute ${slot.id === "interiors" ? "hero-slot-interiors" : ""}`}
+            style={style}
           >
-            <div className="relative h-full w-full overflow-hidden rounded-[inherit]">
-              <Image
-                src={card.image}
-                alt=""
-                fill
-                sizes="360px"
-                className="object-cover"
-                priority={
-                  card.id === "01" ||
-                  card.id === "03" ||
-                  card.id === "07" ||
-                  card.id === "08"
-                }
+            <div className="hero-card-inner h-full w-full">
+              <HeroPhoto
+                shot={shot}
+                sizes="(min-width:1280px) 18vw, 200px"
+                priority={slot.priority}
               />
             </div>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-type HeroFloatingCardsProps = {
-  heroRef: RefObject<HTMLElement | null>;
-};
+/** Phone / tablet: two slow opposite-direction rows (no overlap possible). */
+export function HeroMarquee() {
+  const first = heroShowcase;
+  const second = [...heroShowcase.slice(4), ...heroShowcase.slice(0, 4)].reverse();
 
-function LiteHeroFloatingCards() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 z-10 origin-center scale-[0.62] gpu-accelerate sm:scale-[0.72] md:scale-[0.85] lg:scale-100"
-      aria-hidden="true"
-    >
-      {cards.map((card) => (
-        <StaticFloatingCard key={card.id} card={card} />
-      ))}
-    </div>
-  );
-}
-
-function DesktopHeroFloatingCards({ heroRef }: HeroFloatingCardsProps) {
-  const rawX = useMotionValue(0);
-  const rawY = useMotionValue(0);
-  const mouseX = useSpring(rawX, { stiffness: 70, damping: 20, mass: 0.3 });
-  const mouseY = useSpring(rawY, { stiffness: 70, damping: 20, mass: 0.3 });
-
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-
-  useEffect(() => {
-    const el = heroRef.current;
-    if (!el) return;
-
-    const onMove = (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      rawX.set(x);
-      rawY.set(y);
-    };
-
-    const onLeave = () => {
-      rawX.set(0);
-      rawY.set(0);
-    };
-
-    el.addEventListener("mousemove", onMove, { passive: true });
-    el.addEventListener("mouseleave", onLeave);
-    return () => {
-      el.removeEventListener("mousemove", onMove);
-      el.removeEventListener("mouseleave", onLeave);
-    };
-  }, [heroRef, rawX, rawY]);
+  const Row = ({
+    shots,
+    reverse,
+  }: {
+    shots: HeroShot[];
+    reverse?: boolean;
+  }) => {
+    const doubled = [...shots, ...shots];
+    return (
+      <div className="marquee-mask overflow-hidden">
+        <div
+          className={`marquee-track flex w-max gap-3 sm:gap-4 ${
+            reverse ? "animate-marquee-slow-reverse" : "animate-marquee-slow"
+          }`}
+        >
+          {doubled.map((shot, i) => (
+            <div
+              key={`${shot.id}-${i}`}
+              className="aspect-[3/4] shrink-0"
+              style={{ height: "clamp(190px, 27svh, 300px)" }}
+              aria-hidden={i >= shots.length ? true : undefined}
+            >
+              <HeroPhoto
+                shot={shot}
+                sizes="260px"
+                priority={false}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div
-      className="pointer-events-none absolute inset-0 z-10 origin-center scale-[0.62] gpu-accelerate sm:scale-[0.72] md:scale-[0.85] lg:scale-100"
-      aria-hidden="true"
-    >
-      {cards.map((card, index) => (
-        <FloatingCard
-          key={card.id}
-          card={card}
-          index={index}
-          mouseX={mouseX}
-          mouseY={mouseY}
-          scrollYProgress={scrollYProgress}
-        />
-      ))}
+    <div className="space-y-3 sm:space-y-4">
+      <Row shots={first} />
+      <Row shots={second} reverse />
     </div>
   );
-}
-
-export function HeroFloatingCards({ heroRef }: HeroFloatingCardsProps) {
-  const [lite, setLite] = useState(true);
-
-  useEffect(() => {
-    const update = () => {
-      setLite(
-        window.innerWidth < 768 ||
-          window.matchMedia("(pointer: coarse)").matches ||
-          navigator.maxTouchPoints > 0
-      );
-    };
-    update();
-    window.addEventListener("resize", update, { passive: true });
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
-  if (lite) return <LiteHeroFloatingCards />;
-  return <DesktopHeroFloatingCards heroRef={heroRef} />;
 }

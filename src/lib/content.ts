@@ -47,48 +47,63 @@ export type Capability = {
 export const capabilities: Capability[] = [
   {
     index: "01",
+    title: "Advertising",
+    code: "AD",
+    description:
+      "Campaigns with a point of view — ideas that make a product desired and a brand impossible to forget.",
+    image: "/services/advertising.webp",
+    imageAlt:
+      "Gloved hand placing a luxury skincare tube on a chessboard against deep red velvet",
+  },
+  {
+    index: "02",
     title: "Digital Solutions",
     code: "DS",
     description:
       "Platforms and ecosystems where technology serves narrative — not the other way around.",
-    image: "/services/digital-solutions.png",
-    imageAlt: "Editorial portrait with luminous visor against deep red",
+    image: "/services/digital-solutions.webp",
+    imageAlt:
+      "Hands on a laptop with glowing red holographic dashboards floating above it",
   },
   {
-    index: "02",
+    index: "03",
     title: "Performance Marketing",
     code: "PM",
     description:
       "Data-informed campaigns with editorial sensibility. Conversion without compromising craft.",
-    image: "/services/performance-marketing.png",
-    imageAlt: "High-contrast silhouette with tinted eyewear on white",
+    image: "/services/performance-marketing.webp",
+    imageAlt:
+      "Marketer at a laptop with streams of red light flowing into revenue and conversion metrics",
   },
   {
-    index: "03",
+    index: "04",
     title: "Personal Branding",
     code: "PB",
     description:
       "Reputation as architecture — presence, voice, and authority across every touchpoint.",
-    image: "/services/personal-branding.png",
-    imageAlt: "Dramatic chiaroscuro portrait with rim light",
+    image: "/services/personal-branding.webp",
+    imageAlt:
+      "Man in a white suit standing still while a blurred crowd moves around him",
   },
   {
-    index: "04",
+    index: "05",
     title: "Business Consultation",
     code: "BC",
     description:
       "Strategic counsel for brands entering new markets, repositioning, or scaling.",
-    image: "/services/business-consultation.png",
-    imageAlt: "Silhouette in contemplation before a luminous frame",
+    image: "/services/business-consultation.webp",
+    imageAlt:
+      "Two executives in discussion across a polished boardroom table with a city skyline behind",
   },
   {
-    index: "05",
+    index: "06",
     title: "Video Production",
     code: "VP",
     description:
       "Cinematic storytelling at our core — spirit, not just spectacle.",
-    image: "/services/video-production.png",
-    imageAlt: "Cinematic profile with glowing visor on textured red",
+    image: "/services/video-production.webp",
+    imageAlt:
+      "Director's chair with a clapperboard on a cinema set lit in deep red",
   },
 ];
 
@@ -191,4 +206,69 @@ export const partners = [
   "Felopateer Palace",
   "Ministry of Presidential Affairs",
   "Four Seasons",
+];
+
+/** Hero floating gallery — files live in /public/hero (see scripts/prepare-images.py) */
+export type HeroShot = {
+  id: string;
+  image: string;
+  label: string;
+  alt: string;
+};
+
+export const heroShowcase: HeroShot[] = [
+  {
+    id: "kareem-stage",
+    image: "/hero/kareem-stage.webp",
+    label: "Personal Brand",
+    alt: "Kareem Hanafy speaking on stage with the Giza pyramids behind him",
+  },
+  {
+    id: "jewelry",
+    image: "/hero/jewelry.webp",
+    label: "Luxury",
+    alt: "Diamond jewelry on burgundy satin",
+  },
+  {
+    id: "studio",
+    image: "/hero/studio.webp",
+    label: "Production",
+    alt: "Film crew shooting in a studio with burgundy accents",
+  },
+  {
+    id: "clinics",
+    image: "/hero/clinics.webp",
+    label: "Clinics",
+    alt: "Elegant aesthetic clinic treatment room in warm marble and burgundy",
+  },
+  {
+    id: "construction",
+    image: "/hero/construction.webp",
+    label: "Construction",
+    alt: "Engineer holding blueprints with a double-exposure city skyline",
+  },
+  {
+    id: "corporate",
+    image: "/hero/corporate.webp",
+    label: "Corporate",
+    alt: "Executives in a glass boardroom reviewing analytics",
+  },
+  {
+    id: "cosmetics",
+    image: "/hero/cosmetics.webp",
+    label: "Beauty",
+    alt: "Close-up beauty portrait against a deep burgundy backdrop",
+  },
+  {
+    id: "interiors",
+    image: "/hero/interiors.webp",
+    label: "Interiors",
+    alt: "Classic living room with patterned armchairs and a burgundy sofa",
+  },
+  {
+    id: "real-estate",
+    image: "/hero/real-estate.webp",
+    label: "Real Estate",
+    alt: "Luxury balcony overlooking Burj Khalifa at sunset",
+  },
 ];

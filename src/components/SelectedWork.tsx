@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { selectedWork, type WorkItem } from "@/lib/content";
@@ -36,7 +36,7 @@ function TunnelOverlay({
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between py-8 text-champagne md:py-12"
+      className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between pb-8 pt-[calc(var(--nav-height)+1.5rem)] text-champagne md:pb-12"
       aria-live="polite"
     >
       <div
@@ -44,7 +44,7 @@ function TunnelOverlay({
         style={{ opacity }}
       >
         <div className="min-w-0 pr-2">
-          <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-champagne/50">
+          <p className="font-sans text-[10px] uppercase tracking-[0.28em] text-champagne/60">
             Selected Work
           </p>
           <h2 className="display-heading mt-3 max-w-xl text-balance break-words text-3xl leading-[0.95] text-champagne md:text-4xl lg:text-5xl">
@@ -56,7 +56,7 @@ function TunnelOverlay({
         </span>
       </div>
 
-      {/* Active card play affordance ΓÇö DOM overlay (WebGL planes can't host CSS hover) */}
+      {/* Active card play affordance — DOM overlay (WebGL planes can't host CSS hover) */}
       <div
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
         style={{ opacity }}
@@ -67,7 +67,7 @@ function TunnelOverlay({
           className="group pointer-events-auto"
           aria-label={`Play ${project.title}`}
         >
-          <span className="relative flex h-16 w-16 items-center justify-center rounded-full border border-champagne/35 bg-ink/55 text-champagne shadow-[0_0_40px_rgba(0,0,0,0.45)] backdrop-blur-none transition-transform duration-300 group-hover:scale-110 md:h-20 md:w-20 md:backdrop-blur-sm">
+          <span className="relative flex h-16 w-16 items-center justify-center rounded-full border border-champagne/35 bg-night/60 text-champagne shadow-[0_0_40px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:scale-110 md:h-20 md:w-20">
             <PlayIcon className="ml-1 h-7 w-7 md:h-8 md:w-8" />
           </span>
         </button>
@@ -79,8 +79,8 @@ function TunnelOverlay({
       >
         <div className="max-w-lg">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <span className="editorial-tag">{project.category}</span>
-            <span className="editorial-tag tabular-nums">
+            <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-gold">{project.category}</span>
+            <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-gold tabular-nums">
               [ {project.duration} ]
             </span>
           </div>
@@ -96,11 +96,11 @@ function TunnelOverlay({
           <button
             type="button"
             onClick={onPlay}
-            className="editorial-cta group"
+            className="btn-ghost-dark group"
           >
             Play film
             <span className="ml-2 inline-block transition-transform duration-500 group-hover:translate-x-1">
-              ΓåÆ
+              →
             </span>
           </button>
         </div>
@@ -118,6 +118,27 @@ export function SelectedWork() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [proximity, setProximity] = useState(1);
   const [activeYoutubeId, setActiveYoutubeId] = useState<string | null>(null);
+  // Don't create the WebGL context (or download three.js) until the section is near
+  const [mountScene, setMountScene] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === "undefined") {
+      setMountScene(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setMountScene(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "100% 0px" }
+    );
+    io.observe(section);
+    return () => io.disconnect();
+  }, []);
 
   const onActiveChange = useCallback((index: number, prox: number) => {
     setActiveIndex(index);
@@ -195,28 +216,30 @@ export function SelectedWork() {
     <section
       id="work"
       ref={sectionRef}
-      className="relative scroll-mt-[var(--nav-height)] touch-pan-y symphony-void"
+      className="relative scroll-mt-[var(--nav-height)] touch-pan-y bg-night"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
       <div
         ref={pinRef}
-        className="relative h-svh min-h-[100svh] w-full touch-pan-y overflow-hidden bg-ink gpu-accelerate"
+        className="relative h-svh min-h-[100svh] w-full touch-pan-y overflow-hidden bg-night gpu"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
-        <WorksTunnelCanvasClient
-          projects={selectedWork}
-          progressRef={progressRef}
-          onActiveChange={onActiveChange}
-          onSelect={onSelect}
-          apiRef={apiRef}
-        />
+        {mountScene && (
+          <WorksTunnelCanvasClient
+            projects={selectedWork}
+            progressRef={progressRef}
+            onActiveChange={onActiveChange}
+            onSelect={onSelect}
+            apiRef={apiRef}
+          />
+        )}
 
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-40 bg-gradient-to-b from-ink via-ink/50 to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-40 bg-gradient-to-b from-night via-night/50 to-transparent"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-48 bg-gradient-to-t from-ink via-ink/60 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-64 bg-gradient-to-t from-night via-night/75 to-transparent"
           aria-hidden="true"
         />
 
