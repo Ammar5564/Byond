@@ -22,7 +22,7 @@ const spySections = [
   "contact",
 ];
 /** Sections with a dark background: the nav switches to its light-on-dark look. */
-const darkSections = ["capabilities", "site-footer"];
+const darkSections = ["hero", "capabilities", "site-footer"];
 
 type NavTheme = "light" | "dark";
 
@@ -142,7 +142,7 @@ export function Navigation() {
       : "bg-transparent border-transparent";
 
   const pillTone = dark
-    ? "border-white/10 bg-white/5"
+    ? "border-white/10 bg-night/70"
     : "border-ink/10 bg-white/70";
 
   const effectiveDark = dark && !menuOpen;
