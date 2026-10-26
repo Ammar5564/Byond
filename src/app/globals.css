@@ -17,6 +17,8 @@
     --c-gold: 176 141 87; /* #B08D57 fine details, text on dark */
     --c-gold-deep: 122 92 43; /* #7A5C2B gold text on light backgrounds (AA) */
     --c-night: 23 10 14; /* #170A0E deliberate dark bands */
+    --c-night-lift: 40 16 24; /* #281018 hero base, a notch lighter than night */
+    --c-rose: 205 84 104; /* #CD5468 frame accent on dark */
     --c-crimson: 139 0 0; /* #8B0000 hero glow only */
     --c-snow: 251 251 251;
     --c-champagne: 229 221 203;
@@ -116,9 +118,9 @@
   .hero-glow {
     inset: -25%;
     background:
-      radial-gradient(38% 30% at 50% 50%, rgb(var(--c-crimson) / 0.34) 0%, transparent 70%),
-      radial-gradient(34% 28% at 14% 22%, rgb(var(--c-burgundy) / 0.7) 0%, transparent 70%),
-      radial-gradient(36% 30% at 88% 82%, rgb(var(--c-wine) / 0.55) 0%, transparent 70%);
+      radial-gradient(46% 36% at 50% 50%, rgb(var(--c-crimson) / 0.5) 0%, transparent 70%),
+      radial-gradient(42% 34% at 14% 22%, rgb(var(--c-burgundy) / 0.95) 0%, transparent 70%),
+      radial-gradient(44% 36% at 88% 82%, rgb(var(--c-wine) / 0.75) 0%, transparent 70%);
     animation: heroGlow 24s ease-in-out infinite alternate;
     will-change: transform;
   }
@@ -128,6 +130,28 @@
     }
     100% {
       transform: translate3d(2%, 2%, 0) scale(1.08);
+    }
+  }
+
+  /* Hero card width: phone min(vw, px) -> tablet px -> laptop u*k (u = min(1vw, 1.6svh)) */
+  .hero-card {
+    --w: min(var(--vw), var(--px), var(--cap, 9999px));
+    width: var(--w);
+  }
+  .hero-card-r {
+    right: var(--r);
+  }
+  @media (min-width: 768px) {
+    .hero-card {
+      --w: min(var(--md), var(--cap, 9999px));
+    }
+  }
+  @media (min-width: 1024px) {
+    .hero-card {
+      --w: calc(min(1vw, 1.6svh) * var(--k));
+    }
+    .hero-card-r {
+      right: var(--rlg);
     }
   }
 
@@ -193,11 +217,6 @@
     }
   }
 
-  @media (max-height: 700px) {
-    .hero-slot-interiors {
-      display: none;
-    }
-  }
 
   /* Soft edge fade for horizontal marquees */
   .marquee-mask {

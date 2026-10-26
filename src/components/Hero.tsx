@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { HeroFloatingCards, HeroPile } from "./HeroFloatingCards";
+import { HeroCards } from "./HeroFloatingCards";
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -67,17 +67,12 @@ export function Hero() {
     <section
       id="hero"
       ref={heroRef}
-      className="relative isolate grid h-[100svh] min-h-[600px] grid-rows-[1fr_auto_1fr] overflow-hidden bg-night text-champagne lg:block"
+      className="relative isolate h-[100svh] min-h-[600px] overflow-hidden bg-night-lift text-champagne"
     >
       {/* Static crimson atmosphere — pure CSS, identical on phone and laptop */}
       <div className="hero-glow pointer-events-none absolute -z-10" aria-hidden="true" />
 
-      <div className="hidden lg:block">
-        <HeroFloatingCards />
-      </div>
-
-      {/* phone / tablet: pile above the text … */}
-      <HeroPile edge="top" />
+      <HeroCards />
 
       {/* keeps the logo / menu legible when a photo slides under the nav */}
       <div
@@ -85,7 +80,7 @@ export function Hero() {
         aria-hidden="true"
       />
 
-      <div className="pointer-events-none relative z-20 flex items-center justify-center px-5 py-4 sm:px-8 lg:absolute lg:inset-0 lg:py-0 lg:pt-[var(--nav-height)]">
+      <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-5 sm:px-8 lg:pt-[var(--nav-height)]">
         <div className="flex flex-col items-center text-center lg:max-w-[60rem]">
           <p className="eyebrow text-champagne/75">Strategy, cinema &amp; digital craft</p>
 
@@ -113,8 +108,6 @@ export function Hero() {
         </div>
       </div>
 
-      {/* … and the second pile below it */}
-      <HeroPile edge="bottom" />
     </section>
   );
 }

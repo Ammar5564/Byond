@@ -26,6 +26,8 @@ const config: Config = {
         gold: token("gold"), // fine details / text on dark
         "gold-deep": token("gold-deep"), // gold text on light backgrounds
         night: token("night"), // the few deliberate dark bands
+        "night-lift": token("night-lift"), // hero base
+        rose: token("rose"), // frame accent on dark
         snow: token("snow"),
         champagne: token("champagne"),
       },
