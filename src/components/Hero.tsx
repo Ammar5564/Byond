@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { HeroFloatingCards, HeroStack } from "./HeroFloatingCards";
+import { HeroFloatingCards, HeroPile } from "./HeroFloatingCards";
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -38,11 +38,36 @@ export function Hero() {
     };
   }, []);
 
+  // Depth-of-field scroll parallax (phone + laptop): one passive listener writes a single
+  // CSS var (0 → 1 while the hero scrolls away); each photo moves by its own depth.
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const h = el.offsetHeight || 1;
+      const p = Math.min(1, Math.max(0, window.scrollY / h));
+      el.style.setProperty("--sy", p.toFixed(4));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <section
       id="hero"
       ref={heroRef}
-      className="relative isolate h-[100svh] min-h-[600px] overflow-hidden bg-night text-champagne"
+      className="relative isolate grid h-[100svh] min-h-[600px] grid-rows-[1fr_auto_1fr] overflow-hidden bg-night text-champagne lg:block"
     >
       {/* Static crimson atmosphere — pure CSS, identical on phone and laptop */}
       <div className="hero-glow pointer-events-none absolute -z-10" aria-hidden="true" />
@@ -50,9 +75,9 @@ export function Hero() {
       <div className="hidden lg:block">
         <HeroFloatingCards />
       </div>
-      <div className="lg:hidden">
-        <HeroStack />
-      </div>
+
+      {/* phone / tablet: pile above the text … */}
+      <HeroPile edge="top" />
 
       {/* keeps the logo / menu legible when a photo slides under the nav */}
       <div
@@ -60,7 +85,7 @@ export function Hero() {
         aria-hidden="true"
       />
 
-      <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-5 sm:px-8 lg:pt-[var(--nav-height)]">
+      <div className="pointer-events-none relative z-20 flex items-center justify-center px-5 py-4 sm:px-8 lg:absolute lg:inset-0 lg:py-0 lg:pt-[var(--nav-height)]">
         <div className="flex flex-col items-center text-center lg:max-w-[60rem]">
           <p className="eyebrow text-champagne/75">Strategy, cinema &amp; digital craft</p>
 
@@ -87,6 +112,9 @@ export function Hero() {
           </div>
         </div>
       </div>
+
+      {/* … and the second pile below it */}
+      <HeroPile edge="bottom" />
     </section>
   );
 }

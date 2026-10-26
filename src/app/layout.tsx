@@ -39,6 +39,9 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: "#FAF6F1",
+  // The site is designed light. "only light" stops phone browsers (Samsung Internet / Chrome
+  // "dark mode for websites") from auto-inverting the colours, so mobile matches the laptop.
+  colorScheme: "only light",
 };
 
 export default function RootLayout({

@@ -25,6 +25,7 @@
   }
 
   html {
+    color-scheme: only light; /* never auto-invert on phones (see layout.tsx) */
     scroll-behavior: auto;
     scroll-padding-top: var(--nav-height);
     overflow-x: hidden;
@@ -139,17 +140,30 @@
       0
     );
   }
+  /* scroll depth parallax: --sy goes 0 → 1 while the hero scrolls away (set in Hero.tsx) */
+  .hero-card-scroll {
+    transform: translate3d(0, calc(var(--sy, 0) * var(--depth, 0.5) * -90px), 0);
+    will-change: transform;
+  }
+  /* organic idle float: drifts on x and y and sways a little, each photo on its own clock */
   .hero-card-inner {
-    animation: heroFloat var(--dur, 9s) ease-in-out var(--delay, 0s) infinite;
+    animation: heroFloat var(--dur, 10s) ease-in-out var(--delay, 0s) infinite;
     transform: rotate(var(--rot, 0deg));
+    will-change: transform;
   }
   @keyframes heroFloat {
     0%,
     100% {
       transform: translate3d(0, 0, 0) rotate(var(--rot, 0deg));
     }
+    25% {
+      transform: translate3d(6px, -12px, 0) rotate(calc(var(--rot, 0deg) + 1.2deg));
+    }
     50% {
-      transform: translate3d(0, -14px, 0) rotate(calc(var(--rot, 0deg) + 1.2deg));
+      transform: translate3d(-4px, -18px, 0) rotate(calc(var(--rot, 0deg) - 0.8deg));
+    }
+    75% {
+      transform: translate3d(-7px, -8px, 0) rotate(calc(var(--rot, 0deg) + 0.6deg));
     }
   }
 
@@ -224,6 +238,7 @@
     transition: none;
   }
   .hero-card-inner,
+  .hero-card-scroll,
   .hero-glow,
   .play-pulse,
   .marquee-track {
