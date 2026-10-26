@@ -22,7 +22,7 @@ const spySections = [
   "contact",
 ];
 /** Sections with a dark background: the nav switches to its light-on-dark look. */
-const darkSections = ["work", "site-footer"];
+const darkSections = ["capabilities", "site-footer"];
 
 type NavTheme = "light" | "dark";
 

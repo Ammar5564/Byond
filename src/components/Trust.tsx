@@ -140,7 +140,7 @@ function LogoRow({
               alt={i >= brands.length ? "" : brand.name}
               fill
               sizes="208px"
-              className="object-contain p-5 opacity-80 grayscale transition duration-500 hover:opacity-100 hover:grayscale-0"
+              className="object-contain p-5"
               draggable={false}
             />
           </div>

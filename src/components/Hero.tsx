@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { HeroFloatingCards, HeroMarquee } from "./HeroFloatingCards";
+import { HeroCollage, HeroFloatingCards } from "./HeroFloatingCards";
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -85,7 +85,7 @@ export function Hero() {
       </div>
 
       <div className="pb-14 pt-4 sm:pb-16 xl:hidden">
-        <HeroMarquee />
+        <HeroCollage />
       </div>
     </section>
   );

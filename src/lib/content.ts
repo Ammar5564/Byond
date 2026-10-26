@@ -47,16 +47,6 @@ export type Capability = {
 export const capabilities: Capability[] = [
   {
     index: "01",
-    title: "Advertising",
-    code: "AD",
-    description:
-      "Campaigns with a point of view — ideas that make a product desired and a brand impossible to forget.",
-    image: "/services/advertising.webp",
-    imageAlt:
-      "Gloved hand placing a luxury skincare tube on a chessboard against deep red velvet",
-  },
-  {
-    index: "02",
     title: "Digital Solutions",
     code: "DS",
     description:
@@ -66,7 +56,7 @@ export const capabilities: Capability[] = [
       "Hands on a laptop with glowing red holographic dashboards floating above it",
   },
   {
-    index: "03",
+    index: "02",
     title: "Performance Marketing",
     code: "PM",
     description:
@@ -76,7 +66,7 @@ export const capabilities: Capability[] = [
       "Marketer at a laptop with streams of red light flowing into revenue and conversion metrics",
   },
   {
-    index: "04",
+    index: "03",
     title: "Personal Branding",
     code: "PB",
     description:
@@ -86,7 +76,7 @@ export const capabilities: Capability[] = [
       "Man in a white suit standing still while a blurred crowd moves around him",
   },
   {
-    index: "05",
+    index: "04",
     title: "Business Consultation",
     code: "BC",
     description:
@@ -96,7 +86,7 @@ export const capabilities: Capability[] = [
       "Two executives in discussion across a polished boardroom table with a city skyline behind",
   },
   {
-    index: "06",
+    index: "05",
     title: "Video Production",
     code: "VP",
     description:

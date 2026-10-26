@@ -26,7 +26,6 @@ HERO = {
     "real estate_39_19 PM.png": "real-estate",
 }
 SERVICES = {
-    "Advertising.png": "advertising",
     "Digital solutions.jpg": "digital-solutions",
     "Performance marketing.png": "performance-marketing",
     "Personal branding-3AD7E4C21026.png": "personal-branding",
