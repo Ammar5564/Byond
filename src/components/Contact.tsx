@@ -6,7 +6,7 @@ import { Reveal } from "./Reveal";
 import { siteConfig } from "@/lib/content";
 
 const fieldBase =
-  "w-full rounded-none border-0 border-b border-ink/20 bg-transparent py-3 font-sans text-base text-ink outline-none transition-colors duration-300 placeholder:text-ink-soft/80 focus:border-burgundy focus-visible:outline-none md:text-sm";
+  "w-full rounded-none border-0 border-b border-ink/20 bg-transparent py-4 font-sans text-lg text-ink outline-none transition-colors duration-300 placeholder:text-ink-soft/80 focus:border-burgundy focus-visible:outline-none md:py-5 md:text-xl";
 
 const fieldError = "!border-wine placeholder:text-wine/50";
 
@@ -52,7 +52,7 @@ export function Contact() {
       className="relative scroll-mt-[var(--nav-height)] bg-ivory"
     >
       <div className="page-shell py-24 md:py-36">
-        <div className="grid gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-24">
+        <div className="grid gap-14 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:gap-20">
           <Reveal>
             <div>
               <p className="eyebrow">Begin</p>
@@ -80,7 +80,7 @@ export function Contact() {
 
           <Reveal delay={0.12}>
             {submitted ? (
-              <div className="flex min-h-[320px] flex-col items-start justify-center rounded-3xl border border-sand bg-white p-8 shadow-[0_40px_80px_-50px_rgba(60,10,25,0.5)] md:p-12">
+              <div className="flex min-h-[480px] flex-col items-start justify-center rounded-3xl border border-sand bg-white p-8 shadow-[0_40px_80px_-50px_rgba(60,10,25,0.5)] md:p-14 lg:p-16">
                 <span className="font-display text-4xl text-burgundy">
                   Thank you.
                 </span>
@@ -92,12 +92,12 @@ export function Contact() {
               <form
                 onSubmit={handleSubmit}
                 noValidate
-                className="space-y-8 rounded-3xl border border-sand bg-white p-6 shadow-[0_40px_80px_-50px_rgba(60,10,25,0.5)] sm:p-9 md:p-12"
+                className="space-y-10 rounded-3xl border border-sand bg-white p-7 shadow-[0_40px_80px_-50px_rgba(60,10,25,0.5)] sm:p-10 md:space-y-12 md:p-14 lg:p-16"
               >
                 <div>
                   <label
                     htmlFor="name"
-                    className="mb-1 block font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-ink-soft"
+                    className="mb-1 block font-sans text-[12px] font-medium uppercase tracking-[0.22em] text-ink-soft"
                   >
                     Name
                   </label>
@@ -120,7 +120,7 @@ export function Contact() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="mb-1 block font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-ink-soft"
+                    className="mb-1 block font-sans text-[12px] font-medium uppercase tracking-[0.22em] text-ink-soft"
                   >
                     Email
                   </label>
@@ -144,14 +144,14 @@ export function Contact() {
                 <div>
                   <label
                     htmlFor="message"
-                    className="mb-1 block font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-ink-soft"
+                    className="mb-1 block font-sans text-[12px] font-medium uppercase tracking-[0.22em] text-ink-soft"
                   >
                     Message
                   </label>
                   <textarea
                     id="message"
                     name="message"
-                    rows={4}
+                    rows={6}
                     aria-invalid={!!errors.message}
                     aria-describedby={errors.message ? "message-error" : undefined}
                     className={`${fieldBase} resize-none ${
@@ -169,7 +169,7 @@ export function Contact() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-primary w-full sm:w-auto disabled:cursor-wait disabled:opacity-70"
+                  className="btn-primary w-full px-10 py-5 text-[13px] sm:w-auto disabled:cursor-wait disabled:opacity-70"
                 >
                   {loading && (
                     <span

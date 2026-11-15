@@ -63,6 +63,22 @@ export function Hero() {
     };
   }, []);
 
+  // Tell the photos how tall the text block is (phone / tablet cap their height with it).
+  const textRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const hero = heroRef.current;
+    const text = textRef.current;
+    if (!hero || !text) return;
+    const apply = () => {
+      const h = text.getBoundingClientRect().height;
+      hero.style.setProperty("--text-half", `${Math.round(h / 2 + 14)}px`);
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(text);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <section
       id="hero"
@@ -81,20 +97,21 @@ export function Hero() {
       />
 
       <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-5 sm:px-8 lg:pt-[var(--nav-height)]">
-        <div className="flex flex-col items-center text-center lg:max-w-[60rem]">
-          <p className="eyebrow text-champagne/75">Strategy, cinema &amp; digital craft</p>
+        <div ref={textRef} className="flex flex-col items-center text-center lg:max-w-[60rem]">
+          <p className="hero-eyebrow eyebrow text-champagne/75">Strategy, cinema &amp; digital craft</p>
 
           <h1 className="mt-4 font-sans text-[clamp(2.4rem,11.5vw,3.6rem)] font-extrabold uppercase leading-[0.92] tracking-[-0.04em] text-snow sm:text-6xl lg:mt-5 lg:whitespace-nowrap lg:text-[clamp(3.5rem,6.4vw,8rem)]">
             Byond Media
           </h1>
 
-          <p className="mt-3 font-accent text-3xl leading-none text-champagne sm:text-4xl lg:mt-3 lg:text-5xl">
-            Born in Cairo
+          <p className="mt-3 max-w-[22ch] font-accent text-[clamp(1.75rem,7.4vw,2.25rem)] leading-[1.05] text-champagne text-balance sm:max-w-none sm:text-4xl lg:mt-3 lg:whitespace-nowrap lg:text-[clamp(2rem,2.7vw,3.2rem)]">
+            From the Middle East, Beyond Borders
           </p>
 
-          <p className="hero-lead mt-6 max-w-md font-sans text-sm leading-relaxed text-champagne/75 max-md:hidden md:text-base">
-            A Cairo-born studio crafting narratives that outlive the moment — for
-            the brands building what comes next.
+          <p className="mt-4 max-w-[34ch] font-sans text-[13px] leading-relaxed text-champagne/80 sm:max-w-md sm:text-[15px] md:max-w-xl md:text-base lg:mt-5 text-balance lg:max-w-[min(34rem,40vw)] lg:text-[15px] xl:text-base">
+            A leading media and creative company in the Middle East, building
+            brands, shaping narratives, and creating content that moves
+            businesses forward.
           </p>
 
           <div className="pointer-events-auto mt-6 flex flex-row items-center justify-center gap-3 md:mt-8">

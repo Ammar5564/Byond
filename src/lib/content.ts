@@ -15,23 +15,23 @@ export const siteConfig = {
 export const principles = [
   {
     index: "01",
-    title: "Narrative",
-    text: "Brands are stories people believe — we build the ones that stay.",
+    title: "Strategy",
+    text: "Every successful brand starts with a clear vision. We define its positioning, audience, and direction, turning business objectives into a focused strategy for growth.",
   },
   {
     index: "02",
-    title: "Strategy",
-    text: "Context first. Then craft that lands — not noise dressed as creativity.",
+    title: "Identity",
+    text: "We shape distinctive brand identities through visual direction, storytelling, and a consistent voice that makes brands recognizable and memorable.",
   },
   {
     index: "03",
-    title: "Craft",
-    text: "Cinema and digital held to the same standard — spirit, not spectacle.",
+    title: "Content",
+    text: "From the first concept to the final frame, we create compelling content through creative thinking, strategic storytelling, and high-quality production.",
   },
   {
     index: "04",
-    title: "Partnership",
-    text: "Built to endure locally and thrive globally — not one-time assignments.",
+    title: "Growth",
+    text: "We turn strategy into momentum through digital presence, social media management, and meaningful audience connections that drive long-term brand growth.",
   },
 ];
 

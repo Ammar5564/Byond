@@ -90,9 +90,9 @@ export function HeroCards() {
           opacity: c.opacity ?? 1,
         };
         if (c.capped) {
-          // height available between the screen edge and the headline block (≈ 124px either side of centre)
+          // height available between the screen edge and the headline block (half the text block + margin, `--text-half` set by Hero.tsx)
           const edge = c.top ?? c.bottom ?? 0;
-          (style as Record<string, string>)["--cap"] = `calc((${50 - edge}svh - 124px) * ${c.ratio})`;
+          (style as Record<string, string>)["--cap"] = `calc((${50 - edge}svh - var(--text-half, 124px)) * ${c.ratio})`;
         }
         if (c.left !== undefined) style.left = `${c.left}%`;
         if (c.right !== undefined) {

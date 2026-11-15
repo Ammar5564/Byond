@@ -210,13 +210,19 @@
     }
   }
 
-  /* On short desktop windows the lead paragraph would collide with the photos */
-  @media (min-width: 1024px) and (max-height: 820px), (max-width: 1279px) {
-    .hero-lead {
-      display: none;
+  /* Very short laptop windows: smaller photos so the (taller) text block stays clear */
+  @media (min-width: 1024px) and (max-height: 700px) {
+    .hero-card {
+      --w: calc(min(1vw, 1.6svh) * var(--k) * 0.82);
     }
   }
 
+  /* Very short laptop windows: drop the eyebrow so the headline block stays clear of the photos */
+  @media (min-width: 1024px) and (max-height: 700px) {
+    .hero-eyebrow {
+      display: none;
+    }
+  }
 
   /* Soft edge fade for horizontal marquees */
   .marquee-mask {

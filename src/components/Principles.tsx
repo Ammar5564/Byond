@@ -3,13 +3,6 @@
 import { principles } from "@/lib/content";
 import { Reveal } from "./Reveal";
 
-const displayTitles: Record<string, string> = {
-  Narrative: "Focus",
-  Strategy: "Listening",
-  Craft: "Craft",
-  Partnership: "Partnership",
-};
-
 /**
  * "How we think" — a calm editorial list. The old version pinned the screen for
  * 300vh and ran a WebGL shader behind it; this one scrolls like normal content.
@@ -25,9 +18,11 @@ export function Principles() {
           <div className="lg:sticky lg:top-[calc(var(--nav-height)+3rem)] lg:self-start">
             <Reveal>
               <p className="eyebrow">How we think</p>
-              <h2 className="display-heading mt-5 text-[clamp(2.1rem,4.6vw,3.5rem)]">
-                Building brands that endure isn&apos;t magic —{" "}
-                <span className="italic text-burgundy">it requires:</span>
+              <h2 className="display-heading mt-5 text-[clamp(1.9rem,3.6vw,3rem)]">
+                Building a brand takes more than visibility.{" "}
+                <span className="italic text-burgundy">
+                  It takes intention, strategy, and execution.
+                </span>
               </h2>
             </Reveal>
           </div>
@@ -42,9 +37,9 @@ export function Principles() {
                     </span>
                     <div className="min-w-0">
                       <h3 className="font-display text-[clamp(2.2rem,5.2vw,4rem)] leading-[1] tracking-tight text-ink transition-colors duration-500 group-hover:text-burgundy">
-                        {displayTitles[item.title] ?? item.title}
+                        {item.title}
                       </h3>
-                      <p className="mt-4 max-w-lg font-sans text-base leading-relaxed text-ink-soft">
+                      <p className="mt-4 max-w-xl font-sans text-base leading-relaxed text-ink-soft">
                         {item.text}
                       </p>
                     </div>
