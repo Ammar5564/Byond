@@ -104,11 +104,7 @@ export function Hero() {
             Byond Media
           </h1>
 
-          <p className="mt-3 whitespace-nowrap font-display text-[clamp(0.95rem,4.6vw,1.3rem)] font-normal italic leading-[1.2] tracking-[0.01em] text-champagne sm:mt-4 sm:text-3xl lg:mt-4 lg:text-[clamp(1.6rem,2.25vw,2.8rem)]">
-            Born in Egypt. Expanding Across the World.
-          </p>
-
-          <p className="mt-2.5 max-w-[36ch] font-sans text-[12.5px] leading-[1.55] text-champagne/70 text-balance sm:mt-4 sm:max-w-sm sm:text-[15px] sm:leading-relaxed sm:text-champagne/80 md:max-w-md md:text-base lg:mt-5 lg:text-[15px] xl:text-base">
+          <p className="mt-4 max-w-[34ch] font-sans text-[13px] font-medium uppercase leading-[1.7] tracking-[0.12em] text-champagne/80 text-balance sm:mt-5 sm:max-w-md sm:text-[14px] sm:tracking-[0.14em] md:max-w-xl md:text-[15px] lg:mt-6 lg:max-w-[min(36rem,42vw)]">
             A media and creative company building brands and content across the
             Middle East.
           </p>
