@@ -112,21 +112,21 @@ export type WorkItem = {
 export const selectedWork: WorkItem[] = [
   {
     id: "01",
-    title: "PGESCO Video",
-    client: "PGESCO",
-    category: "BRAND FILM",
-    youtubeId: "ZsMYbdpliQE",
-    duration: "09:50",
-    thumbnail: "https://img.youtube.com/vi/ZsMYbdpliQE/hqdefault.jpg",
-  },
-  {
-    id: "02",
     title: "Hassan Allam Academy",
     client: "Hassan Allam",
     category: "CORPORATE",
     youtubeId: "MavqDosrHV8",
     duration: "03:11",
     thumbnail: "https://img.youtube.com/vi/MavqDosrHV8/hqdefault.jpg",
+  },
+  {
+    id: "02",
+    title: "Jotun Factory - Egypt",
+    client: "Jotun",
+    category: "INDUSTRIAL",
+    youtubeId: "OTM-4qm5ljk",
+    duration: "01:18",
+    thumbnail: "https://img.youtube.com/vi/OTM-4qm5ljk/hqdefault.jpg",
   },
   {
     id: "03",
@@ -148,21 +148,21 @@ export const selectedWork: WorkItem[] = [
   },
   {
     id: "05",
+    title: "PGESCO Video",
+    client: "PGESCO",
+    category: "BRAND FILM",
+    youtubeId: "ZsMYbdpliQE",
+    duration: "09:50",
+    thumbnail: "https://img.youtube.com/vi/ZsMYbdpliQE/hqdefault.jpg",
+  },
+  {
+    id: "06",
     title: "Menassat Commercial",
     client: "Menassat",
     category: "COMMERCIAL",
     youtubeId: "mpRjRP7kbUU",
     duration: "01:56",
     thumbnail: "https://img.youtube.com/vi/mpRjRP7kbUU/hqdefault.jpg",
-  },
-  {
-    id: "06",
-    title: "Jotun Factory - Egypt",
-    client: "Jotun",
-    category: "INDUSTRIAL",
-    youtubeId: "OTM-4qm5ljk",
-    duration: "01:18",
-    thumbnail: "https://img.youtube.com/vi/OTM-4qm5ljk/hqdefault.jpg",
   },
 ];
 
