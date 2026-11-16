@@ -104,16 +104,16 @@ export function Hero() {
             Byond Media
           </h1>
 
-          <p className="mt-4 max-w-[19ch] font-display text-[clamp(1.6rem,6.6vw,2rem)] font-normal italic leading-[1.2] tracking-[0.01em] text-champagne text-balance sm:max-w-none sm:text-3xl lg:mt-4 lg:whitespace-nowrap lg:text-[clamp(1.6rem,2.25vw,2.8rem)]">
+          <p className="mt-3 whitespace-nowrap font-display text-[clamp(0.95rem,4.6vw,1.3rem)] font-normal italic leading-[1.2] tracking-[0.01em] text-champagne sm:mt-4 sm:text-3xl lg:mt-4 lg:text-[clamp(1.6rem,2.25vw,2.8rem)]">
             Born in Egypt. Expanding Across the World.
           </p>
 
-          <p className="mt-4 max-w-[30ch] font-sans text-[13px] leading-relaxed text-champagne/80 text-balance sm:max-w-sm sm:text-[15px] md:max-w-md md:text-base lg:mt-5 lg:text-[15px] xl:text-base">
+          <p className="mt-2.5 max-w-[36ch] font-sans text-[12.5px] leading-[1.55] text-champagne/70 text-balance sm:mt-4 sm:max-w-sm sm:text-[15px] sm:leading-relaxed sm:text-champagne/80 md:max-w-md md:text-base lg:mt-5 lg:text-[15px] xl:text-base">
             A media and creative company building brands and content across the
             Middle East.
           </p>
 
-          <div className="pointer-events-auto mt-6 flex flex-row items-center justify-center gap-3 md:mt-8">
+          <div className="pointer-events-auto mt-5 flex flex-row items-center justify-center gap-3 md:mt-8">
             <a href="#work" className="btn-light whitespace-nowrap px-5 py-3 text-[11px] tracking-[0.14em] md:px-7 md:py-3.5 md:text-[12px] md:tracking-[0.18em]">
               View our work
             </a>
