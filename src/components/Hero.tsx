@@ -100,18 +100,17 @@ export function Hero() {
         <div ref={textRef} className="flex flex-col items-center text-center lg:max-w-[60rem]">
           <p className="hero-eyebrow eyebrow text-champagne/75">Strategy, cinema &amp; digital craft</p>
 
-          <h1 className="mt-4 font-sans text-[clamp(2.4rem,11.5vw,3.6rem)] font-extrabold uppercase leading-[0.92] tracking-[-0.04em] text-snow sm:text-6xl lg:mt-5 lg:whitespace-nowrap lg:text-[clamp(3.5rem,6.4vw,8rem)]">
+          <h1 className="mt-4 font-sans text-[clamp(2.4rem,11.5vw,3.6rem)] font-bold uppercase leading-[0.95] tracking-[0.02em] text-snow sm:text-6xl lg:mt-5 lg:whitespace-nowrap lg:text-[clamp(3.25rem,5.9vw,7.5rem)]">
             Byond Media
           </h1>
 
-          <p className="mt-3 max-w-[22ch] font-accent text-[clamp(1.75rem,7.4vw,2.25rem)] leading-[1.05] text-champagne text-balance sm:max-w-none sm:text-4xl lg:mt-3 lg:whitespace-nowrap lg:text-[clamp(2rem,2.7vw,3.2rem)]">
-            From the Middle East, Beyond Borders
+          <p className="mt-4 max-w-[19ch] font-display text-[clamp(1.6rem,6.6vw,2rem)] font-normal italic leading-[1.2] tracking-[0.01em] text-champagne text-balance sm:max-w-none sm:text-3xl lg:mt-4 lg:whitespace-nowrap lg:text-[clamp(1.6rem,2.25vw,2.8rem)]">
+            Born in Egypt. Expanding Across the World.
           </p>
 
-          <p className="mt-4 max-w-[34ch] font-sans text-[13px] leading-relaxed text-champagne/80 sm:max-w-md sm:text-[15px] md:max-w-xl md:text-base lg:mt-5 text-balance lg:max-w-[min(34rem,40vw)] lg:text-[15px] xl:text-base">
-            A leading media and creative company in the Middle East, building
-            brands, shaping narratives, and creating content that moves
-            businesses forward.
+          <p className="mt-4 max-w-[30ch] font-sans text-[13px] leading-relaxed text-champagne/80 text-balance sm:max-w-sm sm:text-[15px] md:max-w-md md:text-base lg:mt-5 lg:text-[15px] xl:text-base">
+            A media and creative company building brands and content across the
+            Middle East.
           </p>
 
           <div className="pointer-events-auto mt-6 flex flex-row items-center justify-center gap-3 md:mt-8">
